@@ -1,0 +1,122 @@
+datasource db {
+  url      = env("DB_URL")
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum AccountEnum {
+  REVIEWED
+  ACCEPTED
+  REJECTED
+  DELETED
+}
+
+enum Roles {
+  ADMIN
+  NORMAL
+  COMPANION
+}
+
+enum BookingUnitEnum {
+  PERHOUR
+  PERMINUTE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum BookingStatus {
+  ACCEPTED
+  UNDERREVIEW
+  COMPLETED
+  REJECTED
+}
+
+enum TransactionStatus {
+  COMPLETED
+  UNDERPROCESSED
+  DECLINED
+}
+
+model location {
+  id        Int      @id @default(autoincrement())
+  userid    String   @unique
+  User      User     @relation(fields: [userid], references: [id])
+  city      String?
+  zipcode   Int?
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model User {
+  id           String         @id @default(uuid())
+  firstname    String
+  lastname     String
+  email        String         @unique
+  password     String
+  Images       String[]
+  isCompanion  Boolean        @default(false)
+  role         Roles          @default(NORMAL)
+  gender       Gender
+  createdAt    DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime       @default(now()) @db.Timestamptz(3)
+  Booking      Booking[]
+  Transactions Transactions[]
+  rating       rating[]
+  Companion    Companion[]
+  location     location[]
+}
+
+model Companion {
+  id              String      @id @default(uuid())
+  userid          String
+  User            User        @relation(fields: [userid], references: [id])
+  bookingrate     Int
+  bookingrateunit String
+  description     String
+  Skintone        String
+  account         AccountEnum @default(REVIEWED)
+  rejectedreason  String?
+}
+
+model Booking {
+  id                  Int            @id @default(autoincrement())
+  User                User[]
+  bookingdate         DateTime       @default(now()) @db.Timestamptz(3)
+  bookingduration     Int
+  bookingdurationUnit String
+  bookingstatus       BookingStatus  @default(UNDERREVIEW)
+  createdAt           DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime       @default(now()) @db.Timestamptz(3)
+  Transactions        Transactions[]
+}
+
+model Transactions {
+  id        Int               @id @default(autoincrement())
+  userid    String
+  User      User              @relation(fields: [userid], references: [id])
+  bookingid Int
+  Bookings  Booking           @relation(fields: [bookingid], references: [id])
+  status    TransactionStatus @default(UNDERPROCESSED)
+  amount    Int
+  createdAt DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime          @default(now()) @db.Timestamptz(3)
+}
+
+model rating {
+  id      String @id @default(uuid())
+  userid  String
+  User    User   @relation(fields: [userid], references: [id])
+  ratings Int
+}
+
+model ChatRoom {
+  id String @id @default(uuid())
+}
