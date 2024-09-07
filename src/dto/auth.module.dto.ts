@@ -12,10 +12,11 @@ export type registerBodyDto = {
   skintone?: string;
   gender: GenderEnum;
   city?: string;
-  zipcode?: number;
-  lat?: number;
-  lng?: number;
-  bookingrate?: number
+  zipcode?: string;
+  lat?: string;
+  lng?: string;
+  age: string;
+  bookingrate?: string
 };
 
 export interface returnRegisterUserDto extends errorDto {

@@ -20,6 +20,7 @@ export interface UpdateUserProfileBodyDto {
   lat?: number;
   lng?: number;
   bookingrate?: number;
+  age?: number
 }
 
 export interface UserProfileParamsDto{

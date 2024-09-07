@@ -65,6 +65,7 @@ model User {
   isCompanion  Boolean        @default(false)
   role         Roles          @default(NORMAL)
   gender       Gender
+  age          Int
   createdAt    DateTime       @default(now()) @db.Timestamptz(3)
   updatedAt    DateTime       @default(now()) @db.Timestamptz(3)
   Booking      Booking[]
@@ -72,6 +73,8 @@ model User {
   rating       rating[]
   Companion    Companion[]
   location     location[]
+  Chats        ChatRoom[]
+  message      message[]
 }
 
 model Companion {
@@ -87,15 +90,17 @@ model Companion {
 }
 
 model Booking {
-  id                  Int            @id @default(autoincrement())
+  id                  Int             @id @default(autoincrement())
   User                User[]
-  bookingdate         DateTime       @default(now()) @db.Timestamptz(3)
+  bookingstart        DateTime
+  bookingend          DateTime
   bookingduration     Int
-  bookingdurationUnit String
-  bookingstatus       BookingStatus  @default(UNDERREVIEW)
-  createdAt           DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime       @default(now()) @db.Timestamptz(3)
+  bookingdurationUnit BookingUnitEnum
+  bookingstatus       BookingStatus   @default(UNDERREVIEW)
+  createdAt           DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime        @default(now()) @db.Timestamptz(3)
   Transactions        Transactions[]
+  ChatRoom            ChatRoom[]
 }
 
 model Transactions {
@@ -118,5 +123,24 @@ model rating {
 }
 
 model ChatRoom {
-  id String @id @default(uuid())
+  id        String    @id @default(uuid())
+  bookingid Int
+  Bookings  Booking   @relation(fields: [bookingid], references: [id])
+  User      User[]
+  isHide    Boolean   @default(false)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @default(now()) @db.Timestamptz(3)
+  message   message[]
+}
+
+model message {
+  id         Int      @id @default(autoincrement())
+  senderid   String
+  User       User     @relation(fields: [senderid], references: [id])
+  chatroomid String
+  ChatRoom   ChatRoom @relation(fields: [chatroomid], references: [id])
+  body       String
+  isHide     Boolean  @default(false)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @default(now()) @db.Timestamptz(3)
 }

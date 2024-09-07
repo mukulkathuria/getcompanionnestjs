@@ -76,7 +76,7 @@ export class AuthService {
     }
   }
 
-  async registerUser(userinfo: registerBodyDto): Promise<successErrorDto> {
+  async registerUser(userinfo: registerBodyDto, images: Express.Multer.File[]): Promise<successErrorDto> {
     const { user, error } = validateregisterUser(userinfo);
     if (error) {
       return { error };
@@ -88,11 +88,12 @@ export class AuthService {
       if (isUserExists) {
         return { error: { status: 422, message: 'User already exists' } };
       }
+      const allimages = images.map((l) => l.destination + '/' + l.filename);
       const location = {
         city: user?.city,
-        zipcode: user?.zipcode,
-        lat: user?.lat,
-        lng: user?.lng,
+        zipcode: Number(user?.zipcode) || null,
+        lat: Number(user?.lat) || null,
+        lng: Number(user?.lng) || null,
       };
       const userdata = {
         firstname: user.firstname,
@@ -100,6 +101,8 @@ export class AuthService {
         email: user.email,
         password: encrypt(user.password),
         gender: user.gender,
+        age: Number(user.age),
+        Images: [...allimages],
         location: { create: location },
       };
       await this.prismaService.user.create({
@@ -116,7 +119,7 @@ export class AuthService {
     }
   }
 
-  async registerCompanion(userinfo: registerBodyDto): Promise<successErrorDto> {
+  async registerCompanion(userinfo: registerBodyDto, images: Express.Multer.File[]): Promise<successErrorDto> {
     const { user, error } = validateregisterUser(userinfo);
     if (error) {
       return { error };
@@ -128,11 +131,12 @@ export class AuthService {
       if (isUserExists) {
         return { error: { status: 422, message: 'User already exists' } };
       }
+      const allimages = images.map((l) => l.destination + '/' + l.filename);
       const location = {
         city: user?.city,
-        zipcode: user?.zipcode,
-        lat: user?.lat,
-        lng: user?.lng,
+        zipcode: Number(user?.zipcode) || null,
+        lat: Number(user?.lat) || null,
+        lng: Number(user?.lng) || null,
       };
       const userdata = {
         firstname: user.firstname,
@@ -140,11 +144,14 @@ export class AuthService {
         email: user.email,
         password: encrypt(user.password),
         gender: user.gender,
+        age: Number(user.age),
+        isCompanion: true,
+        Images: allimages,
         location: { create: location },
       };
       if (user.isCompanion) {
         const companion = {
-          bookingrate: user?.bookingrate,
+          bookingrate: Number(user?.bookingrate) || null,
           bookingrateunit: BookingRateUnitEnum.PERHOUR,
           description: user.description,
           Skintone: user.skintone,

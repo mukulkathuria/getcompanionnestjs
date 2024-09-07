@@ -14,13 +14,13 @@ import { GenderEnum } from 'src/dto/user.dto';
 export const validateregisterUser = (
   userinfo: registerBodyDto,
 ): returnRegisterUserDto => {
-  const { firstname, lastname, email, password, gender, isCompanion } =
+  const { firstname, lastname, email, password, gender, isCompanion, age } =
     userinfo;
   const location = {
     city: userinfo?.city && userinfo.city.trim(),
-    zipcode: userinfo?.zipcode,
-    lat: userinfo?.lat,
-    lng: userinfo?.lng,
+    zipcode: userinfo?.zipcode && userinfo?.zipcode.trim(),
+    lat: userinfo?.lat && userinfo.lat.trim(),
+    lng: userinfo?.lng && userinfo.lng.trim(),
   };
   const companion = {
     Skintone: userinfo?.skintone && userinfo?.skintone.trim(),
@@ -41,16 +41,14 @@ export const validateregisterUser = (
     return { error: { status: 422, message: 'Password is not valid' } };
   } else if (!gender || !gender.trim().length) {
     return { error: { status: 422, message: 'Gender is required' } };
+  } else if (!age || !age.trim().length) {
+    return { error: { status: 422, message: 'Age is required' } };
+  } else if (age && Number(age) < 18) {
+    return { error: { status: 422, message: 'Below 18 is not allowed' } };
   } else if (!GenderEnum[gender]) {
     return { error: { status: 422, message: 'Gender is not valid' } };
   } else if (!Object.values(location).some((l) => l)) {
     return { error: { status: 422, message: 'Location is required' } };
-  } else if (
-    (location.zipcode && typeof location.zipcode !== 'number') ||
-    (location.lat && typeof location.lat !== 'number') ||
-    (location.lng && typeof location.lng !== 'number')
-  ) {
-    return { error: { status: 422, message: 'User location is not valid' } };
   } else if (isCompanion && !companion.Skintone) {
     return {
       error: { status: 422, message: 'Companion skintone is required' },

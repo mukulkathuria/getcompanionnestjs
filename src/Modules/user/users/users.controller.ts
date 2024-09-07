@@ -46,7 +46,7 @@ export class DeleteUsersController {
   @UseInterceptors(
     FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
   )
-  async registerController(
+  async userupdateprofileController(
     @Param() id: UserProfileParamsDto,
     @Body() userinfo: UpdateUserProfileBodyDto,
     @UploadedFiles(new FileSizeValidationPipe())

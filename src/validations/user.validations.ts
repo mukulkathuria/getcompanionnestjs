@@ -15,6 +15,9 @@ export const isvalidUserinputs = (userinfo: UpdateUserProfileBodyDto) => {
       };
     }
   }
+  if (userinfo['age'] && typeof userinfo['age'] === 'number' && userinfo['age'] > 18) {
+    results['age'] = userinfo['age'];
+  }
   const location = ['zipcode', 'lat', 'lng'];
   let locationvalue = {};
   if (userinfo['city'] && userinfo['city'].trim().length) {
@@ -32,8 +35,8 @@ export const isvalidUserinputs = (userinfo: UpdateUserProfileBodyDto) => {
       };
     }
   }
-//   if (Object.values(locationvalue).length) {
-//     results = { ...results, location: { connectOrCreate: locationvalue } };
-//   }
+  //   if (Object.values(locationvalue).length) {
+  //     results = { ...results, location: { connectOrCreate: locationvalue } };
+  //   }
   return { userdata: results, locationdata: locationvalue };
 };

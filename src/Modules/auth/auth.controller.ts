@@ -30,6 +30,7 @@ import {
   UserImageMulterConfig,
   USERIMAGESMAXCOUNT,
 } from 'src/config/multer.config';
+import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
 
 @Controller('auth')
 export class AuthController {
@@ -42,10 +43,13 @@ export class AuthController {
   )
   async registerController(
     @Body() userinfo: registerBodyDto,
-    @UploadedFiles()
+    @UploadedFiles(new FileSizeValidationPipe())
     images: Express.Multer.File[],
   ): Promise<controllerReturnDto> {
-    const { success, error } = await this.authService.registerUser(userinfo);
+    const { success, error } = await this.authService.registerUser(
+      userinfo,
+      images,
+    );
     if (success) {
       return {
         success,
@@ -59,11 +63,18 @@ export class AuthController {
   @UseGuards(AdminGuard)
   @Post('registercompanion')
   @HttpCode(200)
+  @UseInterceptors(
+    FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
+  )
   async registerCompanionController(
     @Body() userinfo: registerBodyDto,
+    @UploadedFiles(new FileSizeValidationPipe())
+    images: Express.Multer.File[],
   ): Promise<controllerReturnDto> {
-    const { success, error } =
-      await this.authService.registerCompanion(userinfo);
+    const { success, error } = await this.authService.registerCompanion(
+      { ...userinfo, isCompanion: true },
+      images,
+    );
     if (success) {
       return {
         success,
