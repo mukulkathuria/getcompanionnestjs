@@ -60,7 +60,7 @@ export const validateregisterUser = (
   } else if (isCompanion && !companion.bookingrate) {
     return {
       error: { status: 422, message: 'Companion bookingrate is required' },
-    };
+    }; 
   }
   return { user: userinfo };
 };

@@ -3,7 +3,7 @@ export enum GenderEnum {
   FEMALE = 'FEMALE',
 }
 
-export enum BookingRateUnitEnum {
+export enum CompanionBookingUnitEnum {
   PERHOUR = 'PERHOUR',
   PERMINUTE = 'PERMINUTE',
 }

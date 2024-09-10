@@ -34,7 +34,7 @@ import {
   validateLoginUser,
   validateregisterUser,
 } from 'src/validations/auth.validation';
-import { BookingRateUnitEnum } from 'src/dto/user.dto';
+import { CompanionBookingUnitEnum } from 'src/dto/user.dto';
 // import axios from 'axios';
 
 @Injectable()
@@ -152,7 +152,7 @@ export class AuthService {
       if (user.isCompanion) {
         const companion = {
           bookingrate: Number(user?.bookingrate) || null,
-          bookingrateunit: BookingRateUnitEnum.PERHOUR,
+          bookingrateunit: CompanionBookingUnitEnum.PERHOUR,
           description: user.description,
           Skintone: user.skintone,
         };

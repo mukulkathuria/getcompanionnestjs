@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import dayjs from 'dayjs';
-import { userBookingBodyDto, UserBookingReturnDto } from 'src/dto/bookings.dto';
+import * as dayjs from 'dayjs';
+import { BookingDurationUnitEnum, userBookingBodyDto, UserBookingReturnDto } from 'src/dto/bookings.dto';
 import { PrismaService } from 'src/Services/prisma.service';
+import { getFinalRate } from 'src/utils/booking.utils';
+import { isUserBookingValid } from 'src/validations/booking.validation';
 
 @Injectable()
 export class UserBookingsService {
@@ -22,13 +24,12 @@ export class UserBookingsService {
 
   async bookaCompanion(bookingDetails: userBookingBodyDto) {
     try {
-      if (dayjs(bookingDetails.bookingdate).isBefore(dayjs())) {
-        return {
-          error: { status: 422, message: "You can't book on past date" },
-        };
+      const { error } = isUserBookingValid(bookingDetails);
+      if (error) {
+        return { error };
       }
       const hrmin =
-        bookingDetails.bookingdurationUnit === 'PERHOUR' ? 'hour' : 'minute';
+        bookingDetails.bookingdurationUnit === BookingDurationUnitEnum.HOUR ? 'hour' : 'minute';
       const endDate = dayjs(bookingDetails.bookingdate)
         .add(bookingDetails.bookingduration, hrmin)
         .toDate();
@@ -37,14 +38,19 @@ export class UserBookingsService {
         include: {
           Booking: {
             where: {
-              bookingstart: { lte: bookingDetails.bookingdate },
-              bookingend: { gte: endDate },
+              bookingstart: { lte: dayjs(bookingDetails.bookingdate).toDate() },
+              bookingend: { gt: dayjs(bookingDetails.bookingdate).toDate() }, // 6
             },
           },
+          Companion: true
         },
       });
       if (isSlotAvailable[0].Booking.length) {
         return { error: { status: 422, message: 'Slot not available' } };
+      }
+      const rates = {
+        bookingrate: isSlotAvailable[0].Companion[0].bookingrate,
+        finalRate: getFinalRate(bookingDetails, isSlotAvailable[0].Companion[0])
       }
       const data = await this.prismaService.booking.create({
         data: {
@@ -55,14 +61,16 @@ export class UserBookingsService {
             ],
           },
           bookingduration: bookingDetails.bookingduration,
-          bookingstart: bookingDetails.bookingdate,
+          bookingstart: dayjs(bookingDetails.bookingdate).toDate(),
           bookingend: endDate,
           bookingdurationUnit: bookingDetails.bookingdurationUnit,
+          ...rates
         },
       });
       return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);
+      console.log(error);
       return { error: { status: 500, message: 'Server error' } };
     }
   }

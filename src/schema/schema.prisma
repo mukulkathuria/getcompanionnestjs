@@ -20,7 +20,7 @@ enum Roles {
   COMPANION
 }
 
-enum BookingUnitEnum {
+enum CompanionBookingUnitEnum {
   PERHOUR
   PERMINUTE
 }
@@ -41,6 +41,11 @@ enum TransactionStatus {
   COMPLETED
   UNDERPROCESSED
   DECLINED
+}
+
+enum BookingDurationUnitEnum {
+  HOUR
+  MINUTE
 }
 
 model location {
@@ -82,7 +87,7 @@ model Companion {
   userid          String
   User            User        @relation(fields: [userid], references: [id])
   bookingrate     Int
-  bookingrateunit String
+  bookingrateunit CompanionBookingUnitEnum
   description     String
   Skintone        String
   account         AccountEnum @default(REVIEWED)
@@ -95,8 +100,10 @@ model Booking {
   bookingstart        DateTime
   bookingend          DateTime
   bookingduration     Int
-  bookingdurationUnit BookingUnitEnum
+  bookingdurationUnit BookingDurationUnitEnum
+  bookingrate         Int
   bookingstatus       BookingStatus   @default(UNDERREVIEW)
+  finalRate           Int
   createdAt           DateTime        @default(now()) @db.Timestamptz(3)
   updatedAt           DateTime        @default(now()) @db.Timestamptz(3)
   Transactions        Transactions[]

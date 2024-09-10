@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import { coordinatesDto } from 'src/dto/location.dto';
 
 export const addDays = (days: number, date?: Date): Date => {

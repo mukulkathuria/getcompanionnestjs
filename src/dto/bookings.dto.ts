@@ -1,7 +1,10 @@
 import { Booking } from '@prisma/client';
 import { errorDto } from './common.dto';
-import { BookingRateUnitEnum } from './user.dto';
 
+export enum BookingDurationUnitEnum {
+  HOUR = 'HOUR',
+  MINUTE = 'MINUTE',
+}
 export interface UserBookingReturnDto extends errorDto {
   data?: Booking[];
 }
@@ -11,5 +14,9 @@ export interface userBookingBodyDto {
   companionId: string;
   bookingdate: Date;
   bookingduration: number;
-  bookingdurationUnit: BookingRateUnitEnum;
+  bookingdurationUnit: BookingDurationUnitEnum;
+}
+
+export interface userBookingReturnDto extends errorDto{
+  data?: userBookingBodyDto
 }
