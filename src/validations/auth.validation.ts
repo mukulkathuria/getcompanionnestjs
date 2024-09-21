@@ -9,7 +9,7 @@ import {
 } from 'src/dto/auth.module.dto';
 import { decryptRefreshToken } from 'src/utils/crypt.utils';
 import { decodeRefreshToken } from 'src/guards/strategies/jwt.strategy';
-import { GenderEnum } from 'src/dto/user.dto';
+import { CompanionDescriptionEnum, GenderEnum } from 'src/dto/user.dto';
 
 export const validateregisterUser = (
   userinfo: registerBodyDto,
@@ -22,10 +22,22 @@ export const validateregisterUser = (
     lat: userinfo?.lat && userinfo.lat.trim(),
     lng: userinfo?.lng && userinfo.lng.trim(),
   };
+  try {
+    if (userinfo.description) {
+      const tempdesc = JSON.parse(userinfo.description as any);
+      userinfo['description'] = Array.isArray(tempdesc) ? tempdesc.map((l) => l.trim()) : []
+    }
+  } catch (error) {
+    console.log("Error JSON in description", error, userinfo.description)
+    return {
+      error: { status: 422, message: 'Companion description is not valid' },
+    };
+  }
   const companion = {
     Skintone: userinfo?.skintone && userinfo?.skintone.trim(),
-    description: userinfo?.description && userinfo?.description.trim(),
-    bookingrate: userinfo?.bookingrate,
+    description: userinfo?.description,
+    bookingrate: userinfo?.bookingrate && userinfo?.bookingrate.trim(),
+    height: userinfo?.height && userinfo?.height.trim().length,
   };
   if (!firstname || !firstname.trim().length) {
     return { error: { status: 422, message: 'First name is required' } };
@@ -53,14 +65,27 @@ export const validateregisterUser = (
     return {
       error: { status: 422, message: 'Companion skintone is required' },
     };
-  } else if (isCompanion && !companion.description) {
+  } else if (isCompanion && !Array.isArray(companion.description)) {
     return {
       error: { status: 422, message: 'Companion description is required' },
+    };
+  } else if (
+    isCompanion &&
+    companion.description.length &&
+    !companion.description.every((l) => CompanionDescriptionEnum[l])
+  ) {
+    console.log("Error in valid description", companion.description, companion.description.every((l) => CompanionDescriptionEnum[l]))
+    return {
+      error: { status: 422, message: 'Companion description is not valid' },
     };
   } else if (isCompanion && !companion.bookingrate) {
     return {
       error: { status: 422, message: 'Companion bookingrate is required' },
-    }; 
+    };
+  } else if (isCompanion && !companion.height) {
+    return {
+      error: { status: 422, message: 'Companion height is required' },
+    };
   }
   return { user: userinfo };
 };

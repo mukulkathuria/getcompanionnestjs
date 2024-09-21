@@ -48,6 +48,33 @@ enum BookingDurationUnitEnum {
   MINUTE
 }
 
+enum CompanionDescriptionEnum {
+  CASUAL_COMPANIONSHIP
+  COFFEEANDCONVERSATIONS
+  MOVIES
+  CITY_TOURS
+  DINING_PARTNER
+  ADVANTURE_COMPANIONSHIP
+  HIKING_BUDDY
+  BEACHANDWATER_SPORTS
+  CAMPING_TRIPS
+  ROAD_TRIPS
+  SOCIAL_COMPANIONSHIP
+  EVENT_PLUSONE
+  PARTY_PARTNER
+  BUSSINESS_NETWORKING
+  CULTURAL_OUTINGS
+  LIFESTYLE_COMPANIONSHIP
+  FITNESS_PARTNER
+  SHOPPING_BUDDY
+  COOKING_COMPANION
+  LANGUAGE_EXCHANGE
+  PERSONALIZED_EXPERIENCE
+  TRAVEL_BUDDY
+  PET_LOVER_COMPANION
+  UNIQUE_REQUESTS
+}
+
 model location {
   id        Int      @id @default(autoincrement())
   userid    String   @unique
@@ -80,34 +107,38 @@ model User {
   location     location[]
   Chats        ChatRoom[]
   message      message[]
+  usercards    usercards[]
 }
 
 model Companion {
-  id              String      @id @default(uuid())
+  id              String                   @id @default(uuid())
   userid          String
-  User            User        @relation(fields: [userid], references: [id])
+  User            User                     @relation(fields: [userid], references: [id])
   bookingrate     Int
   bookingrateunit CompanionBookingUnitEnum
-  description     String
+  description     String[]
   Skintone        String
-  account         AccountEnum @default(REVIEWED)
+  height          Int
+  account         AccountEnum              @default(REVIEWED)
   rejectedreason  String?
 }
 
 model Booking {
-  id                  Int             @id @default(autoincrement())
+  id                  Int                     @id @default(autoincrement())
   User                User[]
   bookingstart        DateTime
   bookingend          DateTime
   bookingduration     Int
   bookingdurationUnit BookingDurationUnitEnum
   bookingrate         Int
-  bookingstatus       BookingStatus   @default(UNDERREVIEW)
+  bookingstatus       BookingStatus           @default(UNDERREVIEW)
   finalRate           Int
-  createdAt           DateTime        @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime        @default(now()) @db.Timestamptz(3)
+  purpose             String?
+  createdAt           DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime                @default(now()) @db.Timestamptz(3)
   Transactions        Transactions[]
   ChatRoom            ChatRoom[]
+  Sessions            Sessions[]
 }
 
 model Transactions {
@@ -150,4 +181,27 @@ model message {
   isHide     Boolean  @default(false)
   createdAt  DateTime @default(now()) @db.Timestamptz(3)
   updatedAt  DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model usercards {
+  id         String   @id @default(uuid())
+  userid     String
+  User       User     @relation(fields: [userid], references: [id])
+  upiId      String?
+  debidcard  Int?
+  creditcard Int?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model Sessions {
+  id               String   @id @default(uuid())
+  bookingid        Int
+  Bookings         Booking  @relation(fields: [bookingid], references: [id])
+  sessionStartTime DateTime
+  sessionEndTime   DateTime
+  isExtended       Boolean
+  OTP              Int
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime @default(now()) @db.Timestamptz(3)
 }

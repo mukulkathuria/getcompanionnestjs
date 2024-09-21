@@ -155,6 +155,7 @@ export class AuthService {
           bookingrateunit: CompanionBookingUnitEnum.PERHOUR,
           description: user.description,
           Skintone: user.skintone,
+          height: Number(user.height)
         };
         userdata['Companion'] = { create: companion };
       }

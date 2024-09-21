@@ -1,5 +1,5 @@
 import { errorDto, successErrorDto } from './common.dto';
-import { GenderEnum } from './user.dto';
+import { CompanionDescriptionEnum, GenderEnum } from './user.dto';
 
 export type registerBodyDto = {
   firstname: string;
@@ -8,7 +8,7 @@ export type registerBodyDto = {
   password: string;
   isCompanion?: boolean;
   Images?: string[];
-  description?: string;
+  description?: CompanionDescriptionEnum[];
   skintone?: string;
   gender: GenderEnum;
   city?: string;
@@ -16,7 +16,8 @@ export type registerBodyDto = {
   lat?: string;
   lng?: string;
   age: string;
-  bookingrate?: string
+  bookingrate?: string,
+  height?: string
 };
 
 export interface returnRegisterUserDto extends errorDto {

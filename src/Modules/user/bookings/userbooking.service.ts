@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as dayjs from 'dayjs';
-import { BookingDurationUnitEnum, userBookingBodyDto, UserBookingReturnDto } from 'src/dto/bookings.dto';
+import {
+  BookingDurationUnitEnum,
+  userBookingBodyDto,
+  UserBookingReturnDto,
+} from 'src/dto/bookings.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import { getFinalRate } from 'src/utils/booking.utils';
 import { isUserBookingValid } from 'src/validations/booking.validation';
@@ -29,7 +33,9 @@ export class UserBookingsService {
         return { error };
       }
       const hrmin =
-        bookingDetails.bookingdurationUnit === BookingDurationUnitEnum.HOUR ? 'hour' : 'minute';
+        bookingDetails.bookingdurationUnit === BookingDurationUnitEnum.HOUR
+          ? 'hour'
+          : 'minute';
       const endDate = dayjs(bookingDetails.bookingdate)
         .add(bookingDetails.bookingduration, hrmin)
         .toDate();
@@ -39,10 +45,12 @@ export class UserBookingsService {
           Booking: {
             where: {
               bookingstart: { lte: dayjs(bookingDetails.bookingdate).toDate() },
-              bookingend: { gt: dayjs(bookingDetails.bookingdate).toDate() }, // 6
+              bookingend: {
+                gt: dayjs(bookingDetails.bookingdate).add(1, 'hour').toDate(),
+              },
             },
           },
-          Companion: true
+          Companion: true,
         },
       });
       if (isSlotAvailable[0].Booking.length) {
@@ -50,8 +58,11 @@ export class UserBookingsService {
       }
       const rates = {
         bookingrate: isSlotAvailable[0].Companion[0].bookingrate,
-        finalRate: getFinalRate(bookingDetails, isSlotAvailable[0].Companion[0])
-      }
+        finalRate: getFinalRate(
+          bookingDetails,
+          isSlotAvailable[0].Companion[0],
+        ),
+      };
       const data = await this.prismaService.booking.create({
         data: {
           User: {
@@ -64,7 +75,7 @@ export class UserBookingsService {
           bookingstart: dayjs(bookingDetails.bookingdate).toDate(),
           bookingend: endDate,
           bookingdurationUnit: bookingDetails.bookingdurationUnit,
-          ...rates
+          ...rates,
         },
       });
       return { success: true };

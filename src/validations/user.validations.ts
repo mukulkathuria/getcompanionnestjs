@@ -15,21 +15,22 @@ export const isvalidUserinputs = (userinfo: UpdateUserProfileBodyDto) => {
       };
     }
   }
-  if (userinfo['age'] && typeof userinfo['age'] === 'number' && userinfo['age'] > 18) {
+  if (
+    userinfo['age'] &&
+    userinfo['age'].trim().length &&
+    Number(userinfo['age']) > 18
+  ) {
     results['age'] = userinfo['age'];
   }
-  const location = ['zipcode', 'lat', 'lng'];
+  const location = ['zipcode', 'lat', 'lng', 'city'];
   let locationvalue = {};
-  if (userinfo['city'] && userinfo['city'].trim().length) {
-    locationvalue['city'] = userinfo['city'];
-  }
+  // if (userinfo['city'] && userinfo['city'].trim().length) {
+  //   locationvalue['city'] = userinfo['city'];
+  // }
   for (let i = 0; i < location.length; i += 1) {
-    if (userinfo[location[i]] && typeof userinfo[location[i]] === 'number') {
+    if (userinfo[location[i]] && userinfo[location[i]].trim().length) {
       locationvalue[location[i]] = userinfo[location[i]];
-    } else if (
-      userinfo[location[i]] &&
-      typeof userinfo[location[i]] !== 'number'
-    ) {
+    } else if (userinfo[location[i]] && !userinfo[location[i]].trim().length) {
       return {
         error: { status: 422, message: `${location[i]} is not valid` },
       };
