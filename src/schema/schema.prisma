@@ -112,7 +112,7 @@ model User {
 
 model Companion {
   id              String                   @id @default(uuid())
-  userid          String
+  userid          String                   @unique
   User            User                     @relation(fields: [userid], references: [id])
   bookingrate     Int
   bookingrateunit CompanionBookingUnitEnum

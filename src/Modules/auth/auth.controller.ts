@@ -60,31 +60,6 @@ export class AuthController {
     }
   }
 
-  @UseGuards(AdminGuard)
-  @Post('registercompanion')
-  @HttpCode(200)
-  @UseInterceptors(
-    FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
-  )
-  async registerCompanionController(
-    @Body() userinfo: registerBodyDto,
-    @UploadedFiles(new FileSizeValidationPipe())
-    images: Express.Multer.File[],
-  ): Promise<controllerReturnDto> {
-    const { success, error } = await this.authService.registerCompanion(
-      { ...userinfo, isCompanion: true },
-      images,
-    );
-    if (success) {
-      return {
-        success,
-        message: 'Companion created successfully.',
-      };
-    } else {
-      throw new HttpException(error.message, error.status);
-    }
-  }
-
   @Post('login')
   @HttpCode(200)
   async loginController(

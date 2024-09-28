@@ -119,60 +119,6 @@ export class AuthService {
     }
   }
 
-  async registerCompanion(userinfo: registerBodyDto, images: Express.Multer.File[]): Promise<successErrorDto> {
-    const { user, error } = validateregisterUser(userinfo);
-    if (error) {
-      return { error };
-    }
-    try {
-      const isUserExists = await this.prismaService.user.findUnique({
-        where: { email: user.email },
-      });
-      if (isUserExists) {
-        return { error: { status: 422, message: 'User already exists' } };
-      }
-      const allimages = images.map((l) => l.destination + '/' + l.filename);
-      const location = {
-        city: user?.city,
-        zipcode: Number(user?.zipcode) || null,
-        lat: Number(user?.lat) || null,
-        lng: Number(user?.lng) || null,
-      };
-      const userdata = {
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        password: encrypt(user.password),
-        gender: user.gender,
-        age: Number(user.age),
-        isCompanion: true,
-        Images: allimages,
-        location: { create: location },
-      };
-      if (user.isCompanion) {
-        const companion = {
-          bookingrate: Number(user?.bookingrate) || null,
-          bookingrateunit: CompanionBookingUnitEnum.PERHOUR,
-          description: user.description,
-          Skintone: user.skintone,
-          height: Number(user.height)
-        };
-        userdata['Companion'] = { create: companion };
-      }
-      await this.prismaService.user.create({
-        data: userdata,
-      });
-      return {
-        success: true,
-      };
-    } catch (error) {
-      this.logger.warn(error);
-      return {
-        error: { status: 500, message: 'Server error' },
-      };
-    }
-  }
-
   async getLogin(loginInfo: loginBodyDto): Promise<loginUserDto> {
     const { error, user } = validateLoginUser(loginInfo);
     if (error) {

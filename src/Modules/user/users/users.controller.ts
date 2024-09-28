@@ -70,34 +70,4 @@ export class DeleteUsersController {
       throw new HttpException(error.message, error.status);
     }
   }
-
-  @UseGuards(AdminGuard)
-  @Post('updatecompanionprofile/:id')
-  @HttpCode(200)
-  @UseInterceptors(
-    FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
-  )
-  async userupdatecompanionprofileController(
-    @Param() id: UserProfileParamsDto,
-    @Body() userinfo: UpdateUserProfileBodyDto,
-    @UploadedFiles(new FileSizeValidationPipe())
-    images: Express.Multer.File[],
-  ): Promise<controllerReturnDto> {
-    if (!id.id || typeof id.id !== 'string') {
-      throw new HttpException('Invalid User', 422);
-    }
-    const { success, error } = await this.userservice.updateUserProfile(
-      userinfo,
-      images,
-      id.id
-    );
-    if (success) {
-      return {
-        success,
-        message: 'User Updated successfully.',
-      };
-    } else {
-      throw new HttpException(error.message, error.status);
-    }
-  }
 }

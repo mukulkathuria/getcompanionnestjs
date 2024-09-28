@@ -37,7 +37,19 @@ export enum CompanionDescriptionEnum {
 export interface UpdateUserProfileBodyDto {
   firstname?: string;
   lastname?: string;
-  isCompanion?: boolean;
+  Images?: string[];
+  city?: string;
+  zipcode?: string;
+  lat?: string;
+  lng?: string;
+  bookingrate?: string;
+  age?: string;
+  height?: string;
+}
+
+export interface UpdateCompanionProfileBodyDto {
+  firstname?: string;
+  lastname?: string;
   Images?: string[];
   description?: CompanionDescriptionEnum[];
   skintone?: string;
@@ -48,6 +60,19 @@ export interface UpdateUserProfileBodyDto {
   bookingrate?: string;
   age?: string;
   height?: string;
+}
+
+export interface UserlocationProfileDto{
+  city?: string;
+  zipcode?: number;
+  lat?: number;
+  lng?: number;
+}
+
+export interface UserCompanionProfileDto{
+  bookingrate?: number;
+  description?: string[];
+  skintone?: string;
 }
 
 export interface UserProfileParamsDto {

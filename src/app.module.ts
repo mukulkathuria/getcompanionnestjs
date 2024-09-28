@@ -6,6 +6,7 @@ import { GlobalModule } from './Modules/global/global.module';
 import { UserModule } from './Modules/user/user.module';
 import { ChatModule } from './Modules/chats/chat.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AdminModule } from './Modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     GlobalModule,
     AuthModule,
     UserModule,
+    AdminModule,
     ChatModule
   ],
 })

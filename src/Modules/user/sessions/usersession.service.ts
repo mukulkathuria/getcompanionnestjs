@@ -104,6 +104,12 @@ export class UserSessionService {
         data: {
           isExtended: true,
           sessionEndTime: endTime,
+          Bookings: {
+            update: {
+              where: { id: getBookingDetails.bookingid },
+              data: { bookingstatus: 'COMPLETED' },
+            },
+          },
         },
       });
       return { data };
