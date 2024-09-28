@@ -69,4 +69,5 @@ export enum Roles {
   ADMIN = 'ADMIN',
   NORMAL = 'NORMAL',
   COMPANION = 'COMPANION',
+  EMPLOYEE = 'EMPLOYEE'
 }

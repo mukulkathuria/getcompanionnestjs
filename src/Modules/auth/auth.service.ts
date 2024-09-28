@@ -34,13 +34,18 @@ import {
   validateLoginUser,
   validateregisterUser,
 } from 'src/validations/auth.validation';
-import { CompanionBookingUnitEnum } from 'src/dto/user.dto';
+import { OAuth2Client } from 'google-auth-library';
 // import axios from 'axios';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prismaService: PrismaService) {}
-
+  private readonly client: OAuth2Client;
+  constructor(private readonly prismaService: PrismaService) {
+    this.client = new OAuth2Client(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+    );
+  }
   private readonly logger = new Logger(AuthService.name);
 
   async getUserToken(user: authTokenDto) {
@@ -76,7 +81,10 @@ export class AuthService {
     }
   }
 
-  async registerUser(userinfo: registerBodyDto, images: Express.Multer.File[]): Promise<successErrorDto> {
+  async registerUser(
+    userinfo: registerBodyDto,
+    images: Express.Multer.File[],
+  ): Promise<successErrorDto> {
     const { user, error } = validateregisterUser(userinfo);
     if (error) {
       return { error };
@@ -285,6 +293,61 @@ export class AuthService {
     }
   }
 
+  async googleLogin(token: string) {
+    try {
+      const payload = await this.client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const collectedData = payload.getPayload();
+      const isUserExists = await this.prismaService.user.findUnique({
+        where: { email: collectedData.email },
+      });
+      if (!isUserExists) {
+        return { error: { status: 422, message: 'Invalid Credentials' } };
+      }
+      const { access_token, refresh_token } =
+        await this.getUserToken(isUserExists);
+      return {
+        access_token,
+        refresh_token,
+      };
+    } catch (error) {
+      this.logger.warn(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async registerGoogleUser(token: string) {
+    try {
+      const payload = await this.client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const collectedData = payload.getPayload();
+      const isUserExists = await this.prismaService.user.findUnique({
+        where: { email: collectedData.email },
+      });
+      if (isUserExists) {
+        return { error: { status: 422, message: 'User already exists' } };
+      }
+      await this.prismaService.user.create({
+        data: {
+          firstname: collectedData?.given_name || collectedData?.name,
+          lastname: collectedData?.family_name || collectedData?.name,
+          email: collectedData.email,
+          password: encrypt('Test@123'),
+          isGoogle: true
+        },
+      });
+      return {
+        success: true,
+      };
+    } catch (error) {
+      this.logger.warn(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
   // async verifyCaptcha(token: any) {
   //   try {
   //     const url = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token.token}`;

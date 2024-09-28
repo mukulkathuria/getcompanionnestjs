@@ -16,6 +16,7 @@ enum AccountEnum {
 
 enum Roles {
   ADMIN
+  EMPLOYEE
   NORMAL
   COMPANION
 }
@@ -93,11 +94,12 @@ model User {
   lastname     String
   email        String         @unique
   password     String
+  isGoogle     Boolean        @default(false)
   Images       String[]
   isCompanion  Boolean        @default(false)
   role         Roles          @default(NORMAL)
-  gender       Gender
-  age          Int
+  gender       Gender?
+  age          Int?
   createdAt    DateTime       @default(now()) @db.Timestamptz(3)
   updatedAt    DateTime       @default(now()) @db.Timestamptz(3)
   Booking      Booking[]
