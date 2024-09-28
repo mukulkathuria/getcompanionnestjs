@@ -15,7 +15,7 @@ export class UserChatRoomsService {
         include: {
           Booking: {
             where: {
-              bookingstart: { gt: new Date() },
+              bookingstart: { gt: new Date().getTime() },
               bookingstatus: 'ACCEPTED',
             },
           },

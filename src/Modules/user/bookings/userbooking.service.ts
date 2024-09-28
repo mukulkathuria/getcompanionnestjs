@@ -39,15 +39,15 @@ export class UserBookingsService {
           : 'minute';
       const endDate = dayjs(bookingDetails.bookingdate)
         .add(bookingDetails.bookingduration, hrmin)
-        .toDate();
+        .toDate().getTime();
       const isSlotAvailable = await this.prismaService.user.findMany({
         where: { id: bookingDetails.companionId, isCompanion: true },
         include: {
           Booking: {
             where: {
-              bookingstart: { lte: dayjs(bookingDetails.bookingdate).toDate() },
+              bookingstart: { lte: dayjs(bookingDetails.bookingdate).toDate().getTime() },
               bookingend: {
-                gt: dayjs(bookingDetails.bookingdate).add(1, 'hour').toDate(),
+                gt: dayjs(bookingDetails.bookingdate).add(1, 'hour').toDate().getTime(),
               },
             },
           },
@@ -73,7 +73,7 @@ export class UserBookingsService {
             ],
           },
           bookingduration: bookingDetails.bookingduration,
-          bookingstart: dayjs(bookingDetails.bookingdate).toDate(),
+          bookingstart: dayjs(bookingDetails.bookingdate).toDate().getTime(),
           bookingend: endDate,
           OTP: createOTP(),
           bookingdurationUnit: bookingDetails.bookingdurationUnit,

@@ -32,7 +32,7 @@ export class UserSessionService {
       const data = await this.prismaService.sessions.create({
         data: {
           bookingid: sessionDetails.bookingid,
-          sessionStartTime: new Date(),
+          sessionStartTime: new Date().getTime(),
           sessionEndTime: checkBookingandOTP.bookingend,
           isExtended: false,
         },
@@ -53,7 +53,7 @@ export class UserSessionService {
       const data = await this.prismaService.sessions.update({
         where: { id: sessionDetails.sessionid },
         data: {
-          sessionEndTime: new Date(),
+          sessionEndTime: new Date().getTime(),
         },
       });
       return { data };
@@ -86,10 +86,10 @@ export class UserSessionService {
           Booking: {
             where: {
               bookingstart: {
-                lte: dayjs(endTime).toDate(),
+                lte: dayjs(endTime).toDate().getTime(),
               },
               bookingend: {
-                gt: dayjs(endTime).toDate(),
+                gt: dayjs(endTime).toDate().getTime(),
               },
             },
           },
@@ -103,7 +103,7 @@ export class UserSessionService {
         where: { id: sessionDetails.sessionid },
         data: {
           isExtended: true,
-          sessionEndTime: endTime,
+          sessionEndTime: endTime.getTime(),
           Bookings: {
             update: {
               where: { id: getBookingDetails.bookingid },

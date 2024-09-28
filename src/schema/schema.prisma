@@ -128,8 +128,8 @@ model Companion {
 model Booking {
   id                  Int                     @id @default(autoincrement())
   User                User[]
-  bookingstart        DateTime
-  bookingend          DateTime
+  bookingstart        Int
+  bookingend          Int
   bookingduration     Int
   bookingdurationUnit BookingDurationUnitEnum
   bookingrate         Int
@@ -201,8 +201,8 @@ model Sessions {
   id               String   @id @default(uuid())
   bookingid        Int
   Bookings         Booking  @relation(fields: [bookingid], references: [id])
-  sessionStartTime DateTime
-  sessionEndTime   DateTime
+  sessionStartTime Int
+  sessionEndTime   Int
   isExtended       Boolean
   createdAt        DateTime @default(now()) @db.Timestamptz(3)
   updatedAt        DateTime @default(now()) @db.Timestamptz(3)

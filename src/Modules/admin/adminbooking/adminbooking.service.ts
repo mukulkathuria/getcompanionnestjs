@@ -11,7 +11,7 @@ export class AdminBookingService {
       const data = await this.prismaService.booking.findMany({
         where: {
           bookingstatus: 'UNDERREVIEW',
-          bookingend:{ lte: new Date() }
+          bookingend:{ gte: new Date().getTime() }
         },
       });
       return { data };
