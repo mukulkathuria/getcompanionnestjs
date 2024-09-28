@@ -134,6 +134,7 @@ model Booking {
   bookingstatus       BookingStatus           @default(UNDERREVIEW)
   finalRate           Int
   purpose             String?
+  OTP                 Int
   createdAt           DateTime                @default(now()) @db.Timestamptz(3)
   updatedAt           DateTime                @default(now()) @db.Timestamptz(3)
   Transactions        Transactions[]
@@ -201,7 +202,6 @@ model Sessions {
   sessionStartTime DateTime
   sessionEndTime   DateTime
   isExtended       Boolean
-  OTP              Int
   createdAt        DateTime @default(now()) @db.Timestamptz(3)
   updatedAt        DateTime @default(now()) @db.Timestamptz(3)
 }

@@ -5,4 +5,5 @@ export const UserProfileRoute = UserRoute + '/profile'
 export const UserBookingsRoute = UserRoute + '/booking';
 export const UserTransactionsRoute = UserRoute + '/transactions';
 export const UserCompanionFindRoute = UserRoute + '/companionfind';
-export const UserChatRoomRoute = '/userchatrooms'
+export const UserChatRoomRoute = '/userchatrooms';
+export const UserSessionRoute = '/usersession';

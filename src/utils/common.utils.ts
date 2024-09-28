@@ -40,3 +40,7 @@ export function calCordinateDistance(
   const d = R * c;
   return d;
 }
+
+export function createOTP(){
+  return Math.floor(1000 + Math.random() * 9000);
+}

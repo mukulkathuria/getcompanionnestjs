@@ -7,6 +7,7 @@ import {
 } from 'src/dto/bookings.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import { getFinalRate } from 'src/utils/booking.utils';
+import { createOTP } from 'src/utils/common.utils';
 import { isUserBookingValid } from 'src/validations/booking.validation';
 
 @Injectable()
@@ -74,6 +75,7 @@ export class UserBookingsService {
           bookingduration: bookingDetails.bookingduration,
           bookingstart: dayjs(bookingDetails.bookingdate).toDate(),
           bookingend: endDate,
+          OTP: createOTP(),
           bookingdurationUnit: bookingDetails.bookingdurationUnit,
           ...rates,
         },
