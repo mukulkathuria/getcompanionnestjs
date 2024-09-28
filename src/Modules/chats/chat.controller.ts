@@ -13,6 +13,7 @@ import {
   messageRoomValidation,
 } from './validations/chat.validations';
 import { ChatService } from './chat.service';
+import { WsThrottlerGuard } from 'src/guards/throttler.guard';
 
 @WebSocketGateway()
 export class ChatController {
@@ -62,7 +63,7 @@ export class ChatController {
 //     }
 //   }
 
-//   @UseGuards(WsThrottlerGuard)
+  @UseGuards(WsThrottlerGuard)
   @UseGuards(WsAuthGuard)
   @SubscribeMessage('sendMessage')
   async sendMessage(@MessageBody() data: messageRoomDto): Promise<void> {
