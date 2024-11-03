@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   companiondb:
-    image: 'postgres:16.4'
+    image: 'postgres:17.0'
     command: postgres -p ${DB_PORT} -c log_statement=all
     environment:
       - POSTGRES_DB=${DB_NAME}
@@ -16,7 +16,7 @@ services:
           - postgres_db_host 
   
   redis_db:
-    image: "redis:7.4"
+    image: "redis:8.0-M01"
 
     # command: redis-server --requirepass sOmE_sEcUrE_pAsS
 

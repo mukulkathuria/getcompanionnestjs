@@ -14,7 +14,7 @@ export const decrypt = (str: string): string => {
       decryptphase1.slice(0, 2) + decryptphase1.slice(2 + 8);
     const decrypted = atob(deattachedStr);
     return decrypted;
-  } catch (error) {
+  } catch (error) {  // eslint-disable-line
     return 'Invalid String';
   }
 };
@@ -36,7 +36,7 @@ export const decryptRefreshToken = (token: string) => {
     }
     splitedToken[1] = decrypt(splitedToken[1]);
     return { token: splitedToken.join('.') };
-  } catch (error) {
+  } catch (error) { // eslint-disable-line
     return { error: 'Invalid Token' };
   }
 };

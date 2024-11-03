@@ -49,6 +49,22 @@ enum BookingDurationUnitEnum {
   MINUTE
 }
 
+enum UserSelectedCardUnitEnum {
+  UPIID
+  DEBITCARD
+  CREDITCARD
+}
+
+enum BookingChangesEnum {
+  CANCELLATION
+  MODIFICATION
+}
+
+enum LocationBaseFromEnum {
+  BOOKING
+  USER
+}
+
 enum CompanionDescriptionEnum {
   CASUAL_COMPANIONSHIP
   COFFEEANDCONVERSATIONS
@@ -77,39 +93,75 @@ enum CompanionDescriptionEnum {
 }
 
 model location {
+  id        Int                  @id @default(autoincrement())
+  userid    String?
+  User      User?                @relation(fields: [userid], references: [id])
+  city      String?
+  zipcode   Int?
+  lat       Float?
+  lng       Float?
+  basefrom  LocationBaseFromEnum @default(USER)
+  bookingid Int?
+  Booking   Booking?             @relation(fields: [bookingid], references: [id])
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+}
+
+model livelocation {
   id        Int      @id @default(autoincrement())
-  userid    String   @unique
+  userid    String
+  booking   Int
+  Booking   Booking  @relation(fields: [booking], references: [id])
   User      User     @relation(fields: [userid], references: [id])
   city      String?
   zipcode   Int?
   lat       Float?
   lng       Float?
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime @default(now()) @db.Timestamptz(3)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model companionsearchlocations {
+  id        Int      @id @default(autoincrement())
+  userid    String
+  User      User     @relation(fields: [userid], references: [id])
+  city      String?
+  zipcode   Int?
+  lat       Float?
+  lng       Float?
+  userAgent Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model User {
-  id           String         @id @default(uuid())
-  firstname    String
-  lastname     String
-  email        String         @unique
-  password     String
-  isGoogle     Boolean        @default(false)
-  Images       String[]
-  isCompanion  Boolean        @default(false)
-  role         Roles          @default(NORMAL)
-  gender       Gender?
-  age          Int?
-  createdAt    DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime       @default(now()) @db.Timestamptz(3)
-  Booking      Booking[]
-  Transactions Transactions[]
-  rating       rating[]
-  Companion    Companion[]
-  location     location[]
-  Chats        ChatRoom[]
-  message      message[]
-  usercards    usercards[]
+  id                       String                     @id @default(uuid())
+  firstname                String
+  lastname                 String
+  email                    String                     @unique
+  password                 String
+  isGoogle                 Boolean                    @default(false)
+  Images                   String[]
+  isCompanion              Boolean                    @default(false)
+  role                     Roles                      @default(NORMAL)
+  gender                   Gender?
+  age                      Int?
+  lastlogin                Int
+  isDeleted                Boolean                    @default(false)
+  expiryDate               DateTime
+  Booking                  Booking[]
+  Transactions             Transactions[]
+  Companion                Companion[]
+  baselocation             location[]
+  Chats                    ChatRoom[]
+  message                  message[]
+  usercards                usercards[]
+  livelocation             livelocation[]
+  ratingsGiven             rating[]                   @relation("Rater")
+  ratingsReceived          rating[]                   @relation("Ratee")
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+  companionsearchlocations companionsearchlocations[]
 }
 
 model Companion {
@@ -134,33 +186,46 @@ model Booking {
   bookingdurationUnit BookingDurationUnitEnum
   bookingrate         Int
   bookingstatus       BookingStatus           @default(UNDERREVIEW)
+  bookingpurpose      String?
   finalRate           Int
   purpose             String?
   OTP                 Int
-  createdAt           DateTime                @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime                @default(now()) @db.Timestamptz(3)
+  changes             BookingChangesEnum?
+  bookinglocation     String
   Transactions        Transactions[]
   ChatRoom            ChatRoom[]
   Sessions            Sessions[]
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  livelocation        livelocation[]
+  Meetinglocation     location[]
 }
 
 model Transactions {
-  id        Int               @id @default(autoincrement())
-  userid    String
-  User      User              @relation(fields: [userid], references: [id])
-  bookingid Int
-  Bookings  Booking           @relation(fields: [bookingid], references: [id])
-  status    TransactionStatus @default(UNDERPROCESSED)
-  amount    Int
-  createdAt DateTime          @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime          @default(now()) @db.Timestamptz(3)
+  id             String            @id @default(uuid())
+  userid         String
+  User           User              @relation(fields: [userid], references: [id])
+  bookingid      Int
+  Bookings       Booking           @relation(fields: [bookingid], references: [id])
+  status         TransactionStatus @default(UNDERPROCESSED)
+  amount         Int
+  isRefunded     Boolean           @default(false)
+  refundedamount Int               @default(0)
+  paymentmethod  String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 }
 
 model rating {
-  id      String @id @default(uuid())
-  userid  String
-  User    User   @relation(fields: [userid], references: [id])
-  ratings Int
+  id        Int      @id @default(autoincrement())
+  raterId   String
+  rateeId   String
+  ratings   Int
+  comment   String?
+  rater     User     @relation("Rater", fields: [raterId], references: [id])
+  ratee     User     @relation("Ratee", fields: [rateeId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ChatRoom {
@@ -169,8 +234,8 @@ model ChatRoom {
   Bookings  Booking   @relation(fields: [bookingid], references: [id])
   User      User[]
   isHide    Boolean   @default(false)
-  createdAt DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime  @default(now()) @db.Timestamptz(3)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   message   message[]
 }
 
@@ -182,19 +247,20 @@ model message {
   ChatRoom   ChatRoom @relation(fields: [chatroomid], references: [id])
   body       String
   isHide     Boolean  @default(false)
-  createdAt  DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime @default(now()) @db.Timestamptz(3)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model usercards {
-  id         String   @id @default(uuid())
-  userid     String
-  User       User     @relation(fields: [userid], references: [id])
-  upiId      String?
-  debidcard  Int?
-  creditcard Int?
-  createdAt  DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime @default(now()) @db.Timestamptz(3)
+  id           String                   @id @default(uuid())
+  userid       String
+  User         User                     @relation(fields: [userid], references: [id])
+  upiId        String?
+  selectedcard UserSelectedCardUnitEnum @default(UPIID)
+  debidcard    Int?
+  creditcard   Int?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
 }
 
 model Sessions {
@@ -204,6 +270,6 @@ model Sessions {
   sessionStartTime Int
   sessionEndTime   Int
   isExtended       Boolean
-  createdAt        DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime @default(now()) @db.Timestamptz(3)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

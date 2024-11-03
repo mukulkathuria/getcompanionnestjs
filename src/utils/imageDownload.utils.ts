@@ -16,7 +16,7 @@ export const Download = (
     });
 
     fileStream.on('close', () => {
-      callback && callback(filename);
+      if (typeof callback == 'function') callback(filename);
     });
 
     fileStream.on('finish', () => {
