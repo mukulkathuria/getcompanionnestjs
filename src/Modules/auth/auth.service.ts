@@ -35,6 +35,7 @@ import {
   validateregisterUser,
 } from 'src/validations/auth.validation';
 import { OAuth2Client } from 'google-auth-library';
+import { getdefaultexpirydate } from 'src/utils/common.utils';
 // import axios from 'axios';
 
 @Injectable()
@@ -93,16 +94,22 @@ export class AuthService {
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: user.email },
       });
-      if (isUserExists) {
+      if (
+        isUserExists &&
+        isUserExists.isDeleted &&
+        isUserExists.expiryDate < Date.now()
+      ) {
+        return {
+          error: {
+            status: 422,
+            message:
+              'Your Account has been expired please register with new one.',
+          },
+        };
+      } else if (isUserExists) {
         return { error: { status: 422, message: 'User already exists' } };
       }
       const allimages = images.map((l) => l.destination + '/' + l.filename);
-      const location = {
-        city: user?.city,
-        zipcode: Number(user?.zipcode) || null,
-        lat: Number(user?.lat) || null,
-        lng: Number(user?.lng) || null,
-      };
       const userdata = {
         firstname: user.firstname,
         lastname: user.lastname,
@@ -111,7 +118,8 @@ export class AuthService {
         gender: user.gender,
         age: Number(user.age),
         Images: [...allimages],
-        location: { create: location },
+        lastlogin: Date.now(),
+        expiryDate: getdefaultexpirydate(),
       };
       await this.prismaService.user.create({
         data: userdata,
@@ -143,6 +151,17 @@ export class AuthService {
       } else if (user.password !== decrypt(isUserExists.password)) {
         return {
           error: { status: 422, message: 'Invalid Credentials' },
+        };
+      } else if (
+        isUserExists &&
+        isUserExists.isDeleted &&
+        isUserExists.expiryDate < Date.now()
+      ) {
+        return {
+          error: {
+            status: 401,
+            message: 'Account Deleted!. Please contact admin',
+          },
         };
       } else if (
         isUserExists.isCompanion &&
@@ -246,6 +265,7 @@ export class AuthService {
           message: 'Something went wrong. Please try again.',
         };
       }
+      // eslint-disable-next-line
     } catch (error) {
       return {
         error: {
@@ -283,6 +303,7 @@ export class AuthService {
           success: false,
         };
       }
+      // eslint-disable-next-line
     } catch (error) {
       return {
         error: {
@@ -305,7 +326,18 @@ export class AuthService {
       });
       if (!isUserExists) {
         return { error: { status: 422, message: 'Invalid Credentials' } };
-      }
+      } else if (
+        isUserExists &&
+        isUserExists.isDeleted &&
+        isUserExists.expiryDate < Date.now()
+      ) {
+        return {
+          error: {
+            status: 401,
+            message: 'Account Deleted!. Please contact admin',
+          },
+        };
+      } 
       const { access_token, refresh_token } =
         await this.getUserToken(isUserExists);
       return {
@@ -328,7 +360,19 @@ export class AuthService {
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: collectedData.email },
       });
-      if (isUserExists) {
+      if (
+        isUserExists &&
+        isUserExists.isDeleted &&
+        isUserExists.expiryDate < Date.now()
+      ) {
+        return {
+          error: {
+            status: 422,
+            message:
+              'Your Account has been expired please register with new one.',
+          },
+        };
+      } else if (isUserExists) {
         return { error: { status: 422, message: 'User already exists' } };
       }
       await this.prismaService.user.create({
@@ -337,7 +381,9 @@ export class AuthService {
           lastname: collectedData?.family_name || collectedData?.name,
           email: collectedData.email,
           password: encrypt('Test@123'),
-          isGoogle: true
+          isGoogle: true,
+          lastlogin: Date.now(),
+          expiryDate: getdefaultexpirydate(),
         },
       });
       return {

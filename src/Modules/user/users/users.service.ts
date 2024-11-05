@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/Services/prisma.service';
 import { successErrorReturnDto } from 'src/dto/common.dto';
-import { AccountEnum } from '@prisma/client';
+// import { AccountEnum } from '@prisma/client';
 import { UpdateUserProfileBodyDto } from 'src/dto/user.dto';
 import { isvalidUserinputs } from 'src/validations/user.validations';
 
@@ -13,6 +13,7 @@ export class UsersService {
   async deleteUser(): Promise<successErrorReturnDto> {
     try {
       console.log('abc');
+      // eslint-disable-next-line
     } catch (error) {
       return { error: { status: 422, message: 'User email is not valid' } };
     }
@@ -30,19 +31,19 @@ export class UsersService {
       if (!isUserExists) {
         return { error: { status: 422, message: 'User not Exists' } };
       }
-      const { userdata, locationdata } = isvalidUserinputs(userinputs);
+      const { userdata } = isvalidUserinputs(userinputs);
       const allimages = images.map((l) => l.destination + '/' + l.filename);
-      if (allimages.length > 3) {
+      if (allimages.length > 1) {
         return {
           error: { status: 422, message: 'Images more than 3 is not allowed' },
         };
       }
+      // eslint-disable-next-line
       const updateuser = await this.prismaService.user.update({
         where: { id },
         data: {
           ...userdata,
           Images: allimages,
-          location: { update: { where: { userid: id }, data: locationdata } },
         },
       });
       return { success: true };

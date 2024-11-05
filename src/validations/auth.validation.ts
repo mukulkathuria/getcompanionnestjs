@@ -38,6 +38,7 @@ export const validateregisterUser = (
     description: userinfo?.description,
     bookingrate: userinfo?.bookingrate && userinfo?.bookingrate.trim(),
     height: userinfo?.height && userinfo?.height.trim().length,
+    bodytype: userinfo?.bodytype && userinfo?.bodytype.trim()
   };
   if (!firstname || !firstname.trim().length) {
     return { error: { status: 422, message: 'First name is required' } };
@@ -64,6 +65,10 @@ export const validateregisterUser = (
   } else if (isCompanion && !companion.Skintone) {
     return {
       error: { status: 422, message: 'Companion skintone is required' },
+    };
+  } else if (isCompanion && !companion.bodytype) {
+    return {
+      error: { status: 422, message: 'Companion bodytype is required' },
     };
   } else if (isCompanion && !Array.isArray(companion.description)) {
     return {

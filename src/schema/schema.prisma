@@ -36,6 +36,8 @@ enum BookingStatus {
   UNDERREVIEW
   COMPLETED
   REJECTED
+  MODIFIED
+  CANCELLED
 }
 
 enum TransactionStatus {
@@ -55,14 +57,16 @@ enum UserSelectedCardUnitEnum {
   CREDITCARD
 }
 
-enum BookingChangesEnum {
-  CANCELLATION
-  MODIFICATION
-}
-
 enum LocationBaseFromEnum {
   BOOKING
   USER
+}
+
+enum NotificationFromModuleEnum {
+  BOOKING
+  TRANSACTIONS
+  USER
+  GLOBAL
 }
 
 enum CompanionDescriptionEnum {
@@ -92,10 +96,23 @@ enum CompanionDescriptionEnum {
   UNIQUE_REQUESTS
 }
 
+model notification {
+  id                 Int                        @id @default(autoincrement())
+  expiry             Int
+  content            String
+  foruser            String?
+  isGobal            Boolean                    @default(false)
+  fromModule         NotificationFromModuleEnum @default(GLOBAL)
+  moduleotherDetails Json?
+  User               User?                      @relation(fields: [foruser], references: [id])
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+}
+
 model location {
   id        Int                  @id @default(autoincrement())
   userid    String?
-  User      User?                @relation(fields: [userid], references: [id])
+  User      Companion?           @relation(fields: [userid], references: [id])
   city      String?
   zipcode   Int?
   lat       Float?
@@ -148,20 +165,20 @@ model User {
   age                      Int?
   lastlogin                Int
   isDeleted                Boolean                    @default(false)
-  expiryDate               DateTime
+  expiryDate               Int
   Booking                  Booking[]
   Transactions             Transactions[]
   Companion                Companion[]
-  baselocation             location[]
   Chats                    ChatRoom[]
   message                  message[]
   usercards                usercards[]
   livelocation             livelocation[]
+  companionsearchlocations companionsearchlocations[]
+  notifications            notification[]
   ratingsGiven             rating[]                   @relation("Rater")
   ratingsReceived          rating[]                   @relation("Ratee")
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
-  companionsearchlocations companionsearchlocations[]
 }
 
 model Companion {
@@ -173,8 +190,10 @@ model Companion {
   description     String[]
   Skintone        String
   height          Int
+  bodytype        String
   account         AccountEnum              @default(REVIEWED)
   rejectedreason  String?
+  baselocation    location[]
 }
 
 model Booking {
@@ -187,10 +206,9 @@ model Booking {
   bookingrate         Int
   bookingstatus       BookingStatus           @default(UNDERREVIEW)
   bookingpurpose      String?
-  finalRate           Int
+  finalRate           Float
   purpose             String?
   OTP                 Int
-  changes             BookingChangesEnum?
   bookinglocation     String
   Transactions        Transactions[]
   ChatRoom            ChatRoom[]
@@ -203,6 +221,7 @@ model Booking {
 
 model Transactions {
   id             String            @id @default(uuid())
+  uitxid         String
   userid         String
   User           User              @relation(fields: [userid], references: [id])
   bookingid      Int
@@ -269,7 +288,7 @@ model Sessions {
   Bookings         Booking  @relation(fields: [bookingid], references: [id])
   sessionStartTime Int
   sessionEndTime   Int
-  isExtended       Boolean
+  isExtended       Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }

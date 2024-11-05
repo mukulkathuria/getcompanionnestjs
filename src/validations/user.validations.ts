@@ -7,7 +7,7 @@ import {
 } from 'src/dto/user.dto';
 
 export const isvalidUserinputs = (userinfo: UpdateUserProfileBodyDto) => {
-  let results = {};
+  const results = {};
   const validsusers = ['firstname', 'lastname', 'gender'];
   for (let i = 0; i < validsusers.length; i += 1) {
     if (userinfo[validsusers[i]] && userinfo[validsusers[i]].trim().length) {
@@ -29,7 +29,7 @@ export const isvalidUserinputs = (userinfo: UpdateUserProfileBodyDto) => {
     results['age'] = Number(userinfo['age']);
   }
   const location = ['zipcode', 'lat', 'lng', 'city'];
-  let locationvalue: UserlocationProfileDto = {};
+  const locationvalue: UserlocationProfileDto = {};
   for (let i = 0; i < location.length; i += 1) {
     if (userinfo[location[i]] && userinfo[location[i]].trim().length) {
       if (location[i] !== 'city' && !isNaN(Number(userinfo[location[i]]))) {
@@ -55,7 +55,7 @@ export const isvalidUserinputs = (userinfo: UpdateUserProfileBodyDto) => {
 export const isvalidComanioninputs = (
   userinfo: UpdateCompanionProfileBodyDto,
 ) => {
-  let results = {};
+  const results = {};
   let descriptionDetails: CompanionDescriptionEnum[] | null = null;
   try {
     if (userinfo.description) {
@@ -64,6 +64,7 @@ export const isvalidComanioninputs = (
         ? tempdesc.map((l) => l.trim())
         : [];
     }
+    // eslint-disable-next-line
   } catch (error) {
     return { error: { status: 422, message: 'Invalid Description' } };
   }
@@ -88,7 +89,7 @@ export const isvalidComanioninputs = (
     results['age'] = Number(userinfo['age']);
   }
   const location = ['zipcode', 'lat', 'lng', 'city'];
-  let locationvalue: UserlocationProfileDto = {};
+  const locationvalue: UserlocationProfileDto = {};
   for (let i = 0; i < location.length; i += 1) {
     if (userinfo[location[i]] && userinfo[location[i]].trim().length) {
       if (location[i] !== 'city' && !isNaN(Number(userinfo[location[i]]))) {
@@ -109,17 +110,17 @@ export const isvalidComanioninputs = (
     }
   }
 
-  const companionvalues = ['bookingrate', 'height', 'skintone'];
+  const companionvalues = ['bookingrate', 'height', 'skintone' , 'bodytype'];
   const companion: UserCompanionProfileDto = {};
   for (let i = 0; i < companionvalues.length; i += 1) {
     if (
       userinfo[companionvalues[i]] &&
       userinfo[companionvalues[i]].trim().length
     ) {
-      if (companionvalues[i] !== 'skintone' && !isNaN(Number(userinfo[companionvalues[i]]))) {
+      if ((companionvalues[i] !== 'skintone' || companionvalues[i] !== 'bodytype') && !isNaN(Number(userinfo[companionvalues[i]]))) {
         companion[companionvalues[i]] = Number(userinfo[companionvalues[i]]);
       } else if (
-        location[i] !== 'skintone' &&
+        (companionvalues[i] !== 'skintone' || companionvalues[i] !== 'bodytype')&&
         isNaN(Number(userinfo[companionvalues[i]]))
       ) {
         return {

@@ -1,9 +1,14 @@
-MIT License
+Copyright © ZesfulAmigos 2024. All rights reserved.
 
-Copyright (c) 2022
+This repository and its contents (hereafter referred to as "Software") are the exclusive property of ZestfulAmigos. Unauthorized copying, distribution, modification, or commercial use of any part of this Software is strictly prohibited, except under the terms outlined below.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+1. Permitted Uses
+Educational/Study Purposes: Users may view, analyze, and use the code for personal, educational, or study purposes. However, copying, distribution, or modification beyond these uses is prohibited without prior written consent from ZestfulAmigos.
+2. Restricted Uses
+Commercial Use: Use of this Software for any commercial purpose, including distribution or integration into any commercial products or services, is strictly prohibited.
+Copying and Distribution: Unauthorized copying, redistribution, or publishing of any part of this Software, either in original or modified form, is not permitted.
+3. No Warranty
+This Software is provided "as-is" without any warranty of any kind, express or implied, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability arising from, out of, or in connection with the Software.
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+For further inquiries, please contact zestfulamigos@gmail.com.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

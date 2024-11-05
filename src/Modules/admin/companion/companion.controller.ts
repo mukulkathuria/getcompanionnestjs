@@ -11,8 +11,8 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
+  COMPANIONIMAGESMAXCOUNT,
   UserImageMulterConfig,
-  USERIMAGESMAXCOUNT,
 } from 'src/config/multer.config';
 import { controllerReturnDto } from 'src/dto/common.dto';
 import {
@@ -33,7 +33,7 @@ export class CompanionController {
   @Post('registercompanion')
   @HttpCode(200)
   @UseInterceptors(
-    FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
+    FilesInterceptor('images', COMPANIONIMAGESMAXCOUNT, UserImageMulterConfig),
   )
   async registerCompanionController(
     @Body() userinfo: registerBodyDto,
@@ -58,7 +58,7 @@ export class CompanionController {
   @Post('updatecompanionprofile/:id')
   @HttpCode(200)
   @UseInterceptors(
-    FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
+    FilesInterceptor('images', COMPANIONIMAGESMAXCOUNT, UserImageMulterConfig),
   )
   async userupdatecompanionprofileController(
     @Param() id: UserProfileParamsDto,

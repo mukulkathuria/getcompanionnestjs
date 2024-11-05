@@ -18,6 +18,7 @@ export type registerBodyDto = {
   age: string;
   bookingrate?: string,
   height?: string
+  bodytype?: string
 };
 
 export interface returnRegisterUserDto extends errorDto {

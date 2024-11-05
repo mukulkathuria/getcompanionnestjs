@@ -1,11 +1,11 @@
 import {
   Body,
   Controller,
-  FileTypeValidator,
+  // FileTypeValidator,
   HttpCode,
   HttpException,
-  MaxFileSizeValidator,
-  ParseFilePipe,
+  // MaxFileSizeValidator,
+  // ParseFilePipe,
   Post,
   Req,
   UploadedFiles,
@@ -24,7 +24,7 @@ import {
 import { controllerReturnDto } from 'src/dto/common.dto';
 import { AuthGuard } from 'src/guards/jwt.guard';
 import { AuthService } from './auth.service';
-import { AdminGuard } from 'src/guards/admin.guard';
+// import { AdminGuard } from 'src/guards/admin.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   UserImageMulterConfig,

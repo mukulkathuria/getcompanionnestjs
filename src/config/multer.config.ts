@@ -1,7 +1,8 @@
 import { MulterModuleOptions } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 
-export const USERIMAGESMAXCOUNT = 3;
+export const USERIMAGESMAXCOUNT = 1;
+export const COMPANIONIMAGESMAXCOUNT = 4;
 export const UserImageMulterConfig: MulterModuleOptions = {
   storage: diskStorage({
     destination: 'UserPhotos',
