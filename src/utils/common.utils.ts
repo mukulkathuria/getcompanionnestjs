@@ -45,8 +45,8 @@ export function createOTP() {
   return Math.floor(1000 + Math.random() * 9000);
 }
 
-export function getdefaultexpirydate(): Date {
+export function getdefaultexpirydate(): number {
   const tenYearsFromNow = new Date();
   tenYearsFromNow.setFullYear(tenYearsFromNow.getFullYear() + 10);
-  return tenYearsFromNow;
+  return tenYearsFromNow.getTime();
 }
