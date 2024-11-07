@@ -110,7 +110,7 @@ model notification {
   content            String
   foruser            String?
   isGobal            Boolean                    @default(false)
-  reminders          Int[]
+  reminders          String[]
   fromModule         NotificationFromModuleEnum @default(GLOBAL)
   moduleotherDetails Json?
   User               User?                      @relation(fields: [foruser], references: [id])

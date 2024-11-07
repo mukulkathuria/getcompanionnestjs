@@ -6,3 +6,4 @@ export const AdminUserTransactionsRoute = AdminRoute + '/transactions';
 export const AdminUserCompanionFindRoute = AdminRoute + '/companionfind';
 export const AdminUserChatRoomRoute = '/userchatrooms';
 export const AdminAcceptanceRoute = AdminRoute + '/accept'
+export const AdminIssuesRoute = AdminRoute + '/issues';
