@@ -18,7 +18,23 @@ export class UserBookingsService {
   async getAllBookingsForUser(): Promise<UserBookingReturnDto> {
     try {
       const data = await this.prismaService.booking.findMany({
+        where: { bookingstart: { gt: Date.now() } },
         include: { User: { where: { id: 'ad' } } },
+      });
+      return { data };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getpreviousBookingsForUser(): Promise<UserBookingReturnDto> {
+    try {
+      const data = await this.prismaService.booking.findMany({
+        where: { bookingend: { lte: Date.now() } },
+        include: { User: { where: { id: 'ad' } } },
+        orderBy: { bookingend: 'desc' },
+        take: 5
       });
       return { data };
     } catch (error) {
@@ -39,15 +55,21 @@ export class UserBookingsService {
           : 'minute';
       const endDate = dayjs(bookingDetails.bookingdate)
         .add(bookingDetails.bookingduration, hrmin)
-        .toDate().getTime();
+        .toDate()
+        .getTime();
       const isSlotAvailable = await this.prismaService.user.findMany({
         where: { id: bookingDetails.companionId, isCompanion: true },
         include: {
           Booking: {
             where: {
-              bookingstart: { lte: dayjs(bookingDetails.bookingdate).toDate().getTime() },
+              bookingstart: {
+                lte: dayjs(bookingDetails.bookingdate).toDate().getTime(),
+              },
               bookingend: {
-                gt: dayjs(bookingDetails.bookingdate).add(1, 'hour').toDate().getTime(),
+                gt: dayjs(bookingDetails.bookingdate)
+                  .add(1, 'hour')
+                  .toDate()
+                  .getTime(),
               },
             },
           },
@@ -64,6 +86,7 @@ export class UserBookingsService {
           isSlotAvailable[0].Companion[0],
         ),
       };
+      // eslint-disable-next-line
       const data = await this.prismaService.booking.create({
         data: {
           User: {
@@ -77,6 +100,9 @@ export class UserBookingsService {
           bookingend: endDate,
           OTP: createOTP(),
           bookingdurationUnit: bookingDetails.bookingdurationUnit,
+          Meetinglocation: {
+            create: { ...bookingDetails.bookinglocation, basefrom: 'BOOKING' },
+          },
           ...rates,
         },
       });

@@ -29,6 +29,7 @@ enum CompanionBookingUnitEnum {
 enum Gender {
   MALE
   FEMALE
+  OTHER
 }
 
 enum BookingStatus {
@@ -43,6 +44,7 @@ enum BookingStatus {
 enum TransactionStatus {
   COMPLETED
   UNDERPROCESSED
+  REFUNDED
   DECLINED
 }
 
@@ -67,6 +69,12 @@ enum NotificationFromModuleEnum {
   TRANSACTIONS
   USER
   GLOBAL
+}
+
+enum UserIssuesStatusEnum {
+  ACTIVE
+  REJECTED
+  RESOLVED
 }
 
 enum CompanionDescriptionEnum {
@@ -176,6 +184,7 @@ model User {
   livelocation             livelocation[]
   companionsearchlocations companionsearchlocations[]
   notifications            notification[]
+  userissues               userissues[]
   ratingsGiven             rating[]                   @relation("Rater")
   ratingsReceived          rating[]                   @relation("Ratee")
   createdAt                DateTime                   @default(now())
@@ -217,6 +226,7 @@ model Booking {
   updatedAt           DateTime                @updatedAt
   livelocation        livelocation[]
   Meetinglocation     location[]
+  rating              rating?
 }
 
 model Transactions {
@@ -241,6 +251,8 @@ model rating {
   rateeId   String
   ratings   Int
   comment   String?
+  bookingId Int      @unique
+  Booking   Booking  @relation(fields: [bookingId], references: [id])
   rater     User     @relation("Rater", fields: [raterId], references: [id])
   ratee     User     @relation("Ratee", fields: [rateeId], references: [id])
   createdAt DateTime @default(now())
@@ -291,4 +303,26 @@ model Sessions {
   isExtended       Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+model userissues {
+  id          String               @id @default(uuid())
+  subject     String
+  explanation String
+  userid      String
+  User        User                 @relation(references: [id], fields: [userid])
+  status      UserIssuesStatusEnum @default(ACTIVE)
+  resolvedBy  String?
+  comments    issuescomments[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+}
+
+model issuescomments {
+  id         Int        @id @default(autoincrement())
+  issueid    String
+  UserIssue  userissues @relation(fields: [issueid], references: [id])
+  comment    String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 }
