@@ -51,6 +51,12 @@ export function getdefaultexpirydate(): number {
   return tenYearsFromNow.getTime();
 }
 
+export function getdeletedUserexpirydate(): number {
+  const thirtysixhoursnornow = new Date();
+  thirtysixhoursnornow.setHours(thirtysixhoursnornow.getHours() + 36);
+  return thirtysixhoursnornow.getTime();
+}
+
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;

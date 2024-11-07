@@ -34,7 +34,7 @@ export class UserBookingsService {
         where: { bookingend: { lte: Date.now() } },
         include: { User: { where: { id: 'ad' } } },
         orderBy: { bookingend: 'desc' },
-        take: 5
+        take: 5,
       });
       return { data };
     } catch (error) {
@@ -109,7 +109,19 @@ export class UserBookingsService {
       return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);
-      console.log(error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async checkBookedSlotsforCompanion() {
+    try {
+      const userdata = await this.prismaService.booking.findMany({
+        where: { bookingend: { lt: Date.now() } },
+        include: { User: { where: { id: 'abc', isCompanion: true } } },
+      });
+      return { data: userdata };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
   }

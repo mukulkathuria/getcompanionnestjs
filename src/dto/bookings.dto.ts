@@ -1,5 +1,6 @@
 import { Booking } from '@prisma/client';
 import { errorDto } from './common.dto';
+import { userCompanionFindLocationInputDto } from './companionfind.dto';
 
 export enum BookingDurationUnitEnum {
   HOUR = 'HOUR',
@@ -15,6 +16,7 @@ export interface userBookingBodyDto {
   bookingdate: Date;
   bookingduration: number;
   bookingdurationUnit: BookingDurationUnitEnum;
+  bookinglocation: userCompanionFindLocationInputDto;
 }
 
 export interface userBookingReturnDto extends errorDto{

@@ -12,9 +12,22 @@ export class UserTransactionService {
   ): Promise<BookingTransactionReturnDto> {
     try {
       const transactions = await this.prismaService.transactions.findMany({
-        where: { bookingid: 1 },
+        where: { bookingid },
       });
       return { data: transactions };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getPreviousTransactions() {
+    try {
+      const userDetails = await this.prismaService.user.findUnique({
+        where: { id: 'abc' },
+        include: { Transactions: { take: 5, orderBy: { createdAt: 'desc' } } },
+      });
+      return { data: userDetails.Transactions };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
