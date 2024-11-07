@@ -31,6 +31,7 @@ export class AcceptanceController {
       } else {
         throw new HttpException(error.message, error.status);
       }
+      // eslint-disable-next-line
     } catch (error) {
       throw new HttpException('Server error', 500);
     }

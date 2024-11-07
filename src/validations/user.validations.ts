@@ -1,3 +1,4 @@
+import { userCompanionFindLocationInputDto } from 'src/dto/companionfind.dto';
 import {
   CompanionDescriptionEnum,
   UpdateCompanionProfileBodyDto,
@@ -149,3 +150,11 @@ export const isvalidComanioninputs = (
     companiondata: companion,
   };
 };
+
+
+export const validateCompanionSearch = (userDetails: userCompanionFindLocationInputDto) => {
+  if(!userDetails.city?.trim().length || !userDetails.lat || !userDetails.lng){
+    return { error:{ status: 422, message: 'Invalid user location details' } }
+  }
+  return { data: userDetails }
+}

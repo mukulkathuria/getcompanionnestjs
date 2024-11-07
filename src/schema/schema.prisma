@@ -102,6 +102,7 @@ model notification {
   content            String
   foruser            String?
   isGobal            Boolean                    @default(false)
+  reminders          Int[]
   fromModule         NotificationFromModuleEnum @default(GLOBAL)
   moduleotherDetails Json?
   User               User?                      @relation(fields: [foruser], references: [id])
@@ -209,7 +210,6 @@ model Booking {
   finalRate           Float
   purpose             String?
   OTP                 Int
-  bookinglocation     String
   Transactions        Transactions[]
   ChatRoom            ChatRoom[]
   Sessions            Sessions[]
