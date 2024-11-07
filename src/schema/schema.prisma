@@ -313,6 +313,7 @@ model userissues {
   User        User                 @relation(references: [id], fields: [userid])
   status      UserIssuesStatusEnum @default(ACTIVE)
   resolvedBy  String?
+  screenshots String[]
   comments    issuescomments[]
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
