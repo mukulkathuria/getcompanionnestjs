@@ -11,3 +11,13 @@ export const UserImageMulterConfig: MulterModuleOptions = {
     },
   }),
 };
+
+export const USERISSUEIMAGESMAXCOUNT = 4;
+export const UserIssuesImageMulterConfig: MulterModuleOptions = {
+  storage: diskStorage({
+    destination: 'UserIssues',
+    filename(req, file, cb) {
+      cb(null, Date.now() + '-' + file.originalname);
+    },
+  }),
+}

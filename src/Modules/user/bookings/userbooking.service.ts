@@ -125,4 +125,41 @@ export class UserBookingsService {
       return { error: { status: 500, message: 'Server error' } };
     }
   }
+
+  async cancelBooking() {
+    try {
+      const bookingDetails = await this.prismaService.booking.findUnique({
+        where: { id: 1 },
+        include: { User: true },
+      });
+      const cancelledByCompanion = bookingDetails.User.find(
+        (l) => l.id === 'ab',
+      );
+      if (cancelledByCompanion.isCompanion) {
+        console.log(
+          'First send confirmation from admin then Need to send the mail to user for modification',
+        );
+      }
+      const timeofcancellation =
+        bookingDetails.bookingstart - Date.now() / (1000 * 60 * 60);
+      if (timeofcancellation < 0) {
+        return {
+          error: { status: 422, message: "You can't cancel past booking" },
+        };
+      } else if (timeofcancellation < 12) {
+        console.log('No refunded amount');
+      } else {
+        console.log('Refund some amount ');
+      }
+
+      const userdata = await this.prismaService.booking.findMany({
+        where: { bookingend: { lt: Date.now() } },
+        include: { User: { where: { id: 'abc', isCompanion: true } } },
+      });
+      return { data: userdata };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
 }
