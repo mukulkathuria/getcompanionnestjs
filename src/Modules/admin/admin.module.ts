@@ -5,6 +5,7 @@ import { AdminBookingModule } from './adminbooking/adminbooking.module';
 import { S3Service } from 'src/Services/s3.service';
 
 @Module({
-  imports: [AdminCompanionModule, AcceptanceModule, AdminBookingModule, S3Service],
+  imports: [AdminCompanionModule, AcceptanceModule, AdminBookingModule],
+  providers: [S3Service],
 })
 export class AdminModule {}

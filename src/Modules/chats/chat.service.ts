@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   // ImageMimeType,
-  joinedRoomDto,
+  // joinedRoomDto,
   messageRoomDto,
   // sendFileDto,
 } from './dto/joinroom.dto';
@@ -15,7 +15,7 @@ export class ChatService {
   // async adduserchatroom(roomuser: joinedRoomDto) {
   //   const { username, roomid } = roomuser;
   //   try {
-      
+
   //     return { data };
   //   } catch (error) {
   //     return { error: { status: 500, message: 'Server error' } };
@@ -65,6 +65,7 @@ export class ChatService {
       console.log(updatedMessges);
       return { userData: updatedMessges };
     } catch (error) {
+      this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
   }

@@ -3,6 +3,7 @@ import { PrismaService } from 'src/Services/prisma.service';
 import { successErrorReturnDto } from 'src/dto/common.dto';
 // import { AccountEnum } from '@prisma/client';
 import { UpdateUserProfileBodyDto } from 'src/dto/user.dto';
+import { getdeletedUserexpirydate } from 'src/utils/common.utils';
 import { isvalidUserinputs } from 'src/validations/user.validations';
 
 @Injectable()
@@ -12,10 +13,15 @@ export class UsersService {
 
   async deleteUser(): Promise<successErrorReturnDto> {
     try {
-      console.log('abc');
       // eslint-disable-next-line
+      const updateUser = await this.prismaService.user.update({
+        where: { id: 'abc' },
+        data: { isDeleted: true, expiryDate: getdeletedUserexpirydate() },
+      });
+      return { success: true };
     } catch (error) {
-      return { error: { status: 422, message: 'User email is not valid' } };
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
     }
   }
 
@@ -35,7 +41,7 @@ export class UsersService {
       const allimages = images.map((l) => l.destination + '/' + l.filename);
       if (allimages.length > 1) {
         return {
-          error: { status: 422, message: 'Images more than 3 is not allowed' },
+          error: { status: 422, message: 'Images more than 1 is not allowed' },
         };
       }
       // eslint-disable-next-line
@@ -48,8 +54,8 @@ export class UsersService {
       });
       return { success: true };
     } catch (error) {
-      console.log(error?.message || error);
-      return { error: { status: 500, message: 'Something went wrong' } };
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
     }
   }
 }

@@ -14,7 +14,7 @@ import { S3Service } from 'src/Services/s3.service';
     UserTransactionModule,
     UserSessionModule,
     UsersModule,
-    S3Service
   ],
+  providers: [S3Service],
 })
 export class UserModule {}

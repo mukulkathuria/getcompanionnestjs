@@ -1,7 +1,8 @@
-import { Controller, Get, HttpException, Param, Query } from '@nestjs/common';
+import { Controller, Get, HttpException, UseGuards } from '@nestjs/common';
 import { UserTransactionsRoute } from '../routes/user.routes';
 import { UserTransactionService } from './usertransaction.service';
 import { BookingTransactionReturnDto } from 'src/dto/transactions.dto';
+import { AuthGuard } from 'src/guards/jwt.guard';
 
 @Controller(UserTransactionsRoute)
 export class UserTransactionController {
@@ -9,8 +10,9 @@ export class UserTransactionController {
     private readonly usertransactionservice: UserTransactionService,
   ) {}
 
+  @UseGuards(AuthGuard)
   @Get()
-  async getAllLocations(): Promise<BookingTransactionReturnDto> {
+  async getTransactionforBookingid(): Promise<BookingTransactionReturnDto> {
     const { data, error } =
       await this.usertransactionservice.getAllTransactionForBooking(1);
     if (data) {

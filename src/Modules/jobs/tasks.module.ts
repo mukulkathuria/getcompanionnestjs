@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { UserTasksService } from "./usertaks.service";
 
 @Module({
-    imports: [UserTasksService],
+    providers: [UserTasksService],
   })
   export class TaskModule {}
   

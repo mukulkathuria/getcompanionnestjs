@@ -25,10 +25,12 @@ export const validateregisterUser = (
   try {
     if (userinfo.description) {
       const tempdesc = JSON.parse(userinfo.description as any);
-      userinfo['description'] = Array.isArray(tempdesc) ? tempdesc.map((l) => l.trim()) : []
+      userinfo['description'] = Array.isArray(tempdesc)
+        ? tempdesc.map((l) => l.trim())
+        : [];
     }
   } catch (error) {
-    console.log("Error JSON in description", error, userinfo.description)
+    console.log('Error JSON in description', error, userinfo.description);
     return {
       error: { status: 422, message: 'Companion description is not valid' },
     };
@@ -38,7 +40,7 @@ export const validateregisterUser = (
     description: userinfo?.description,
     bookingrate: userinfo?.bookingrate && userinfo?.bookingrate.trim(),
     height: userinfo?.height && userinfo?.height.trim().length,
-    bodytype: userinfo?.bodytype && userinfo?.bodytype.trim()
+    bodytype: userinfo?.bodytype && userinfo?.bodytype.trim(),
   };
   if (!firstname || !firstname.trim().length) {
     return { error: { status: 422, message: 'First name is required' } };
@@ -79,7 +81,11 @@ export const validateregisterUser = (
     companion.description.length &&
     !companion.description.every((l) => CompanionDescriptionEnum[l])
   ) {
-    console.log("Error in valid description", companion.description, companion.description.every((l) => CompanionDescriptionEnum[l]))
+    console.log(
+      'Error in valid description',
+      companion.description,
+      companion.description.every((l) => CompanionDescriptionEnum[l]),
+    );
     return {
       error: { status: 422, message: 'Companion description is not valid' },
     };
