@@ -146,7 +146,7 @@ export class UserBookingsService {
         return {
           error: { status: 422, message: "You can't cancel past booking" },
         };
-      } else if (timeofcancellation < 12) {
+      } else if (timeofcancellation < 24) {
         console.log('No refunded amount');
       } else {
         console.log('Refund some amount ');

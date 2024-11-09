@@ -10,8 +10,17 @@ export interface CompanionDistanceDto extends coordinatesDto {
   companiondata: Companion;
 }
 
+export interface companionfiltersDto {
+  skintone?: string;
+  bodytype?: string;
+  minAge?: string;
+  maxAge?: string;
+}
+
 export interface userCompanionFindLocationInputDto {
   lat: number;
   lng: number;
   city: string;
+  gender: string;
+  filters?: companionfiltersDto
 }

@@ -78,6 +78,24 @@ enum UserIssuesStatusEnum {
   RESOLVED
 }
 
+enum CompanionBodyTypeEnum {
+  ATHLETIC
+  MUSCULAR
+  SLIM
+  RECTANGLE
+  TRIANGLE
+  SPOON
+  HOURGLASS
+  TOPHOURGLASS
+}
+
+enum CompanionSkinToneEnum {
+  FAIR
+  DARK
+  BROWN
+}
+
+
 enum CompanionDescriptionEnum {
   CASUAL_COMPANIONSHIP
   COFFEEANDCONVERSATIONS

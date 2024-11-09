@@ -1,11 +1,32 @@
 export enum GenderEnum {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
+  OTHER = 'OTHER',
 }
 
 export enum CompanionBookingUnitEnum {
   PERHOUR = 'PERHOUR',
   PERMINUTE = 'PERMINUTE',
+}
+
+export enum MaleCompanionBodyTypeEnum {
+  ATHLETIC = 'ATHLETIC',
+  MUSCULAR = 'MUSCULAR',
+  SLIM = 'SLIM',
+}
+
+export enum FemaleCompanionBodyTypeEnum {
+  RECTANGLE = 'RECTANGLE',
+  TRIANGLE = 'TRIANGLE',
+  SPOON = 'SPOON',
+  HOURGLASS = 'HOURGLASS',
+  TOPHOURGLASS = 'TOPHOURGLASS',
+}
+
+export enum CompanionSkinToneEnum {
+  FAIR = 'FAIR',
+  DARK = 'DARK',
+  BROWN = 'BOWN',
 }
 
 export enum CompanionDescriptionEnum {
@@ -62,14 +83,14 @@ export interface UpdateCompanionProfileBodyDto {
   height?: string;
 }
 
-export interface UserlocationProfileDto{
+export interface UserlocationProfileDto {
   city?: string;
   zipcode?: number;
   lat?: number;
   lng?: number;
 }
 
-export interface UserCompanionProfileDto{
+export interface UserCompanionProfileDto {
   bookingrate?: number;
   description?: string[];
   skintone?: string;
