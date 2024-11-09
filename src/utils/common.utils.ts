@@ -59,26 +59,34 @@ export function getdeletedUserexpirydate(): number {
 
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
 
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
-export function sortCompanion(userLocation: coordinatesDto, companions: CompanionDistanceDto[]) {
+export function sortCompanion(
+  userLocation: coordinatesDto,
+  companions: CompanionDistanceDto[],
+) {
   const userDetails = {
     lat: userLocation.lat,
-    long: userLocation.lng
-  }
-  const sortedOnes = companions.sort((placeA, placeB) => {
-      const distanceA = haversine(userDetails.lat, userDetails.long, placeA.lat , placeA.lng);
-      const distanceB = haversine(userDetails.lat, userDetails.long, placeB.lat, placeB.lng);
-      return distanceA - distanceB;
+    long: userLocation.lng,
+  };
+  const companionwithdistances = companions.map((l) => ({
+    ...l,
+    distance: haversine(userDetails.lat, userDetails.long, l.lat, l.lng),
+  }));
+  const sortedOnes = companionwithdistances.sort((a, b) => {
+    return a.distance - b.distance;
   });
-  return sortedOnes.map((l) => ({...l.companiondata}))
+  return sortedOnes.map((l) => ({ ...l.companiondata, distance: l.distance }));
 }

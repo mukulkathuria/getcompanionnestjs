@@ -99,3 +99,18 @@ export interface UserCompanionProfileDto {
 export interface UserProfileParamsDto {
   id: string;
 }
+
+export interface CompanionDetailsDto {
+  id: string;
+  bookingrate: number;
+  bookingrateunit: string;
+  description: string[];
+  Skintone: string;
+  height: number;
+  bodytype: string;
+  age: number;
+  firstname: string;
+  lastname: string;
+  gender: string;
+  images: string[];
+}

@@ -1,18 +1,19 @@
 import {
   Body,
   Controller,
-  FileTypeValidator,
+  Delete,
+  Get,
   HttpCode,
   HttpException,
   Param,
-  ParseFilePipe,
   Post,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/jwt.guard';
-import { UserDelete, UserProfileRoute } from '../routes/user.routes';
+import { UserprofileInnerRoute, UserProfileRoute } from '../routes/user.routes';
 import { UsersService } from './users.service';
 import {
   UserImageMulterConfig,
@@ -20,18 +21,20 @@ import {
 } from 'src/config/multer.config';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { controllerReturnDto } from 'src/dto/common.dto';
-import { UpdateUserProfileBodyDto, UserProfileParamsDto } from 'src/dto/user.dto';
+import {
+  UpdateUserProfileBodyDto,
+  UserProfileParamsDto,
+} from 'src/dto/user.dto';
 import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
-import { AdminGuard } from 'src/guards/admin.guard';
 
 @Controller(UserProfileRoute)
 export class DeleteUsersController {
   constructor(private readonly userservice: UsersService) {}
 
   @UseGuards(AuthGuard)
-  @Post(UserDelete)
-  async deleteUsersController() {
-    const { error, success, message } = await this.userservice.deleteUser();
+  @Delete(UserprofileInnerRoute.deleteuser)
+  async deleteUsersController(@Query() userId: string) {
+    const { error, success, message } = await this.userservice.deleteUser(userId);
     if (success) {
       return {
         success: success,
@@ -42,7 +45,8 @@ export class DeleteUsersController {
     }
   }
 
-  @Post('updateprofile/:id')
+  @UseGuards(AuthGuard)
+  @Post(UserprofileInnerRoute.updateprofile)
   @HttpCode(200)
   @UseInterceptors(
     FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
@@ -59,12 +63,26 @@ export class DeleteUsersController {
     const { success, error } = await this.userservice.updateUserProfile(
       userinfo,
       images,
-      id.id
+      id.id,
     );
     if (success) {
       return {
         success,
         message: 'User Updated successfully.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(UserprofileInnerRoute.usertocompaniondetails)
+  async getCompanionDetails(@Query() companionId: string) {
+    const { error, data } =
+      await this.userservice.getCompanionDetails(companionId);
+    if (data) {
+      return {
+        data,
       };
     } else {
       throw new HttpException(error.message, error.status);

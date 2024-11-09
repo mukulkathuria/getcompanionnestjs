@@ -217,9 +217,9 @@ model Companion {
   bookingrate     Int
   bookingrateunit CompanionBookingUnitEnum
   description     String[]
-  Skintone        String
+  Skintone        CompanionSkinToneEnum
   height          Int
-  bodytype        String
+  bodytype        CompanionBodyTypeEnum
   account         AccountEnum              @default(REVIEWED)
   rejectedreason  String?
   baselocation    location[]

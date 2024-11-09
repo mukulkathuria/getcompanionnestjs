@@ -24,19 +24,19 @@ import {
 import { controllerReturnDto } from 'src/dto/common.dto';
 import { AuthGuard } from 'src/guards/jwt.guard';
 import { AuthService } from './auth.service';
-// import { AdminGuard } from 'src/guards/admin.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   UserImageMulterConfig,
   USERIMAGESMAXCOUNT,
 } from 'src/config/multer.config';
 import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
+import { UserAuthInnerRoute } from '../user/routes/user.routes';
 
-@Controller('auth')
+@Controller(UserAuthInnerRoute.base)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
+  @Post(UserAuthInnerRoute.register)
   @HttpCode(200)
   @UseInterceptors(
     FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
@@ -60,7 +60,7 @@ export class AuthController {
     }
   }
 
-  @Post('login')
+  @Post(UserAuthInnerRoute.login)
   @HttpCode(200)
   async loginController(
     @Body() loginInfo: loginBodyDto,
@@ -79,7 +79,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('logout')
+  @Post(UserAuthInnerRoute.logout)
   @HttpCode(200)
   async logoutUser(@Req() req: logoutParamsDto) {
     const { success, error } = await this.authService.getLogout(req);
@@ -94,7 +94,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('refreshtoken')
+  @Post(UserAuthInnerRoute.refreshtoken)
   @HttpCode(200)
   async getRefreshToken(@Body() token: refreshTokenParamsDto) {
     const { error, access_token } =
@@ -109,7 +109,7 @@ export class AuthController {
     }
   }
 
-  @Post('forgot-password')
+  @Post(UserAuthInnerRoute.forgotpassword)
   @HttpCode(200)
   async forgotPassword(@Body() dto: forgotPasswordInitDto) {
     const { error, success } = await this.authService.forgotPassword(dto);
@@ -117,6 +117,38 @@ export class AuthController {
       return {
         success: true,
         message: 'Forgot password Link has been sent to your email.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Post(UserAuthInnerRoute.googlelogin)
+  @HttpCode(200)
+  async googleloginController(@Body() token: string): Promise<loginUserDto> {
+    const { error, access_token, refresh_token } =
+      await this.authService.googleLogin(token);
+    if (access_token && refresh_token) {
+      return {
+        success: true,
+        access_token,
+        refresh_token,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Post(UserAuthInnerRoute.googleregister)
+  @HttpCode(200)
+  async googleregisterController(
+    @Body() token: string,
+  ): Promise<controllerReturnDto> {
+    const { success, error } = await this.authService.registerGoogleUser(token);
+    if (success) {
+      return {
+        success,
+        message: 'User created successfully.',
       };
     } else {
       throw new HttpException(error.message, error.status);

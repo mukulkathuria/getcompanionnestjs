@@ -4,6 +4,7 @@ import { successErrorReturnDto } from 'src/dto/common.dto';
 // import { AccountEnum } from '@prisma/client';
 import { UpdateUserProfileBodyDto } from 'src/dto/user.dto';
 import { getdeletedUserexpirydate } from 'src/utils/common.utils';
+import { filterCompanionDetailsbyuser } from 'src/utils/user.utils';
 import { isvalidUserinputs } from 'src/validations/user.validations';
 
 @Injectable()
@@ -11,11 +12,11 @@ export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(PrismaService.name);
 
-  async deleteUser(): Promise<successErrorReturnDto> {
+  async deleteUser(userId: string): Promise<successErrorReturnDto> {
     try {
       // eslint-disable-next-line
       const updateUser = await this.prismaService.user.update({
-        where: { id: 'abc' },
+        where: { id: userId },
         data: { isDeleted: true, expiryDate: getdeletedUserexpirydate() },
       });
       return { success: true };
@@ -53,6 +54,23 @@ export class UsersService {
         },
       });
       return { success: true };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getCompanionDetails(companionId: string) {
+    try {
+      const data = await this.prismaService.user.findUnique({
+        where: { id: companionId },
+        include: { Companion: true },
+      });
+      if (!data) {
+        return { error: { status: 422, message: 'Invalid companion search' } };
+      }
+      const finaldata = filterCompanionDetailsbyuser(data.Companion[0], data);
+      return { data: finaldata };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
