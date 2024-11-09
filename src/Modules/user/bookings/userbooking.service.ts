@@ -6,7 +6,7 @@ import {
   UserBookingReturnDto,
 } from 'src/dto/bookings.dto';
 import { PrismaService } from 'src/Services/prisma.service';
-import { getFinalRate } from 'src/utils/booking.utils';
+import { filterSlotAvailability, getFinalRate } from 'src/utils/booking.utils';
 import { createOTP } from 'src/utils/common.utils';
 import { isUserBookingValid } from 'src/validations/booking.validation';
 
@@ -15,11 +15,11 @@ export class UserBookingsService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(UserBookingsService.name);
 
-  async getAllBookingsForUser(): Promise<UserBookingReturnDto> {
+  async getAllBookingsForUser(userId: string): Promise<UserBookingReturnDto> {
     try {
       const data = await this.prismaService.booking.findMany({
-        where: { bookingstart: { gt: Date.now() } },
-        include: { User: { where: { id: 'ad' } } },
+        where: { bookingstart: { gt: Date.now() }, bookingstatus: 'ACCEPTED' },
+        include: { User: { where: { id: userId } } },
       });
       return { data };
     } catch (error) {
@@ -113,13 +113,14 @@ export class UserBookingsService {
     }
   }
 
-  async checkBookedSlotsforCompanion() {
+  async checkBookedSlotsforCompanion(companionId: string) {
     try {
       const userdata = await this.prismaService.booking.findMany({
         where: { bookingend: { lt: Date.now() } },
-        include: { User: { where: { id: 'abc', isCompanion: true } } },
+        include: { User: { where: { id: companionId, isCompanion: true } } },
       });
-      return { data: userdata };
+      const filtereddata = filterSlotAvailability(userdata);
+      return { data: filtereddata };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

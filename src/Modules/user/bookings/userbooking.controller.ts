@@ -5,9 +5,10 @@ import {
   HttpCode,
   HttpException,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { UserBookingsRoute } from '../routes/user.routes';
+import { UserBookingInnerRoute, UserBookingsRoute } from '../routes/user.routes';
 import { UserBookingsService } from './userbooking.service';
 import { AuthGuard } from 'src/guards/jwt.guard';
 import { userBookingBodyDto } from 'src/dto/bookings.dto';
@@ -18,10 +19,10 @@ export class UserBookingController {
   constructor(private readonly userbookingservice: UserBookingsService) {}
 
   @UseGuards(AuthGuard)
-  @Get()
-  async getAllUserBooking() {
+  @Get(UserBookingInnerRoute.upcomingbooking)
+  async getAllUpcomingBookingController(@Query() userId: string) {
     const { data, error } =
-      await this.userbookingservice.getAllBookingsForUser();
+      await this.userbookingservice.getAllBookingsForUser(userId);
     if (data) {
       return {
         data,
@@ -32,7 +33,7 @@ export class UserBookingController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('bookingcompanion')
+  @Post(UserBookingInnerRoute.bookacompanion)
   @HttpCode(200)
   async createBookingDetailsController(
     @Body() userinfo: userBookingBodyDto,
@@ -43,6 +44,22 @@ export class UserBookingController {
       return {
         success,
         message: 'Booking created successfully.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(UserBookingInnerRoute.checkcompanionslot)
+  async checkCompanionSlotController(
+    @Query() companionId: string
+  ) {
+    const { data, error } =
+      await this.userbookingservice.checkBookedSlotsforCompanion(companionId);
+    if (data) {
+      return {
+        data,
       };
     } else {
       throw new HttpException(error.message, error.status);

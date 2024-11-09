@@ -21,10 +21,10 @@ export class UserTransactionService {
     }
   }
 
-  async getPreviousTransactions() {
+  async getPreviousTransactions(userId: string) {
     try {
       const userDetails = await this.prismaService.user.findUnique({
-        where: { id: 'abc' },
+        where: { id: userId },
         include: { Transactions: { take: 5, orderBy: { createdAt: 'desc' } } },
       });
       return { data: userDetails.Transactions };

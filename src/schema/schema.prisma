@@ -315,7 +315,7 @@ model usercards {
 
 model Sessions {
   id               String   @id @default(uuid())
-  bookingid        Int
+  bookingid        Int      @unique
   Bookings         Booking  @relation(fields: [bookingid], references: [id])
   sessionStartTime Int
   sessionEndTime   Int

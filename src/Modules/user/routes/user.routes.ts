@@ -26,3 +26,15 @@ export const UserprofileInnerRoute = {
     updateprofile: 'updateprofile/:id',
     usertocompaniondetails: 'usercompaniondetails'
 }
+
+export const UserBookingInnerRoute = {
+  upcomingbooking: 'upcomingbooking',
+  bookacompanion: 'bookacompanion',
+  checkcompanionslot: 'checkcompanionslot'
+}
+
+export const UserSessionInnerRoute = {
+  startsession: 'startsession',
+  endsession: 'endsession',
+  extendsession: 'extendsession'
+}

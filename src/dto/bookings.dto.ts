@@ -22,3 +22,8 @@ export interface userBookingBodyDto {
 export interface userBookingReturnDto extends errorDto{
   data?: userBookingBodyDto
 }
+
+export interface companionslotsavailabilityDto {
+  start: number;
+  end: number;
+}

@@ -53,7 +53,12 @@ export class UserSessionService {
       const data = await this.prismaService.sessions.update({
         where: { id: sessionDetails.sessionid },
         data: {
-          sessionEndTime: new Date().getTime(),
+          Bookings: {
+            update: {
+              data: { bookingstatus: 'COMPLETED' }, //bookingend: Date.now()
+            },
+          },
+          sessionEndTime: Date.now(),
         },
       });
       return { data };
@@ -104,12 +109,12 @@ export class UserSessionService {
         data: {
           isExtended: true,
           sessionEndTime: endTime.getTime(),
-          Bookings: {
-            update: {
-              where: { id: getBookingDetails.bookingid },
-              data: { bookingstatus: 'COMPLETED' },
-            },
-          },
+          // Bookings: {
+          //   update: {
+          //     where: { id: getBookingDetails.bookingid },
+          //     data: { bookingend: endTime.getTime() },
+          //   },
+          // },
         },
       });
       return { data };
