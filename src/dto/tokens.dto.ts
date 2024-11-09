@@ -1,4 +1,6 @@
 export type tokenDto = {
+  userId: string;
+  isCompanion: boolean;
   name: string;
   email: string;
   role: string;
@@ -19,6 +21,8 @@ export type refreshTokenObjDto = {
 };
 
 export type authTokenDto = {
+  id: string;
+  isCompanion: boolean;
   email: string;
   role: string;
   firstname: string;

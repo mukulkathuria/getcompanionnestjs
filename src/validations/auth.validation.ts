@@ -10,6 +10,7 @@ import {
 import { decryptRefreshToken } from 'src/utils/crypt.utils';
 import { decodeRefreshToken } from 'src/guards/strategies/jwt.strategy';
 import { CompanionDescriptionEnum, GenderEnum } from 'src/dto/user.dto';
+import { User } from '@prisma/client';
 
 export const validateregisterUser = (
   userinfo: registerBodyDto,
@@ -139,4 +140,42 @@ export const refreshTokenValidate = (token: refreshTokenParamsDto) => {
   }
 
   return { token: data };
+};
+
+export const basicuservalidationforuserExists =  (
+  userDetails: User,
+  isregistration: boolean = false,
+) => {
+  if (!userDetails) {
+    return { error: { status: 422, message: 'Invalid Credentials' } };
+  } else if (
+    userDetails &&
+    userDetails.isDeleted &&
+    userDetails.expiryDate < Date.now()
+  ) {
+    return {
+      error: {
+        status: 401,
+        message: 'Account Deleted!. Please contact admin',
+      },
+    };
+  }
+  if (isregistration) {
+    if (
+      userDetails &&
+      userDetails.isDeleted &&
+      userDetails.expiryDate < Date.now()
+    ) {
+      return {
+        error: {
+          status: 422,
+          message:
+            'Your Account has been expired please register with new one.',
+        },
+      };
+    } else if (userDetails) {
+      return { error: { status: 422, message: 'User already exists' } };
+    }
+  }
+  return { success: true };
 };

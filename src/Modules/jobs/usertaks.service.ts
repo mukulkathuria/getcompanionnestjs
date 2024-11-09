@@ -14,10 +14,11 @@ export class UserTasksService {
         const filePath = `UserPhotos/${allfiles[i]}`;
         unlinkSync(filePath);
       }
-      const { Jwt } = await import('src/tokens/Jwt');
+      const { Jwt } = await import('../../tokens/Jwt');
       for (let i = 0; i < Object.keys(Jwt.refreshTokens).length; i += 1) {
         Jwt.removeExpiredToken(Jwt.refreshTokens[i]);
       }
+      this.logger.log('UserPhotos deleted successfully');
       return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);

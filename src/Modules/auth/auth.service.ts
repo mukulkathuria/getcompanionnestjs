@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EMAILURL } from 'src/constants/common.constants';
 import { sign } from 'jsonwebtoken';
 import { createTransport } from 'nodemailer';
@@ -30,6 +30,7 @@ import { Jwt } from 'src/tokens/Jwt';
 import { decrypt, encrypt, encryptRefreshToken } from 'src/utils/crypt.utils';
 import { uuid } from 'src/utils/uuid.utils';
 import {
+  basicuservalidationforuserExists,
   refreshTokenValidate,
   validateLoginUser,
   validateregisterUser,
@@ -53,7 +54,9 @@ export class AuthService {
     const payload = {
       email: user.email,
       role: user?.role || Roles.NORMAL,
-      name: user.firstname + ' ' + user.lastname,
+      name: user?.firstname + ' ' + user?.lastname,
+      userId: user?.id,
+      isCompanion: Boolean(user?.isCompanion),
     };
     const id = uuid();
     const refresh_token = sign(
@@ -94,20 +97,9 @@ export class AuthService {
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: user.email },
       });
-      if (
-        isUserExists &&
-        isUserExists.isDeleted &&
-        isUserExists.expiryDate < Date.now()
-      ) {
-        return {
-          error: {
-            status: 422,
-            message:
-              'Your Account has been expired please register with new one.',
-          },
-        };
-      } else if (isUserExists) {
-        return { error: { status: 422, message: 'User already exists' } };
+      const { error } = basicuservalidationforuserExists(isUserExists, true);
+      if (error) {
+        return { error };
       }
       const allimages = images.map((l) => l.destination + '/' + l.filename);
       const userdata = {
@@ -146,22 +138,12 @@ export class AuthService {
         include: { Companion: true },
       });
       const Companion = isUserExists && isUserExists.Companion[0];
-      if (!isUserExists) {
-        return { error: { status: 422, message: 'Invalid Credentials' } };
+      const { error } = basicuservalidationforuserExists(isUserExists);
+      if (error) {
+        return { error };
       } else if (user.password !== decrypt(isUserExists.password)) {
         return {
           error: { status: 422, message: 'Invalid Credentials' },
-        };
-      } else if (
-        isUserExists &&
-        isUserExists.isDeleted &&
-        isUserExists.expiryDate < Date.now()
-      ) {
-        return {
-          error: {
-            status: 401,
-            message: 'Account Deleted!. Please contact admin',
-          },
         };
       } else if (
         isUserExists.isCompanion &&
@@ -227,7 +209,10 @@ export class AuthService {
           email: dto.email,
         },
       });
-      if (!user) throw new ForbiddenException('Credentials incorrect');
+      const { error } = basicuservalidationforuserExists(user);
+      if (error) {
+        return { error };
+      }
       const { access_token } = await this.getUserToken(user);
       const subject = 'Reset Password Email';
       const message =
@@ -282,7 +267,7 @@ export class AuthService {
       if (error) {
         return { error: { status: 403, message: 'Invalid Token' } };
       }
-      const upadteUser = await this.prismaService.user.update({
+      const updateuser = await this.prismaService.user.update({
         where: {
           email: data.email,
         },
@@ -290,7 +275,7 @@ export class AuthService {
           password: encrypt(dto.password),
         },
       });
-      if (upadteUser) {
+      if (updateuser) {
         const { error } = Jwt.removeToken(data.reId);
         if (error) {
           return { error: { status: 403, message: 'Invalid Token' } };
@@ -324,19 +309,9 @@ export class AuthService {
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: collectedData.email },
       });
-      if (!isUserExists) {
-        return { error: { status: 422, message: 'Invalid Credentials' } };
-      } else if (
-        isUserExists &&
-        isUserExists.isDeleted &&
-        isUserExists.expiryDate < Date.now()
-      ) {
-        return {
-          error: {
-            status: 401,
-            message: 'Account Deleted!. Please contact admin',
-          },
-        };
+      const { error } = basicuservalidationforuserExists(isUserExists);
+      if (error) {
+        return { error };
       } 
       const { access_token, refresh_token } =
         await this.getUserToken(isUserExists);
@@ -360,21 +335,10 @@ export class AuthService {
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: collectedData.email },
       });
-      if (
-        isUserExists &&
-        isUserExists.isDeleted &&
-        isUserExists.expiryDate < Date.now()
-      ) {
-        return {
-          error: {
-            status: 422,
-            message:
-              'Your Account has been expired please register with new one.',
-          },
-        };
-      } else if (isUserExists) {
-        return { error: { status: 422, message: 'User already exists' } };
-      }
+      const { error } = basicuservalidationforuserExists(isUserExists, true);
+      if (error) {
+        return { error };
+      } 
       await this.prismaService.user.create({
         data: {
           firstname: collectedData?.given_name || collectedData?.name,
