@@ -9,6 +9,7 @@ export class AcceptanceService {
 
   async acceptBooking(bookingId: number): Promise<controllerReturnDto> {
     try {
+      // eslint-disable-next-line
       const data = await this.prismaService.booking.update({
         where: { id: bookingId },
         data: { bookingstatus: 'ACCEPTED' },

@@ -95,7 +95,6 @@ enum CompanionSkinToneEnum {
   BROWN
 }
 
-
 enum CompanionDescriptionEnum {
   CASUAL_COMPANIONSHIP
   COFFEEANDCONVERSATIONS
@@ -204,6 +203,7 @@ model User {
   companionsearchlocations companionsearchlocations[]
   notifications            notification[]
   userissues               userissues[]
+  issuescomments           issuescomments[]
   ratingsGiven             rating[]                   @relation("Rater")
   ratingsReceived          rating[]                   @relation("Ratee")
   createdAt                DateTime                   @default(now())
@@ -339,10 +339,12 @@ model userissues {
 }
 
 model issuescomments {
-  id         Int        @id @default(autoincrement())
-  issueid    String
-  UserIssue  userissues @relation(fields: [issueid], references: [id])
-  comment    String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id        Int        @id @default(autoincrement())
+  issueid   String
+  UserIssue userissues @relation(fields: [issueid], references: [id])
+  comment   String
+  userid    String
+  User      User       @relation(references: [id], fields: [userid])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
