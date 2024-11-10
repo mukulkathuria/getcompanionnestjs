@@ -1,7 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EMAILURL } from 'src/constants/common.constants';
 import { sign } from 'jsonwebtoken';
-import { createTransport } from 'nodemailer';
 import {
   accessTokenConfig,
   AccessTokenSecret,
@@ -35,19 +33,18 @@ import {
   validateLoginUser,
   validateregisterUser,
 } from 'src/validations/auth.validation';
-import { OAuth2Client } from 'google-auth-library';
 import { getdefaultexpirydate } from 'src/utils/common.utils';
+import { NodeMailerService } from 'src/Services/nodemailer.service';
+import { GoogleService } from 'src/Services/googlelogin.service';
 // import axios from 'axios';
 
 @Injectable()
 export class AuthService {
-  private readonly client: OAuth2Client;
-  constructor(private readonly prismaService: PrismaService) {
-    this.client = new OAuth2Client(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-    );
-  }
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly nodemailerService: NodeMailerService,
+    private readonly googleservice: GoogleService,
+  ) {}
   private readonly logger = new Logger(AuthService.name);
 
   async getUserToken(user: authTokenDto) {
@@ -204,43 +201,25 @@ export class AuthService {
 
   async forgotPassword(dto: forgotPasswordInitDto) {
     try {
-      const user = await this.prismaService.user.findUnique({
-        where: {
-          email: dto.email,
-        },
-      });
-      const { error } = basicuservalidationforuserExists(user);
-      if (error) {
-        return { error };
-      }
-      const { access_token } = await this.getUserToken(user);
+      // const user = await this.prismaService.user.findUnique({
+      //   where: {
+      //     email: dto.email,
+      //   },
+      // });
+      // const { error } = basicuservalidationforuserExists(user);
+      // if (error) {
+      //   return { error };
+      // }
+      // const { access_token } = await this.getUserToken(user);
       const subject = 'Reset Password Email';
-      const message =
-        'Click on this link for reset password : <a href="' +
-        EMAILURL +
-        'forgot-password/' +
-        access_token +
-        '">click</a>';
-      const transporter = createTransport({
-        host: process.env.EMAIL_HOST,
-        port: Number(process.env.EMAIL_PORT),
-        secure: false,
-        tls: {
-          rejectUnauthorized: false,
-        },
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-
+      const message = 'YOU forgot your password here is your OTP:';
       const mailOptions = {
         from: process.env.SENDER_EMAIL,
         to: dto.email,
         subject: subject,
         html: message,
       };
-      const mailSent = await transporter.sendMail(mailOptions);
+      const mailSent = await this.nodemailerService.sendMail(mailOptions);
       if (mailSent) {
         return {
           success: true,
@@ -252,6 +231,7 @@ export class AuthService {
       }
       // eslint-disable-next-line
     } catch (error) {
+      this.logger.error(error?.message || error);
       return {
         error: {
           status: 500,
@@ -301,18 +281,15 @@ export class AuthService {
 
   async googleLogin(token: string) {
     try {
-      const payload = await this.client.verifyIdToken({
-        idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
-      const collectedData = payload.getPayload();
+      const { data: collectedData } =
+        await this.googleservice.verifyGoogleToken(token);
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: collectedData.email },
       });
       const { error } = basicuservalidationforuserExists(isUserExists);
       if (error) {
         return { error };
-      } 
+      }
       const { access_token, refresh_token } =
         await this.getUserToken(isUserExists);
       return {
@@ -327,18 +304,15 @@ export class AuthService {
 
   async registerGoogleUser(token: string) {
     try {
-      const payload = await this.client.verifyIdToken({
-        idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
-      const collectedData = payload.getPayload();
+      const { data: collectedData } =
+        await this.googleservice.verifyGoogleToken(token);
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: collectedData.email },
       });
       const { error } = basicuservalidationforuserExists(isUserExists, true);
       if (error) {
         return { error };
-      } 
+      }
       await this.prismaService.user.create({
         data: {
           firstname: collectedData?.given_name || collectedData?.name,

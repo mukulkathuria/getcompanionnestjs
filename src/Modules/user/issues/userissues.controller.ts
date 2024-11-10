@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpException, Query, UseGuards } from '@nestjs/common';
 import { UserIssuesRoute } from '../routes/user.routes';
 import { AuthGuard } from 'src/guards/jwt.guard';
 import { UserIssuesServices } from './userissues.service';
@@ -9,8 +9,10 @@ export class UserIssuesController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async getAllActiveUserIssue() {
-    const { data, error } = await this.userissuesservices.getAllActiveIssues();
+  async getAllActiveUserIssue(
+    @Query() userId: string
+  ) {
+    const { data, error } = await this.userissuesservices.getAllActiveIssues(userId);
     if (data) {
       return {
         data,

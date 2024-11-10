@@ -8,7 +8,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class S3Service {
-  s3client: S3Client | null = null;
+  private readonly s3client:S3Client;
   constructor() {
     this.s3client = new S3Client({
       credentials: {

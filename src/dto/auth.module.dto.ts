@@ -16,9 +16,9 @@ export type registerBodyDto = {
   lat?: string;
   lng?: string;
   age: string;
-  bookingrate?: string,
-  height?: string
-  bodytype?: string
+  bookingrate?: string;
+  height?: string;
+  bodytype?: string;
 };
 
 export interface returnRegisterUserDto extends errorDto {
@@ -70,5 +70,12 @@ export enum Roles {
   ADMIN = 'ADMIN',
   NORMAL = 'NORMAL',
   COMPANION = 'COMPANION',
-  EMPLOYEE = 'EMPLOYEE'
+  EMPLOYEE = 'EMPLOYEE',
+}
+
+export interface sendMailInputDto {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
 }
