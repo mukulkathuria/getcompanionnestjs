@@ -19,10 +19,7 @@ import {
 } from 'src/dto/auth.module.dto';
 import { successErrorDto } from 'src/dto/common.dto';
 import { authTokenDto } from 'src/dto/tokens.dto';
-import {
-  decodeRefreshToken,
-  validateToken,
-} from 'src/guards/strategies/jwt.strategy';
+import { decodeRefreshToken } from 'src/guards/strategies/jwt.strategy';
 import { PrismaService } from 'src/Services/prisma.service';
 import { Jwt } from 'src/tokens/Jwt';
 import { decrypt, encrypt, encryptRefreshToken } from 'src/utils/crypt.utils';
@@ -201,33 +198,37 @@ export class AuthService {
 
   async forgotPassword(dto: forgotPasswordInitDto) {
     try {
-      // const user = await this.prismaService.user.findUnique({
-      //   where: {
-      //     email: dto.email,
-      //   },
-      // });
-      // const { error } = basicuservalidationforuserExists(user);
-      // if (error) {
-      //   return { error };
-      // }
-      // const { access_token } = await this.getUserToken(user);
+      const { EmailRegex } = await import('../../constants/regex.constants');
+      const { createOTP } = await import('../../utils/common.utils');
+      const { OTPData } = await import('../../Cache/OTP');
+      if (!dto.email || !EmailRegex.test(dto.email)) {
+        return { error: { status: 422, message: 'Invalid email' } };
+      }
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          email: dto.email,
+        },
+      });
+      const { error } = basicuservalidationforuserExists(user);
+      if (error) {
+        return { error };
+      }
+      const OTP = createOTP()
+      OTPData.set(user.id, OTP);
       const subject = 'Reset Password Email';
-      const message = 'YOU forgot your password here is your OTP:';
+      const message = 'YOU forgot your password here is your OTP: ' + OTP;
       const mailOptions = {
-        from: process.env.SENDER_EMAIL,
+        from: process.env.BREVO_SENDER_EMAIL,
         to: dto.email,
         subject: subject,
         html: message,
       };
-      const mailSent = await this.nodemailerService.sendMail(mailOptions);
-      if (mailSent) {
-        return {
-          success: true,
-        };
+      const { success, error: sendmailerror } =
+        await this.nodemailerService.sendMail(mailOptions);
+      if (success) {
+        return { success };
       } else {
-        return {
-          message: 'Something went wrong. Please try again.',
-        };
+        return { error: sendmailerror };
       }
       // eslint-disable-next-line
     } catch (error) {
@@ -243,30 +244,21 @@ export class AuthService {
 
   async resetPassword(dto: forgotPasswordDto) {
     try {
-      const { data, error } = validateToken('Bearer ' + dto.token);
+      const { OTPData } = await import('../../Cache/OTP');
+      const { error } = OTPData.checkValidOTP(dto.OTP);
       if (error) {
-        return { error: { status: 403, message: 'Invalid Token' } };
+        return { error: { status: 422, message: 'Invalid token' } };
       }
       const updateuser = await this.prismaService.user.update({
         where: {
-          email: data.email,
+          email: dto.email,
         },
         data: {
           password: encrypt(dto.password),
         },
       });
       if (updateuser) {
-        const { error } = Jwt.removeToken(data.reId);
-        if (error) {
-          return { error: { status: 403, message: 'Invalid Token' } };
-        }
-        return {
-          success: true,
-        };
-      } else {
-        return {
-          success: false,
-        };
+        return { success: true };
       }
       // eslint-disable-next-line
     } catch (error) {

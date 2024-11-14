@@ -18,6 +18,10 @@ export class UserTasksService {
       for (let i = 0; i < Object.keys(Jwt.refreshTokens).length; i += 1) {
         Jwt.removeExpiredToken(Jwt.refreshTokens[i]);
       }
+      const { OTPData } = await import('../../Cache/OTP');
+      for (let i = 0; i < Object.keys(OTPData.data).length; i += 1) {
+        OTPData.removeExpiredData(OTPData.data[i]);
+      }
       this.logger.log('UserPhotos deleted successfully');
       return { success: true };
     } catch (error) {

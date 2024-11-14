@@ -8,15 +8,15 @@ export class NodeMailerService {
     private readonly client: Transporter<SMTPTransport.SentMessageInfo>;
   constructor() {
     this.client = createTransport({
-      host: process.env.EMAIL_HOST,
+      host: process.env.BREVO_HOST,
       port: Number(process.env.EMAIL_PORT),
       secure: false,
       tls: {
         rejectUnauthorized: false,
       },
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.BREVO_EMAIL_USER,
+        pass: process.env.BREVO_USER_PASS,
       },
     });
   }
@@ -24,6 +24,7 @@ export class NodeMailerService {
   async sendMail(mailOptions: sendMailInputDto) {
     try {
       const mailSent = await this.client.sendMail(mailOptions);
+      console.log(mailSent);
       if (mailSent) {
         return {
           success: true,
@@ -37,6 +38,7 @@ export class NodeMailerService {
         };
       }
     } catch (error) {
+      console.log(error)
       return {
         error: {
           status: 500,
