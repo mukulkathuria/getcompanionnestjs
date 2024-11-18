@@ -13,6 +13,10 @@ import {
 } from 'src/validations/usersession.validation';
 import emailTemplate from 'src/templates/email.template';
 import { NodeMailerService } from 'src/Services/nodemailer.service';
+import { NotificationFromModuleEnum } from 'src/dto/bookings.dto';
+import { Notificationhours } from 'src/constants/common.constants';
+import { addHours } from 'src/utils/common.utils';
+import notificationTemplate from 'src/templates/notification.template';
 
 @Injectable()
 export class UserSessionService {
@@ -88,6 +92,17 @@ export class UserSessionService {
       } = emailTemplate({
         username: user.firstname,
         companion_name: companiondata.firstname,
+      });
+      await this.prismaService.notification.create({
+        data: {
+          fromModule: NotificationFromModuleEnum.BOOKING,
+          expiry: addHours(Notificationhours.getrating),
+          content: notificationTemplate({
+            companion_name: companiondata.firstname,
+          }).getrating,
+          moduleotherDetails: { module: 'rating', id: userdata.Bookings.id },
+          User: { connect: { id: userdata.id } },
+        },
       });
       this.nodemailerService
         .sendMail({

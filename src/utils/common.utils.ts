@@ -90,3 +90,7 @@ export function sortCompanion(
   });
   return sortedOnes.map((l) => ({ ...l.companiondata, distance: l.distance }));
 }
+
+export function addHours(hour: number){
+  return dayjs().add(hour, 'hour').valueOf()
+}

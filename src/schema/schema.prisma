@@ -67,6 +67,7 @@ enum LocationBaseFromEnum {
 
 enum NotificationFromModuleEnum {
   BOOKING
+  RATING
   TRANSACTIONS
   USER
   GLOBAL
@@ -247,7 +248,7 @@ model Booking {
   updatedAt           DateTime                @updatedAt
   livelocation        livelocation[]
   Meetinglocation     location[]
-  rating              rating?
+  rating              rating[]
 }
 
 model Transactions {
@@ -272,7 +273,7 @@ model rating {
   rateeId   String
   ratings   Int
   comment   String?
-  bookingId Int      @unique
+  bookingId Int     
   Booking   Booking  @relation(fields: [bookingId], references: [id])
   rater     User     @relation("Rater", fields: [raterId], references: [id])
   ratee     User     @relation("Ratee", fields: [rateeId], references: [id])

@@ -6,6 +6,14 @@ export enum BookingDurationUnitEnum {
   HOUR = 'HOUR',
   MINUTE = 'MINUTE',
 }
+
+export enum NotificationFromModuleEnum {
+  BOOKING = 'BOOKING',
+  RATING = 'RATING',
+  TRANSACTIONS = 'TRANSACTIONS',
+  USER = 'USER',
+  GLOBAL = 'GLOBAL'
+}
 export interface UserBookingReturnDto extends errorDto {
   data?: Booking[];
 }

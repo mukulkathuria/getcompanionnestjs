@@ -30,10 +30,13 @@ import {
   validateLoginUser,
   validateregisterUser,
 } from 'src/validations/auth.validation';
-import { getdefaultexpirydate } from 'src/utils/common.utils';
+import { addHours, getdefaultexpirydate } from 'src/utils/common.utils';
 import { NodeMailerService } from 'src/Services/nodemailer.service';
 import { GoogleService } from 'src/Services/googlelogin.service';
 import emailTemplate from 'src/templates/email.template';
+import { NotificationFromModuleEnum } from 'src/dto/bookings.dto';
+import { Notificationhours } from 'src/constants/common.constants';
+import notificationTemplate from 'src/templates/notification.template';
 // import axios from 'axios';
 
 @Injectable()
@@ -109,19 +112,32 @@ export class AuthService {
         expiryDate: getdefaultexpirydate(),
       };
       await this.prismaService.user.create({
-        data: userdata,
+        data: {
+          ...userdata,
+          notifications: {
+            create: {
+              fromModule: NotificationFromModuleEnum.USER,
+              expiry: addHours(Notificationhours.welcomeuser),
+              content: notificationTemplate({
+                username: user.firstname,
+              }).welcomeuser,
+            },
+          },
+        },
       });
       const {
         welcome: { subject, body },
       } = emailTemplate({ username: user.firstname });
-      this.nodemailerService.sendMail({
-        from: process.env['BREVO_SENDER_EMAIL'],
-        to: user.email,
-        subject,
-        html: body,
-      }).then(() => {
-        this.logger.log(`Email sent to: ${user.email}`)
-      });
+      this.nodemailerService
+        .sendMail({
+          from: process.env['BREVO_SENDER_EMAIL'],
+          to: user.email,
+          subject,
+          html: body,
+        })
+        .then(() => {
+          this.logger.log(`Email sent to: ${user.email}`);
+        });
       return {
         success: true,
       };
@@ -331,14 +347,16 @@ export class AuthService {
       const {
         welcome: { subject, body },
       } = emailTemplate({ username: collectedData.given_name });
-      this.nodemailerService.sendMail({
-        from: process.env['BREVO_SENDER_EMAIL'],
-        to: collectedData.email,
-        subject,
-        html: body,
-      }).then(() => {
-        this.logger.log(`Email sent to: ${collectedData.email}`)
-      });
+      this.nodemailerService
+        .sendMail({
+          from: process.env['BREVO_SENDER_EMAIL'],
+          to: collectedData.email,
+          subject,
+          html: body,
+        })
+        .then(() => {
+          this.logger.log(`Email sent to: ${collectedData.email}`);
+        });
       return {
         success: true,
       };

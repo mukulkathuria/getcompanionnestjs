@@ -1,16 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as dayjs from 'dayjs';
+import { Notificationhours } from 'src/constants/common.constants';
 import {
   BookingDurationUnitEnum,
   cancelBookingInputDto,
+  NotificationFromModuleEnum,
   userBookingBodyDto,
   UserBookingReturnDto,
 } from 'src/dto/bookings.dto';
 import { NodeMailerService } from 'src/Services/nodemailer.service';
 import { PrismaService } from 'src/Services/prisma.service';
 import emailTemplate from 'src/templates/email.template';
+import notificationTemplate from 'src/templates/notification.template';
 import { filterSlotAvailability, getFinalRate } from 'src/utils/booking.utils';
-import { createOTP } from 'src/utils/common.utils';
+import { addHours, createOTP } from 'src/utils/common.utils';
 import { isUserBookingValid } from 'src/validations/booking.validation';
 
 @Injectable()
@@ -156,12 +159,22 @@ export class UserBookingsService {
           error: { status: 422, message: "You can't cancel past booking" },
         };
       }
+      const userdata = bookingDetails.User.find((l) => !l.isCompanion);
+      const companiondata = bookingDetails.User.find((l) => l.isCompanion);
       await this.prismaService.booking.update({
         where: { id: input.bookingid },
         data: { bookingstatus: 'CANCELLED' },
       });
-      const userdata = bookingDetails.User.find((l) => !l.isCompanion);
-      const companiondata = bookingDetails.User.find((l) => l.isCompanion);
+      await this.prismaService.notification.create({
+        data: {
+          fromModule: NotificationFromModuleEnum.BOOKING,
+          expiry: addHours(Notificationhours.cancellationbyuser),
+          content: notificationTemplate({
+            companion_name: companiondata.firstname,
+          }).cancelationbyuser,
+          User: { connect: { id: userdata.id } },
+        },
+      });
       const totalrefundamount = bookingDetails.finalRate * 0.7;
       const { usercancelbooking, refundprocess } = emailTemplate({
         username: userdata.firstname,
@@ -191,7 +204,7 @@ export class UserBookingsService {
           .then(() => {
             this.logger.log(`Email sent to: ${userdata.email}`);
           });
-          // cancel booking transaction pending
+        // cancel booking transaction pending
       }
       return { success: `Successfully cancelled the booking` };
     } catch (error) {
