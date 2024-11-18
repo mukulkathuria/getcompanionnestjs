@@ -30,7 +30,8 @@ export const UserprofileInnerRoute = {
 export const UserBookingInnerRoute = {
   upcomingbooking: 'upcomingbooking',
   bookacompanion: 'bookacompanion',
-  checkcompanionslot: 'checkcompanionslot'
+  checkcompanionslot: 'checkcompanionslot',
+  cancelbooking: 'cancelbooking'
 }
 
 export const UserSessionInnerRoute = {

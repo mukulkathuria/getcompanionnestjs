@@ -2,17 +2,23 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import {
   BookingDurationUnitEnum,
+  cancelBookingInputDto,
   userBookingBodyDto,
   UserBookingReturnDto,
 } from 'src/dto/bookings.dto';
+import { NodeMailerService } from 'src/Services/nodemailer.service';
 import { PrismaService } from 'src/Services/prisma.service';
+import emailTemplate from 'src/templates/email.template';
 import { filterSlotAvailability, getFinalRate } from 'src/utils/booking.utils';
 import { createOTP } from 'src/utils/common.utils';
 import { isUserBookingValid } from 'src/validations/booking.validation';
 
 @Injectable()
 export class UserBookingsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly nodemailerService: NodeMailerService,
+  ) {}
   private readonly logger = new Logger(UserBookingsService.name);
 
   async getAllBookingsForUser(userId: string): Promise<UserBookingReturnDto> {
@@ -127,19 +133,21 @@ export class UserBookingsService {
     }
   }
 
-  async cancelBooking() {
+  async cancelBooking(input: cancelBookingInputDto) {
     try {
       const bookingDetails = await this.prismaService.booking.findUnique({
-        where: { id: 1 },
+        where: { id: input.bookingid },
         include: { User: true },
       });
       const cancelledByCompanion = bookingDetails.User.find(
-        (l) => l.id === 'ab',
+        (l) => l.id === input.userId,
       );
       if (cancelledByCompanion.isCompanion) {
-        console.log(
-          'First send confirmation from admin then Need to send the mail to user for modification',
-        );
+        await this.prismaService.booking.update({
+          where: { id: input.bookingid },
+          data: { bookingstatus: 'UNDERCANCELLATION' },
+        });
+        return { success: 'Its under consideration. please contact admin' };
       }
       const timeofcancellation =
         bookingDetails.bookingstart - Date.now() / (1000 * 60 * 60);
@@ -147,17 +155,45 @@ export class UserBookingsService {
         return {
           error: { status: 422, message: "You can't cancel past booking" },
         };
-      } else if (timeofcancellation < 24) {
-        console.log('No refunded amount');
-      } else {
-        console.log('Refund some amount ');
       }
-
-      const userdata = await this.prismaService.booking.findMany({
-        where: { bookingend: { lt: Date.now() } },
-        include: { User: { where: { id: 'abc', isCompanion: true } } },
+      await this.prismaService.booking.update({
+        where: { id: input.bookingid },
+        data: { bookingstatus: 'CANCELLED' },
       });
-      return { data: userdata };
+      const userdata = bookingDetails.User.find((l) => !l.isCompanion);
+      const companiondata = bookingDetails.User.find((l) => l.isCompanion);
+      const totalrefundamount = bookingDetails.finalRate * 0.7;
+      const { usercancelbooking, refundprocess } = emailTemplate({
+        username: userdata.firstname,
+        companion_name: companiondata.firstname,
+        refundamount: `₹${totalrefundamount}`,
+      });
+
+      if (timeofcancellation < 24) {
+        this.nodemailerService
+          .sendMail({
+            from: process.env['BREVO_SENDER_EMAIL'],
+            to: userdata.email,
+            subject: usercancelbooking.subject,
+            html: usercancelbooking.body,
+          })
+          .then(() => {
+            this.logger.log(`Email sent to: ${userdata.email}`);
+          });
+      } else {
+        this.nodemailerService
+          .sendMail({
+            from: process.env['BREVO_SENDER_EMAIL'],
+            to: userdata.email,
+            subject: refundprocess.subject,
+            html: refundprocess.body,
+          })
+          .then(() => {
+            this.logger.log(`Email sent to: ${userdata.email}`);
+          });
+          // cancel booking transaction pending
+      }
+      return { success: `Successfully cancelled the booking` };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

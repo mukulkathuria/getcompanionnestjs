@@ -144,6 +144,8 @@ model location {
   zipcode   Int?
   lat       Float?
   lng       Float?
+  userinput String?
+  googleloc String?
   basefrom  LocationBaseFromEnum @default(USER)
   bookingid Int?
   Booking   Booking?             @relation(fields: [bookingid], references: [id])

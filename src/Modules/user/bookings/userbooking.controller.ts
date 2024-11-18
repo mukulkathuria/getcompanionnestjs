@@ -8,10 +8,16 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UserBookingInnerRoute, UserBookingsRoute } from '../routes/user.routes';
+import {
+  UserBookingInnerRoute,
+  UserBookingsRoute,
+} from '../routes/user.routes';
 import { UserBookingsService } from './userbooking.service';
 import { AuthGuard } from 'src/guards/jwt.guard';
-import { userBookingBodyDto } from 'src/dto/bookings.dto';
+import {
+  cancelBookingInputDto,
+  userBookingBodyDto,
+} from 'src/dto/bookings.dto';
 import { controllerReturnDto } from 'src/dto/common.dto';
 
 @Controller(UserBookingsRoute)
@@ -52,14 +58,26 @@ export class UserBookingController {
 
   @UseGuards(AuthGuard)
   @Get(UserBookingInnerRoute.checkcompanionslot)
-  async checkCompanionSlotController(
-    @Query() companionId: string
-  ) {
+  async checkCompanionSlotController(@Query() companionId: string) {
     const { data, error } =
       await this.userbookingservice.checkBookedSlotsforCompanion(companionId);
     if (data) {
       return {
         data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(UserBookingInnerRoute.cancelbooking)
+  async cancelBookingController(@Body() bookingDetails: cancelBookingInputDto) {
+    const { success, error } =
+      await this.userbookingservice.cancelBooking(bookingDetails);
+    if (success) {
+      return {
+        data: success,
       };
     } else {
       throw new HttpException(error.message, error.status);

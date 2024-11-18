@@ -33,6 +33,7 @@ import {
 import { getdefaultexpirydate } from 'src/utils/common.utils';
 import { NodeMailerService } from 'src/Services/nodemailer.service';
 import { GoogleService } from 'src/Services/googlelogin.service';
+import emailTemplate from 'src/templates/email.template';
 // import axios from 'axios';
 
 @Injectable()
@@ -109,6 +110,17 @@ export class AuthService {
       };
       await this.prismaService.user.create({
         data: userdata,
+      });
+      const {
+        welcome: { subject, body },
+      } = emailTemplate({ username: user.firstname });
+      this.nodemailerService.sendMail({
+        from: process.env['BREVO_SENDER_EMAIL'],
+        to: user.email,
+        subject,
+        html: body,
+      }).then(() => {
+        this.logger.log(`Email sent to: ${user.email}`)
       });
       return {
         success: true,
@@ -213,7 +225,7 @@ export class AuthService {
       if (error) {
         return { error };
       }
-      const OTP = createOTP()
+      const OTP = createOTP();
       OTPData.set(user.id, OTP);
       const subject = 'Reset Password Email';
       const message = 'YOU forgot your password here is your OTP: ' + OTP;
@@ -315,6 +327,17 @@ export class AuthService {
           lastlogin: Date.now(),
           expiryDate: getdefaultexpirydate(),
         },
+      });
+      const {
+        welcome: { subject, body },
+      } = emailTemplate({ username: collectedData.given_name });
+      this.nodemailerService.sendMail({
+        from: process.env['BREVO_SENDER_EMAIL'],
+        to: collectedData.email,
+        subject,
+        html: body,
+      }).then(() => {
+        this.logger.log(`Email sent to: ${collectedData.email}`)
       });
       return {
         success: true,

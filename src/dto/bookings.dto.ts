@@ -27,3 +27,8 @@ export interface companionslotsavailabilityDto {
   start: number;
   end: number;
 }
+
+export interface cancelBookingInputDto {
+  bookingid: number;
+  userId: string;
+}

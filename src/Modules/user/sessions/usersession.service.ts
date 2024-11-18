@@ -11,10 +11,15 @@ import {
   checkValidExtendSessionData,
   checkValidStartSessionData,
 } from 'src/validations/usersession.validation';
+import emailTemplate from 'src/templates/email.template';
+import { NodeMailerService } from 'src/Services/nodemailer.service';
 
 @Injectable()
 export class UserSessionService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly nodemailerService: NodeMailerService,
+  ) {}
   private readonly logger = new Logger(UserSessionService.name);
 
   async startSession(sessionDetails: StartBookingBodyparamsDto) {
@@ -50,6 +55,22 @@ export class UserSessionService {
       if (error) {
         return { error };
       }
+      const userdata = await this.prismaService.sessions.findUnique({
+        where: { id: sessionDetails.sessionid },
+        include: {
+          Bookings: {
+            include: {
+              User: {
+                select: { firstname: true, isCompanion: true, email: true },
+              },
+            },
+          },
+        },
+      });
+      if (!userdata) {
+        return { error: { status: 422, message: 'session not found' } };
+      }
+      const companiondata = userdata.Bookings.User.find((l) => l.isCompanion);
       const data = await this.prismaService.sessions.update({
         where: { id: sessionDetails.sessionid },
         data: {
@@ -61,6 +82,23 @@ export class UserSessionService {
           sessionEndTime: Date.now(),
         },
       });
+      const user = userdata.Bookings.User.find((l) => !l.isCompanion);
+      const {
+        feedbackrequest: { subject, body },
+      } = emailTemplate({
+        username: user.firstname,
+        companion_name: companiondata.firstname,
+      });
+      this.nodemailerService
+        .sendMail({
+          from: process.env['BREVO_SENDER_EMAIL'],
+          to: user.email,
+          subject,
+          html: body,
+        })
+        .then(() => {
+          this.logger.log(`Email sent to: ${user.email}`);
+        });
       return { data };
     } catch (error) {
       this.logger.debug(error?.message || error);

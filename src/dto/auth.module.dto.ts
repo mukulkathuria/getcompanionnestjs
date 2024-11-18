@@ -44,7 +44,8 @@ export interface forgotPasswordInitDto {
 }
 
 export interface forgotPasswordDto {
-  token: string;
+  OTP: string;
+  email: string;
   password: string;
 }
 
