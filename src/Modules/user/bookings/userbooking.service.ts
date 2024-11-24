@@ -13,7 +13,7 @@ import { PrismaService } from 'src/Services/prisma.service';
 import emailTemplate from 'src/templates/email.template';
 import notificationTemplate from 'src/templates/notification.template';
 import { filterSlotAvailability, getFinalRate } from 'src/utils/booking.utils';
-import { addHours, createOTP } from 'src/utils/common.utils';
+import { addHours, convertToDateTime, createOTP } from 'src/utils/common.utils';
 import { isUserBookingValid } from 'src/validations/booking.validation';
 
 @Injectable()
@@ -145,10 +145,25 @@ export class UserBookingsService {
       const cancelledByCompanion = bookingDetails.User.find(
         (l) => l.id === input.userId,
       );
+      const userdata = bookingDetails.User.find((l) => !l.isCompanion);
+      const companiondata = bookingDetails.User.find((l) => l.isCompanion);
       if (cancelledByCompanion.isCompanion) {
         await this.prismaService.booking.update({
           where: { id: input.bookingid },
           data: { bookingstatus: 'UNDERCANCELLATION' },
+        });
+        await this.prismaService.notification.create({
+          data: {
+            fromModule: NotificationFromModuleEnum.BOOKING,
+            expiry: addHours(Notificationhours.cancellationbyadmin),
+            content: notificationTemplate({
+              companion_name: companiondata.firstname,
+              username: userdata.firstname,
+              date_time: convertToDateTime(bookingDetails.bookingstart)
+            }).cancelationrequestbycompanion,
+            contentforadmin: `${companiondata.firstname} has requested for cancellation see more details here.`,
+            User: { connect: { id: userdata.id } },
+          },
         });
         return { success: 'Its under consideration. please contact admin' };
       }
@@ -159,12 +174,11 @@ export class UserBookingsService {
           error: { status: 422, message: "You can't cancel past booking" },
         };
       }
-      const userdata = bookingDetails.User.find((l) => !l.isCompanion);
-      const companiondata = bookingDetails.User.find((l) => l.isCompanion);
       await this.prismaService.booking.update({
         where: { id: input.bookingid },
         data: { bookingstatus: 'CANCELLED' },
       });
+      const totalrefundamount = bookingDetails.finalRate * 0.7;
       await this.prismaService.notification.create({
         data: {
           fromModule: NotificationFromModuleEnum.BOOKING,
@@ -172,10 +186,13 @@ export class UserBookingsService {
           content: notificationTemplate({
             companion_name: companiondata.firstname,
           }).cancelationbyuser,
+          contentforadmin:
+            timeofcancellation > 24
+              ? `${userdata.firstname} is cancelled for companion ${companiondata.firstname} with refunded amount of ${totalrefundamount}`
+              : null,
           User: { connect: { id: userdata.id } },
         },
       });
-      const totalrefundamount = bookingDetails.finalRate * 0.7;
       const { usercancelbooking, refundprocess } = emailTemplate({
         username: userdata.firstname,
         companion_name: companiondata.firstname,

@@ -123,11 +123,11 @@ export class UserSessionService {
 
   async extendSession(sessionDetails: SessionExtendBodyParamsDto) {
     try {
-      const { error } = checkValidExtendSessionData(sessionDetails);
+      const { error, data: userextenddata } =
+        checkValidExtendSessionData(sessionDetails);
       if (error) {
         return { error };
       }
-      const endTime = new Date(sessionDetails.endtime);
       const getBookingDetails = await this.prismaService.sessions.findUnique({
         where: { id: sessionDetails.sessionid },
         include: { Bookings: { include: { User: true } } },
@@ -135,6 +135,9 @@ export class UserSessionService {
       if (!getBookingDetails) {
         return { error: { status: 422, message: 'Booking not found' } };
       }
+      const endTime = dayjs(getBookingDetails.Bookings.bookingend)
+        .add(userextenddata.endTime, userextenddata.endHour)
+        .valueOf();
       const companionuser = getBookingDetails.Bookings.User.find(
         (l) => l.isCompanion,
       );
@@ -144,10 +147,10 @@ export class UserSessionService {
           Booking: {
             where: {
               bookingstart: {
-                lte: dayjs(endTime).toDate().getTime(),
+                lte: endTime,
               },
               bookingend: {
-                gt: dayjs(endTime).toDate().getTime(),
+                gt: endTime,
               },
             },
           },
@@ -161,7 +164,7 @@ export class UserSessionService {
         where: { id: sessionDetails.sessionid },
         data: {
           isExtended: true,
-          sessionEndTime: endTime.getTime(),
+          sessionEndTime: endTime,
           // Bookings: {
           //   update: {
           //     where: { id: getBookingDetails.bookingid },

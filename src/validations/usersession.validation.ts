@@ -1,4 +1,4 @@
-import * as dayjs from 'dayjs';
+import { ManipulateType } from 'dayjs';
 // import * as customParseFormat from 'dayjs/plugin/customParseFormat';
 import { controllerReturnDto } from 'src/dto/common.dto';
 import {
@@ -32,15 +32,26 @@ export const checkValidEndSessionData = (
 
 export const checkValidExtendSessionData = (
   sessiondetails: SessionExtendBodyParamsDto,
-): controllerReturnDto => {
+) => {
+  const endTime = sessiondetails.endtime.split(' ')[0];
+  const endHour = sessiondetails.endtime.split(' ')[1];
   if (!sessiondetails.sessionid || !sessiondetails.sessionid.trim().length) {
     return { error: { status: 422, message: 'Session Id is required' } };
   } else if (!sessiondetails.endtime || !sessiondetails.endtime.trim().length) {
     return { error: { status: 422, message: 'EndTime is required' } };
   } else if (
-    !dayjs(sessiondetails.endtime, 'MM-DD-YYYY HH:mm:ss', true).isValid()
+    !endTime ||
+    isNaN(Number(endTime)) ||
+    (endHour != 'HOUR' && endHour != 'MINUTE')
   ) {
     return { error: { status: 422, message: 'End Time is not valid' } };
   }
-  return { success: true };
+  const hourend: ManipulateType = endHour === 'HOUR' ? 'hour' : 'minute'
+  return {
+    data: {
+      ...sessiondetails,
+      endTime: Number(endTime),
+      endHour: hourend,
+    },
+  };
 };

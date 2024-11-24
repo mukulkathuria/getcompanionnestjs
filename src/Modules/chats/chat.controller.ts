@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { WsAuthGuard } from 'src/guards/wsjwt.guard';
-import { joinedRoomDto, messageRoomDto, sendFileDto } from './dto/joinroom.dto';
+import {  messageRoomDto } from './dto/joinroom.dto';
 import {
   messageRoomValidation,
 } from './validations/chat.validations';

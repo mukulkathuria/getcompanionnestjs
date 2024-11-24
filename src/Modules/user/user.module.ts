@@ -6,6 +6,7 @@ import { UserTransactionModule } from './transactions/usertransaction.module';
 // import { MulterModule } from '@nestjs/platform-express';
 import { UserSessionModule } from './sessions/usersession.module';
 import { S3Service } from 'src/Services/s3.service';
+import { UserNotificationModule } from './notifications/usernotifications.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { S3Service } from 'src/Services/s3.service';
     UserTransactionModule,
     UserSessionModule,
     UsersModule,
+    UserNotificationModule
   ],
   providers: [S3Service],
 })

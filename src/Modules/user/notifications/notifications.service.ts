@@ -7,12 +7,12 @@ export class UserNotificationServices {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(UserNotificationServices.name);
 
-  async getNotificationforUser() {
+  async getNotificationforUser(userId: string) {
     try {
       const data = await this.prismaService.notification.findMany({
         where: {
           expiry: { lt: Date.now() },
-          OR: [{ isGobal: true }, { foruser: 'abc' }],
+          OR: [{ isGobal: true }, { foruser: userId }],
         },
       });
       const finalResults: notification[] = [];

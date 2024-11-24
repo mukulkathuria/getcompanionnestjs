@@ -39,3 +39,7 @@ export const UserSessionInnerRoute = {
   endsession: 'endsession',
   extendsession: 'extendsession'
 }
+
+export const UsernotificationInnerRoute = {
+  getusernotifications: 'usernotification'
+}

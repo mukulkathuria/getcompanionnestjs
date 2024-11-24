@@ -9,6 +9,7 @@ export default function (params: emailTemplateDto) {
     bookingpending: `Your booking is pending . We’ll update you soon! 🕒`,
     cancelationbyuser: `Your booking with ${params.companion_name} has been cancelled. Hope to see you back soon! 👋`,
     cancellationbyadmin: `We’re sorry, your booking with ${params.companion_name} has been cancelled. Check your inbox for details. ❌`,
+    cancelationrequestbycompanion: `Your cancellation request for ${params.username} and time ${params.date_time} is under consideration. Admin will contact you soon.`,
     welcomeuser: `Welcome to Zestful Amigos! Let’s get you set up for an unforgettable experience`,
     profileupdate: `Profile updated successfully! Your details are now up-to-date. ✏️✅`,
     getrating: `How was your experience with ${params.companion_name}? Rate your time with us! ⭐️`,

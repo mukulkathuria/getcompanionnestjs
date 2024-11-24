@@ -91,6 +91,10 @@ export function sortCompanion(
   return sortedOnes.map((l) => ({ ...l.companiondata, distance: l.distance }));
 }
 
-export function addHours(hour: number){
-  return dayjs().add(hour, 'hour').valueOf()
+export function addHours(hour: number, hourorminute? : dayjs.ManipulateType){
+  return dayjs().add(hour, hourorminute || 'hour').valueOf()
+}
+
+export function convertToDateTime(date: number){
+  return dayjs(date).format("DD/MM/YYYY HH:mm")
 }

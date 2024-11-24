@@ -7,7 +7,7 @@ import { NotificationFromModuleEnum } from 'src/dto/bookings.dto';
 import { controllerReturnDto } from 'src/dto/common.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import notificationTemplate from 'src/templates/notification.template';
-import { addHours } from 'src/utils/common.utils';
+import { addHours, convertToDateTime } from 'src/utils/common.utils';
 import * as dayjs from 'dayjs';
 
 @Injectable()
@@ -54,9 +54,7 @@ export class AcceptanceService {
           content: notificationTemplate({
             companion_name: companiondata.firstname,
             username: userdata.id,
-            date_time: dayjs(bookingDetails.bookingstart).format(
-              'DD/MM/YYYY HH:MM',
-            ),
+            date_time: convertToDateTime(bookingDetails.bookingstart),
           }).bookingconfirmation,
           reminders,
           User: { connect: { id: userdata.id } },
