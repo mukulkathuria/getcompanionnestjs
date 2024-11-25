@@ -2,6 +2,7 @@ import * as dayjs from 'dayjs';
 import * as customParseFormat from 'dayjs/plugin/customParseFormat';
 import {
   BookingDurationUnitEnum,
+  cancelBookingInputDto,
   userBookingBodyDto,
   userBookingReturnDto,
 } from 'src/dto/bookings.dto';
@@ -45,4 +46,14 @@ export function isUserBookingValid(
     };
   }
   return { data: userinfo };
+}
+
+export function checkValidCancelBookngInputs(
+  cancelInputs: cancelBookingInputDto,
+) {
+  if (!cancelInputs.userId) {
+    return { error: { status: 422, message: 'User Id is required' } };
+  } else if (!cancelInputs.bookingid) {
+    return { error: { status: 422, message: 'Booking Id is required' } };
+  }
 }

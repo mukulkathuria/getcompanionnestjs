@@ -39,6 +39,20 @@ export class UserBookingController {
   }
 
   @UseGuards(AuthGuard)
+  @Get(UserBookingInnerRoute.previousbookings)
+  async getpreviousbookingcontroller(@Query() userId: string) {
+    const { data, error } =
+      await this.userbookingservice.getpreviousBookingsForUser(userId);
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
   @Post(UserBookingInnerRoute.bookacompanion)
   @HttpCode(200)
   async createBookingDetailsController(

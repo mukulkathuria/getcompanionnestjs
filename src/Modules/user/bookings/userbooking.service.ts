@@ -14,7 +14,10 @@ import emailTemplate from 'src/templates/email.template';
 import notificationTemplate from 'src/templates/notification.template';
 import { filterSlotAvailability, getFinalRate } from 'src/utils/booking.utils';
 import { addHours, convertToDateTime, createOTP } from 'src/utils/common.utils';
-import { isUserBookingValid } from 'src/validations/booking.validation';
+import {
+  checkValidCancelBookngInputs,
+  isUserBookingValid,
+} from 'src/validations/booking.validation';
 
 @Injectable()
 export class UserBookingsService {
@@ -26,10 +29,16 @@ export class UserBookingsService {
 
   async getAllBookingsForUser(userId: string): Promise<UserBookingReturnDto> {
     try {
+      if (!userId) {
+        return { error: { status: 422, message: 'userId is required' } };
+      }
       const data = await this.prismaService.booking.findMany({
         where: { bookingstart: { gt: Date.now() }, bookingstatus: 'ACCEPTED' },
         include: { User: { where: { id: userId } } },
       });
+      if (!data) {
+        return { error: { status: 404, message: 'No Bookings are available' } };
+      }
       return { data };
     } catch (error) {
       this.logger.debug(error?.message || error);
@@ -37,14 +46,22 @@ export class UserBookingsService {
     }
   }
 
-  async getpreviousBookingsForUser(): Promise<UserBookingReturnDto> {
+  async getpreviousBookingsForUser(
+    userId: string,
+  ): Promise<UserBookingReturnDto> {
     try {
+      if (!userId) {
+        return { error: { status: 422, message: 'userId is required' } };
+      }
       const data = await this.prismaService.booking.findMany({
         where: { bookingend: { lte: Date.now() } },
-        include: { User: { where: { id: 'ad' } } },
+        include: { User: { where: { id: userId } } },
         orderBy: { bookingend: 'desc' },
         take: 5,
       });
+      if (!data) {
+        return { error: { status: 404, message: 'No Bookings are available' } };
+      }
       return { data };
     } catch (error) {
       this.logger.debug(error?.message || error);
@@ -124,6 +141,9 @@ export class UserBookingsService {
 
   async checkBookedSlotsforCompanion(companionId: string) {
     try {
+      if (!companionId) {
+        return { error: { status: 422, message: 'companionid is required' } };
+      }
       const userdata = await this.prismaService.booking.findMany({
         where: { bookingend: { lt: Date.now() } },
         include: { User: { where: { id: companionId, isCompanion: true } } },
@@ -138,10 +158,17 @@ export class UserBookingsService {
 
   async cancelBooking(input: cancelBookingInputDto) {
     try {
+      const { error } = checkValidCancelBookngInputs(input);
+      if (error) {
+        return { error };
+      }
       const bookingDetails = await this.prismaService.booking.findUnique({
         where: { id: input.bookingid },
         include: { User: true },
       });
+      if (!bookingDetails) {
+        return { error: { status: 404, message: 'No Bookings found' } };
+      }
       const cancelledByCompanion = bookingDetails.User.find(
         (l) => l.id === input.userId,
       );
@@ -159,7 +186,7 @@ export class UserBookingsService {
             content: notificationTemplate({
               companion_name: companiondata.firstname,
               username: userdata.firstname,
-              date_time: convertToDateTime(bookingDetails.bookingstart)
+              date_time: convertToDateTime(bookingDetails.bookingstart),
             }).cancelationrequestbycompanion,
             contentforadmin: `${companiondata.firstname} has requested for cancellation see more details here.`,
             User: { connect: { id: userdata.id } },

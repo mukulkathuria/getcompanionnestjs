@@ -26,7 +26,7 @@ enum CompanionBookingUnitEnum {
   PERMINUTE
 }
 
-enum Gender {
+enum GenderEnum {
   MALE
   FEMALE
   OTHER
@@ -88,6 +88,27 @@ enum CompanionBodyTypeEnum {
   SPOON
   HOURGLASS
   TOPHOURGLASS
+}
+
+enum CompanionEatingHabitsEnum {
+  VEG
+  NONVEG
+  JAIN
+  EGGETERIAN
+  VEGAN
+}
+
+enum CompanionSmokingHabitEnum {
+  PASSIVE_SMOKER
+  ACTIVE_SMOKER
+  NON_SMOKER
+  OCCASIONALLY
+}
+
+enum CompanionDrinkingHabitEnum {
+  DAILY_DRINKER
+  NON_DRINKER
+  OCCASIONALLY
 }
 
 enum CompanionSkinToneEnum {
@@ -192,7 +213,7 @@ model User {
   Images                   String[]
   isCompanion              Boolean                    @default(false)
   role                     Roles                      @default(NORMAL)
-  gender                   Gender?
+  gender                   GenderEnum?
   age                      Int?
   lastlogin                Int
   isDeleted                Boolean                    @default(false)
@@ -215,16 +236,19 @@ model User {
 }
 
 model Companion {
-  id              String                   @id @default(uuid())
-  userid          String                   @unique
-  User            User                     @relation(fields: [userid], references: [id])
+  id              String                     @id @default(uuid())
+  userid          String                     @unique
+  User            User                       @relation(fields: [userid], references: [id])
   bookingrate     Int
   bookingrateunit CompanionBookingUnitEnum
   description     String[]
   Skintone        CompanionSkinToneEnum
   height          Int
   bodytype        CompanionBodyTypeEnum
-  account         AccountEnum              @default(REVIEWED)
+  eatinghabits    CompanionEatingHabitsEnum
+  drinkinghabits  CompanionDrinkingHabitEnum
+  smokinghabits   CompanionSmokingHabitEnum
+  account         AccountEnum                @default(REVIEWED)
   rejectedreason  String?
   baselocation    location[]
 }
@@ -274,7 +298,7 @@ model rating {
   rateeId   String
   ratings   Int
   comment   String?
-  bookingId Int     
+  bookingId Int
   Booking   Booking  @relation(fields: [bookingId], references: [id])
   rater     User     @relation("Rater", fields: [raterId], references: [id])
   ratee     User     @relation("Ratee", fields: [rateeId], references: [id])
@@ -351,4 +375,17 @@ model issuescomments {
   User      User       @relation(references: [id], fields: [userid])
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+}
+
+model companionrequests {
+  id        Int                  @id @default(autoincrement())
+  firstname String
+  lastname  String
+  gender    GenderEnum
+  age       Int
+  phoneNo   Int
+  email     String
+  photos    String[]
+  status    UserIssuesStatusEnum @default(ACTIVE)
+  createdAt DateTime             @default(now())
 }

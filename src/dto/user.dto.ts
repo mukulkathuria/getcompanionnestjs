@@ -114,3 +114,12 @@ export interface CompanionDetailsDto {
   gender: string;
   images: string[];
 }
+
+export interface registercompanionInputDto {
+  firstname: string;
+  lastname: string;
+  email: string;
+  age: string;
+  phoneno: string;
+  gender: string;
+}

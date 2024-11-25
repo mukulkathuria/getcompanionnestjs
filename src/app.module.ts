@@ -8,12 +8,13 @@ import { ChatModule } from './Modules/chats/chat.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AdminModule } from './Modules/admin/admin.module';
 import { TaskModule } from './Modules/jobs/tasks.module';
+import { CompanionModule } from './Modules/companion/companion.module';
 
 @Module({
   imports: [
     ThrottlerModule.forRoot([{
       ttl: 100,
-      limit: 80,
+      limit: 40,
     }]),
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
@@ -22,6 +23,7 @@ import { TaskModule } from './Modules/jobs/tasks.module';
     UserModule,
     AdminModule,
     ChatModule,
+    CompanionModule,
     TaskModule
   ],
 })
