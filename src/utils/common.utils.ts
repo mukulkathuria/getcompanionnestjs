@@ -95,6 +95,6 @@ export function addHours(hour: number, hourorminute? : dayjs.ManipulateType){
   return dayjs().add(hour, hourorminute || 'hour').valueOf()
 }
 
-export function convertToDateTime(date: number){
-  return dayjs(date).format("DD/MM/YYYY HH:mm")
+export function convertToDateTime(date: bigint){
+  return dayjs(Number(date)).format("DD/MM/YYYY HH:mm")
 }

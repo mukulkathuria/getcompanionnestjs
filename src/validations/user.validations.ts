@@ -165,16 +165,17 @@ export const validateCompanionSearch = (
 ) => {
   const filters = {
     bodytype:
-      userDetails.filters.bodytype && userDetails.filters.bodytype?.trim(),
+      userDetails.filters?.bodytype && userDetails.filters.bodytype?.trim(),
     skintone:
-      userDetails.filters.skintone && userDetails.filters.skintone?.trim(),
-    minAge: userDetails.filters.minAge && Number(userDetails.filters.minAge),
-    maxAge: userDetails.filters.maxAge && Number(userDetails.filters.maxAge),
+      userDetails.filters?.skintone && userDetails.filters.skintone?.trim(),
+    minAge: userDetails.filters?.minAge && Number(userDetails.filters.minAge),
+    maxAge: userDetails.filters?.maxAge && Number(userDetails.filters.maxAge),
   };
   const isFilters =
     userDetails.filters && Object.keys(userDetails.filters).length;
   if (
     !userDetails.city?.trim().length ||
+    !userDetails.state?.trim().length ||
     !userDetails.lat ||
     !userDetails.lng
   ) {
@@ -207,7 +208,7 @@ export const validateCompanionSearch = (
   const filterstosend = {
     include: {
       Companion: {
-        include: { baselocation: { where: { city: userDetails.city } } },
+        include: { baselocation: { where: { city: userDetails.city, state: userDetails.state } } },
       },
     },
   };

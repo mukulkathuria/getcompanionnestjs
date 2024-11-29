@@ -22,5 +22,6 @@ export interface userCompanionFindLocationInputDto {
   lng: number;
   city: string;
   gender: string;
+  state: string;
   filters?: companionfiltersDto
 }

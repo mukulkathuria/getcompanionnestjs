@@ -63,7 +63,7 @@ export const validateregisterUser = (
     return { error: { status: 422, message: 'Below 18 is not allowed' } };
   } else if (!GenderEnum[gender]) {
     return { error: { status: 422, message: 'Gender is not valid' } };
-  } else if (!Object.values(location).some((l) => l)) {
+  } else if (isCompanion && !Object.values(location).some((l) => l)) {
     return { error: { status: 422, message: 'Location is required' } };
   } else if (isCompanion && !companion.Skintone) {
     return {
@@ -142,25 +142,26 @@ export const refreshTokenValidate = (token: refreshTokenParamsDto) => {
   return { token: data };
 };
 
-export const basicuservalidationforuserExists =  (
+export const basicuservalidationforuserExists = (
   userDetails: User,
   isregistration: boolean = false,
 ) => {
-  if (!userDetails) {
-    return { error: { status: 422, message: 'Invalid Credentials' } };
-  } else if (
-    userDetails &&
-    userDetails.isDeleted &&
-    userDetails.expiryDate < Date.now()
-  ) {
-    return {
-      error: {
-        status: 401,
-        message: 'Account Deleted!. Please contact admin',
-      },
-    };
-  }
-  if (isregistration) {
+  if (!isregistration) {
+    if (!userDetails) {
+      return { error: { status: 422, message: 'Invalid Credentials' } };
+    } else if (
+      userDetails &&
+      userDetails.isDeleted &&
+      userDetails.expiryDate < Date.now()
+    ) {
+      return {
+        error: {
+          status: 401,
+          message: 'Account Deleted!. Please contact admin',
+        },
+      };
+    }
+  } else if (isregistration) {
     if (
       userDetails &&
       userDetails.isDeleted &&

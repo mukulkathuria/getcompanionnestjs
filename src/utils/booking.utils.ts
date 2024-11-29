@@ -35,7 +35,7 @@ export const getFinalRate = (
 export const filterSlotAvailability = (bookingDetails: Booking[]): companionslotsavailabilityDto[] => {
   const bookings = bookingDetails.map((l) => ({
     start: l.bookingrate,
-    end: dayjs(l.bookingend).add(1, 'hour').valueOf(),
+    end: dayjs(Number(l.bookingend)).add(1, 'hour').valueOf(),
   }));
   return bookings;
 };

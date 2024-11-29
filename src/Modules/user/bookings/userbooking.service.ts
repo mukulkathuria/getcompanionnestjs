@@ -195,7 +195,7 @@ export class UserBookingsService {
         return { success: 'Its under consideration. please contact admin' };
       }
       const timeofcancellation =
-        bookingDetails.bookingstart - Date.now() / (1000 * 60 * 60);
+        Number(bookingDetails.bookingstart) - Date.now() / (1000 * 60 * 60);
       if (timeofcancellation < 0) {
         return {
           error: { status: 422, message: "You can't cancel past booking" },

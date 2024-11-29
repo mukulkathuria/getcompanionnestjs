@@ -135,7 +135,7 @@ export class UserSessionService {
       if (!getBookingDetails) {
         return { error: { status: 422, message: 'Booking not found' } };
       }
-      const endTime = dayjs(getBookingDetails.Bookings.bookingend)
+      const endTime = dayjs(Number(getBookingDetails.Bookings.bookingend))
         .add(userextenddata.endTime, userextenddata.endHour)
         .valueOf();
       const companionuser = getBookingDetails.Bookings.User.find(

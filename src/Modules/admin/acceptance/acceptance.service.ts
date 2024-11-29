@@ -40,10 +40,10 @@ export class AcceptanceService {
       const reminders = [];
       for (let i = 0; i < Notificationreminders.length; i += 1) {
         if (
-          dayjs(bookingDetails.bookingstart).subtract(Notificationreminders[i]).valueOf() > Date.now()
+          dayjs(Number(bookingDetails.bookingstart)).subtract(Notificationreminders[i]).valueOf() > Date.now()
         ) {
           reminders.push(
-            `${dayjs(bookingDetails.bookingstart).subtract(12).valueOf()},${Notificationreminders[i]}`,
+            `${dayjs(Number(bookingDetails.bookingstart)).subtract(12).valueOf()},${Notificationreminders[i]}`,
           );
         }
       }
