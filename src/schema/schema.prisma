@@ -281,7 +281,8 @@ model Booking {
 
 model Transactions {
   id             String            @id @default(uuid())
-  uitxid         String
+  txnid          String
+  payurefid      String
   userid         String
   User           User              @relation(fields: [userid], references: [id])
   bookingid      Int

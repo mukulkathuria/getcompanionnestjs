@@ -23,7 +23,7 @@ import { AdminGuard } from 'src/guards/admin.guard';
 import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
 import { CompanionService } from './companion.service';
 import { AdminUserProfileRoute } from '../routes/admin.routes';
-import { registerBodyDto } from 'src/dto/auth.module.dto';
+import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
 
 @Controller(AdminUserProfileRoute)
 export class CompanionController {
@@ -36,12 +36,12 @@ export class CompanionController {
     FilesInterceptor('images', COMPANIONIMAGESMAXCOUNT, UserImageMulterConfig),
   )
   async registerCompanionController(
-    @Body() userinfo: registerBodyDto,
+    @Body() userinfo: registerCompanionBodyDto,
     @UploadedFiles(new FileSizeValidationPipe())
     images: Express.Multer.File[],
   ): Promise<controllerReturnDto> {
     const { success, error } = await this.companionservice.registerCompanion(
-      { ...userinfo, isCompanion: true },
+      userinfo,
       images,
     );
     if (success) {

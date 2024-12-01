@@ -29,6 +29,27 @@ export enum CompanionSkinToneEnum {
   BROWN = 'BOWN',
 }
 
+export enum CompanionEatingHabitsEnum {
+  VEG='VEG',
+  NONVEG='NONVEG',
+  JAIN='JAIN',
+  EGGETERIAN='EGGETERIAN',
+  VEGAN='VEGAN'
+}
+
+export enum CompanionSmokingHabitEnum {
+  PASSIVE_SMOKER='PASSIVE_SMOKER',
+  ACTIVE_SMOKER='ACTIVE_SMOKER',
+  NON_SMOKER='NON_SMOKER',
+  OCCASIONALLY='OCCASIONALLY'
+}
+
+export enum CompanionDrinkingHabitEnum {
+  DAILY_DRINKER='DAILY_DRINKER',
+  NON_DRINKER='NON_DRINKER',
+  OCCASIONALLY='OCCASIONALLY'
+}
+
 export enum CompanionDescriptionEnum {
   CASUAL_COMPANIONSHIP = 'CASUAL_COMPANIONSHIP',
   COFFEEANDCONVERSATIONS = 'COFFEEANDCONVERSATIONS',

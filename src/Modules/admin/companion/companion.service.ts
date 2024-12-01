@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { registerBodyDto } from 'src/dto/auth.module.dto';
+import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
 import { successErrorDto } from 'src/dto/common.dto';
 import {
   CompanionBookingUnitEnum,
@@ -8,7 +8,7 @@ import {
 import { PrismaService } from 'src/Services/prisma.service';
 import { getdefaultexpirydate } from 'src/utils/common.utils';
 import { encrypt } from 'src/utils/crypt.utils';
-import { validateregisterUser } from 'src/validations/auth.validation';
+import { validateregisterCompanion } from 'src/validations/auth.validation';
 import { isvalidComanioninputs } from 'src/validations/user.validations';
 
 @Injectable()
@@ -17,10 +17,10 @@ export class CompanionService {
   private readonly logger = new Logger(PrismaService.name);
 
   async registerCompanion(
-    userinfo: registerBodyDto,
+    userinfo: registerCompanionBodyDto,
     images: Express.Multer.File[],
   ): Promise<successErrorDto> {
-    const { user, error } = validateregisterUser(userinfo);
+    const { user, error } = validateregisterCompanion(userinfo);
     if (error) {
       return { error };
     }
@@ -60,17 +60,18 @@ export class CompanionService {
         lastlogin: Date.now(),
         expiryDate: getdefaultexpirydate(),
       };
-      if (user.isCompanion) {
-        const companion = {
-          bookingrate: Number(user?.bookingrate) || null,
-          bookingrateunit: CompanionBookingUnitEnum.PERHOUR,
-          description: user.description,
-          Skintone: user.skintone,
-          height: Number(user.height),
-          bodytype: user.bodytype,
-        };
-        userdata['Companion'] = { create: companion };
-      }
+      const companion = {
+        bookingrate: Number(user?.bookingrate) || null,
+        bookingrateunit: CompanionBookingUnitEnum.PERHOUR,
+        description: user.description,
+        Skintone: user.skintone,
+        height: Number(user.height),
+        bodytype: user.bodytype,
+        eatinghabits: user.eatinghabits,
+        drinkinghabits: user.drinkinghabits,
+        smokinghabits: user.smokinghabits,
+      };
+      userdata['Companion'] = { create: companion };
       await this.prismaService.user.create({
         data: userdata,
       });

@@ -6,17 +6,52 @@ import {
   returnLoginUserDto,
   returnRegisterUserDto,
   refreshTokenParamsDto,
+  registerCompanionBodyDto,
 } from 'src/dto/auth.module.dto';
 import { decryptRefreshToken } from 'src/utils/crypt.utils';
 import { decodeRefreshToken } from 'src/guards/strategies/jwt.strategy';
-import { CompanionDescriptionEnum, GenderEnum } from 'src/dto/user.dto';
+import {
+  CompanionDescriptionEnum,
+  CompanionDrinkingHabitEnum,
+  CompanionEatingHabitsEnum,
+  CompanionSkinToneEnum,
+  CompanionSmokingHabitEnum,
+  FemaleCompanionBodyTypeEnum,
+  GenderEnum,
+  MaleCompanionBodyTypeEnum,
+} from 'src/dto/user.dto';
 import { User } from '@prisma/client';
 
 export const validateregisterUser = (
   userinfo: registerBodyDto,
 ): returnRegisterUserDto => {
-  const { firstname, lastname, email, password, gender, isCompanion, age } =
-    userinfo;
+  const { firstname, lastname, email, password, gender, age } = userinfo;
+  if (!firstname || !firstname.trim().length) {
+    return { error: { status: 422, message: 'First name is required' } };
+  } else if (!lastname || !lastname.trim().length) {
+    return { error: { status: 422, message: 'Last name is required' } };
+  } else if (!email || !email.trim().length) {
+    return { error: { status: 422, message: 'Email is required' } };
+  } else if (!EmailRegex.test(email)) {
+    return { error: { status: 422, message: 'Email is not valid' } };
+  } else if (!password || !password.trim().length) {
+    return { error: { status: 422, message: 'Password is required' } };
+  } else if (!PasswordRegex.test(password)) {
+    return { error: { status: 422, message: 'Password is not valid' } };
+  } else if (!gender || !gender.trim().length) {
+    return { error: { status: 422, message: 'Gender is required' } };
+  } else if (!age || !age.trim().length) {
+    return { error: { status: 422, message: 'Age is required' } };
+  } else if (age && Number(age) < 18) {
+    return { error: { status: 422, message: 'Below 18 is not allowed' } };
+  } else if (!GenderEnum[gender]) {
+    return { error: { status: 422, message: 'Gender is not valid' } };
+  }
+  return { user: userinfo };
+};
+
+export function validateregisterCompanion(userinfo: registerCompanionBodyDto) {
+  const { firstname, lastname, email, password, gender, age } = userinfo;
   const location = {
     city: userinfo?.city && userinfo.city.trim(),
     zipcode: userinfo?.zipcode && userinfo?.zipcode.trim(),
@@ -42,6 +77,9 @@ export const validateregisterUser = (
     bookingrate: userinfo?.bookingrate && userinfo?.bookingrate.trim(),
     height: userinfo?.height && userinfo?.height.trim().length,
     bodytype: userinfo?.bodytype && userinfo?.bodytype.trim(),
+    eatinghabits: userinfo?.eatinghabits && userinfo?.eatinghabits.trim(),
+    drinkinghabits: userinfo?.drinkinghabits && userinfo?.drinkinghabits.trim(),
+    smokinghabits: userinfo?.smokinghabits && userinfo?.smokinghabits.trim(),
   };
   if (!firstname || !firstname.trim().length) {
     return { error: { status: 422, message: 'First name is required' } };
@@ -63,22 +101,61 @@ export const validateregisterUser = (
     return { error: { status: 422, message: 'Below 18 is not allowed' } };
   } else if (!GenderEnum[gender]) {
     return { error: { status: 422, message: 'Gender is not valid' } };
-  } else if (isCompanion && !Object.values(location).some((l) => l)) {
+  } else if (!Object.values(location).some((l) => l)) {
     return { error: { status: 422, message: 'Location is required' } };
-  } else if (isCompanion && !companion.Skintone) {
+  } else if (!companion.Skintone) {
     return {
       error: { status: 422, message: 'Companion skintone is required' },
     };
-  } else if (isCompanion && !companion.bodytype) {
+  } else if (!CompanionSkinToneEnum[companion.Skintone]) {
+    return {
+      error: { status: 422, message: 'Companion skintone is not valid' },
+    };
+  } else if (!companion.eatinghabits) {
+    return {
+      error: { status: 422, message: 'Companion eating habits is required' },
+    };
+  } else if (!CompanionEatingHabitsEnum[companion.eatinghabits]) {
+    return {
+      error: { status: 422, message: 'Companion eating habits is not valid' },
+    };
+  } else if (!companion.drinkinghabits) {
+    return {
+      error: { status: 422, message: 'Companion drinking habits is required' },
+    };
+  } else if (!CompanionDrinkingHabitEnum[companion.drinkinghabits]) {
+    return {
+      error: { status: 422, message: 'Companion drinking habits is not valid' },
+    };
+  } else if (!companion.smokinghabits) {
+    return {
+      error: { status: 422, message: 'Companion smoking habits is required' },
+    };
+  } else if (!CompanionSmokingHabitEnum[companion.smokinghabits]) {
+    return {
+      error: { status: 422, message: 'Companion smoking habits is not valid' },
+    };
+  } else if (!companion.bodytype) {
     return {
       error: { status: 422, message: 'Companion bodytype is required' },
     };
-  } else if (isCompanion && !Array.isArray(companion.description)) {
+  } else if (
+    (GenderEnum[userinfo.gender] === 'MALE' &&
+      !MaleCompanionBodyTypeEnum[userinfo.bodytype]) ||
+    (GenderEnum[userinfo.gender] === 'FEMALE' &&
+      !FemaleCompanionBodyTypeEnum[userinfo.bodytype]) ||
+    (GenderEnum[userinfo.gender] === 'OTHER' &&
+      (MaleCompanionBodyTypeEnum[userinfo.bodytype] ||
+        FemaleCompanionBodyTypeEnum[userinfo.bodytype]))
+  ) {
+    return {
+      error: { status: 422, message: 'Companion bodytype is not valid' },
+    };
+  } else if (!Array.isArray(companion.description)) {
     return {
       error: { status: 422, message: 'Companion description is required' },
     };
   } else if (
-    isCompanion &&
     companion.description.length &&
     !companion.description.every((l) => CompanionDescriptionEnum[l])
   ) {
@@ -90,17 +167,17 @@ export const validateregisterUser = (
     return {
       error: { status: 422, message: 'Companion description is not valid' },
     };
-  } else if (isCompanion && !companion.bookingrate) {
+  } else if (!companion.bookingrate) {
     return {
       error: { status: 422, message: 'Companion bookingrate is required' },
     };
-  } else if (isCompanion && !companion.height) {
+  } else if (!companion.height) {
     return {
       error: { status: 422, message: 'Companion height is required' },
     };
   }
   return { user: userinfo };
-};
+}
 
 export const validateLoginUser = (
   userinfo: loginBodyDto,

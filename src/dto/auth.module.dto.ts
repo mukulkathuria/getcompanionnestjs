@@ -1,24 +1,44 @@
 import { errorDto, successErrorDto } from './common.dto';
-import { CompanionDescriptionEnum, GenderEnum } from './user.dto';
+import {
+  CompanionDescriptionEnum,
+  CompanionDrinkingHabitEnum,
+  CompanionEatingHabitsEnum,
+  CompanionSmokingHabitEnum,
+  FemaleCompanionBodyTypeEnum,
+  GenderEnum,
+  MaleCompanionBodyTypeEnum,
+} from './user.dto';
 
 export type registerBodyDto = {
   firstname: string;
   lastname: string;
   email: string;
   password: string;
-  isCompanion?: boolean;
   Images?: string[];
-  description?: CompanionDescriptionEnum[];
-  skintone?: string;
   gender: GenderEnum;
-  city?: string;
-  zipcode?: string;
-  lat?: string;
-  lng?: string;
   age: string;
-  bookingrate?: string;
-  height?: string;
-  bodytype?: string;
+};
+
+export type registerCompanionBodyDto = {
+  firstname: string;
+  lastname: string;
+  email: string;
+  password: string;
+  Images?: string[];
+  gender: GenderEnum;
+  age: string;
+  description: CompanionDescriptionEnum[];
+  skintone: string;
+  city: string;
+  zipcode?: string;
+  lat: string;
+  lng: string;
+  bookingrate: string;
+  height: string;
+  bodytype: MaleCompanionBodyTypeEnum | FemaleCompanionBodyTypeEnum;
+  eatinghabits: CompanionEatingHabitsEnum;
+  drinkinghabits: CompanionDrinkingHabitEnum;
+  smokinghabits: CompanionSmokingHabitEnum;
 };
 
 export interface returnRegisterUserDto extends errorDto {
