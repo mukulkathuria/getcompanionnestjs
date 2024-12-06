@@ -22,10 +22,10 @@ export const OTPData = {
     return { success: true };
   },
 
-  checkValidOTP(userId: string) {
+  checkValidOTP(userId: string, otp: string) {
     if (!userId || !OTPData.data[userId]) {
       return { error: 'Not a valid Token' };
-    } else if (OTPData.data[userId]?.exp < Date.now() / 1000) {
+    } else if (OTPData.data[userId] !== otp) {
       delete OTPData.data[userId];
       return { error: 'Token Expired' };
     }
