@@ -24,10 +24,9 @@ export const OTPData = {
 
   checkValidOTP(userId: string, otp: string) {
     if (!userId || !OTPData.data[userId]) {
-      return { error: 'Not a valid Token' };
+      return { error: 'invalid user' };
     } else if (OTPData.data[userId] !== otp) {
-      delete OTPData.data[userId];
-      return { error: 'Token Expired' };
+      return { error: 'OTP mismatched' };
     }
     return { success: true };
   },
