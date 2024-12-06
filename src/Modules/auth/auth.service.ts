@@ -242,7 +242,7 @@ export class AuthService {
         return { error };
       }
       const OTP = createOTP();
-      OTPData.set(user.id, OTP);
+      OTPData.set(user.email, OTP);
       const subject = 'Reset Password Email';
       const message = 'YOU forgot your password here is your OTP: ' + OTP;
       const mailOptions = {
@@ -273,7 +273,7 @@ export class AuthService {
   async resetPassword(dto: forgotPasswordDto) {
     try {
       const { OTPData } = await import('../../Cache/OTP');
-      const { error } = OTPData.checkValidOTP(dto.OTP);
+      const { error } = OTPData.checkValidOTP(dto.email, dto.OTP);
       if (error) {
         return { error: { status: 422, message: 'Invalid token' } };
       }
