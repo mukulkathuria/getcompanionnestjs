@@ -242,7 +242,7 @@ export class AuthService {
         return { error };
       }
       const OTP = createOTP();
-      OTPData.set(user.email, OTP);
+      OTPData.set(user.email, { otp: String(OTP) });
       const subject = 'Reset Password Email';
       const message = 'YOU forgot your password here is your OTP: ' + OTP;
       const mailOptions = {
@@ -301,8 +301,12 @@ export class AuthService {
 
   async googleLogin(token: string) {
     try {
-      const { data: collectedData } =
+      const { data: collectedData, error: googleerror } =
         await this.googleservice.verifyGoogleToken(token);
+      if(googleerror){
+        this.logger.error(googleerror)
+        return { error: { status: 422, message: 'Invalid Token' } }
+      }
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: collectedData.email },
       });

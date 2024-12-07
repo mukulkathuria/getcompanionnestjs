@@ -25,9 +25,10 @@ export const OTPData = {
   checkValidOTP(userId: string, otp: string) {
     if (!userId || !OTPData.data[userId]) {
       return { error: 'invalid user' };
-    } else if (OTPData.data[userId] !== otp) {
+    } else if (OTPData.data[userId].otp !== otp) {
       return { error: 'OTP mismatched' };
     }
+    delete OTPData.data[userId];
     return { success: true };
   },
 
