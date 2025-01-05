@@ -26,6 +26,7 @@ import {
   UserProfileParamsDto,
 } from 'src/dto/user.dto';
 import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
+import { companionDetailsQuery } from 'src/dto/companionfind.dto';
 
 @Controller(UserProfileRoute)
 export class DeleteUsersController {
@@ -34,7 +35,8 @@ export class DeleteUsersController {
   @UseGuards(AuthGuard)
   @Delete(UserprofileInnerRoute.deleteuser)
   async deleteUsersController(@Query() userId: string) {
-    const { error, success, message } = await this.userservice.deleteUser(userId);
+    const { error, success, message } =
+      await this.userservice.deleteUser(userId);
     if (success) {
       return {
         success: success,
@@ -77,9 +79,10 @@ export class DeleteUsersController {
 
   @UseGuards(AuthGuard)
   @Get(UserprofileInnerRoute.usertocompaniondetails)
-  async getCompanionDetails(@Query() companionId: string) {
-    const { error, data } =
-      await this.userservice.getCompanionDetails(companionId);
+  async getCompanionDetails(@Query() companionDetails: companionDetailsQuery) {
+    const { error, data } = await this.userservice.getCompanionDetails(
+      companionDetails.companionId,
+    );
     if (data) {
       return {
         data,

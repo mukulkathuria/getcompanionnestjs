@@ -93,7 +93,6 @@ export class AuthController {
     }
   }
 
-  @UseGuards(AuthGuard)
   @Post(UserAuthInnerRoute.refreshtoken)
   @HttpCode(200)
   async getRefreshToken(@Body() token: refreshTokenParamsDto) {

@@ -56,7 +56,6 @@ export class CompanionService {
         age: Number(user.age),
         isCompanion: true,
         Images: allimages,
-        location: { create: location },
         lastlogin: Date.now(),
         expiryDate: getdefaultexpirydate(),
       };
@@ -70,6 +69,7 @@ export class CompanionService {
         eatinghabits: user.eatinghabits,
         drinkinghabits: user.drinkinghabits,
         smokinghabits: user.smokinghabits,
+        baselocation: { create: location }
       };
       userdata['Companion'] = { create: companion };
       await this.prismaService.user.create({

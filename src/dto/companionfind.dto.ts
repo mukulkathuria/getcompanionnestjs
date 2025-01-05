@@ -25,3 +25,7 @@ export interface userCompanionFindLocationInputDto {
   state: string;
   filters?: companionfiltersDto
 }
+
+export interface companionDetailsQuery {
+  companionId: string;
+}

@@ -62,6 +62,9 @@ export class UsersService {
 
   async getCompanionDetails(companionId: string) {
     try {
+      if(!companionId || typeof companionId !== 'string') {
+        return { error: { status: 422, message: 'Invalid companion search' } };
+      }
       const data = await this.prismaService.user.findUnique({
         where: { id: companionId },
         include: { Companion: true },
