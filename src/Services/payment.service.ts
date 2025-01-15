@@ -45,7 +45,7 @@ export class PaymentService {
       const { data } = await this.generateHash(options);
       const values = { ...options, hash: data.hash, txnid: data.txnid };
       const transaction = await this.client.paymentInitiate(values);
-      return { data: transaction };
+      return { data: transaction, values };
     } catch (error) {
       console.log(error);
       return { error: { status: 500, message: error?.message } };

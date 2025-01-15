@@ -3,6 +3,7 @@ import * as dayjs from 'dayjs';
 import { Notificationhours } from 'src/constants/common.constants';
 import {
   BookingDurationUnitEnum,
+  BookingStatusEnum,
   cancelBookingInputDto,
   NotificationFromModuleEnum,
   userBookingBodyDto,
@@ -125,6 +126,7 @@ export class UserBookingsService {
           bookingstart: dayjs(bookingDetails.bookingdate).toDate().getTime(),
           bookingend: endDate,
           OTP: createOTP(),
+          bookingstatus: BookingStatusEnum['TRANSACTIONPENDING'],
           bookingdurationUnit: bookingDetails.bookingdurationUnit,
           Meetinglocation: {
             create: { ...bookingDetails.bookinglocation, basefrom: 'BOOKING' },

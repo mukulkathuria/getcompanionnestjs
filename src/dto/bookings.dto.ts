@@ -12,7 +12,18 @@ export enum NotificationFromModuleEnum {
   RATING = 'RATING',
   TRANSACTIONS = 'TRANSACTIONS',
   USER = 'USER',
-  GLOBAL = 'GLOBAL'
+  GLOBAL = 'GLOBAL',
+}
+
+export enum BookingStatusEnum {
+  ACCEPTED = 'ACCEPTED',
+  UNDERREVIEW = 'UNDERREVIEW',
+  COMPLETED = 'COMPLETED',
+  REJECTED = 'REJECTED',
+  UNDERCANCELLATION = 'UNDERCANCELLATION',
+  CANCELLATIONAPPROVED = 'CANCELLATIONAPPROVED',
+  CANCELLED = 'CANCELLED',
+  TRANSACTIONPENDING = 'TRANSACTIONPENDING',
 }
 export interface UserBookingReturnDto extends errorDto {
   data?: Booking[];
@@ -27,8 +38,8 @@ export interface userBookingBodyDto {
   bookinglocation: userCompanionFindLocationInputDto;
 }
 
-export interface userBookingReturnDto extends errorDto{
-  data?: userBookingBodyDto
+export interface userBookingReturnDto extends errorDto {
+  data?: userBookingBodyDto;
 }
 
 export interface companionslotsavailabilityDto {
