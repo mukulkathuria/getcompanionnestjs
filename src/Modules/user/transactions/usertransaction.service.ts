@@ -2,10 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import {
   BookingTransactionReturnDto,
   getHashInputDto,
+  initiatePaymentInputDto,
 } from 'src/dto/transactions.dto';
 import { PaymentService } from 'src/Services/payment.service';
 import { PrismaService } from 'src/Services/prisma.service';
-import { validatehashGeneration } from 'src/validations/transactions.validations';
+import {
+  validatehashGeneration,
+  validatePaymentInitiation,
+} from 'src/validations/transactions.validations';
 
 @Injectable()
 export class UserTransactionService {
@@ -45,9 +49,9 @@ export class UserTransactionService {
   async getHashforTransaction(userInput: getHashInputDto) {
     try {
       const { error } = validatehashGeneration(userInput);
-      if(error){
-        return { error }
-      } 
+      if (error) {
+        return { error };
+      }
       const { data } = await this.paymentService.generateHash(userInput);
       if (data) {
         return { data };
@@ -59,10 +63,13 @@ export class UserTransactionService {
     }
   }
 
-  async initiatePayment() {
+  async initiatePayment(userInput: initiatePaymentInputDto) {
     try {
-      const { data } = await this.paymentService.makeTransaction();
-      // console.log(data, error);
+      const { error } = validatePaymentInitiation(userInput);
+      if (error) {
+        return { error };
+      }
+      const { data } = await this.paymentService.initiatePayment(userInput);
       if (data) {
         return { data };
       }

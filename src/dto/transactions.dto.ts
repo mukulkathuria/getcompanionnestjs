@@ -1,13 +1,19 @@
-import { Transactions } from "@prisma/client";
-import { errorDto } from "./common.dto";
+import { Transactions } from '@prisma/client';
+import { errorDto } from './common.dto';
 
-export interface BookingTransactionReturnDto extends errorDto{
-    data?: Transactions[]
+export interface BookingTransactionReturnDto extends errorDto {
+  data?: Transactions[];
 }
 
 export interface getHashInputDto {
-    firstname: string;
-    email: string;
-    amount: string;
-    productinfo: string;
+  firstname: string;
+  email: string;
+  amount: string;
+  productinfo: string;
+}
+
+export interface initiatePaymentInputDto extends getHashInputDto {
+  phone: string;
+  surl: string;
+  furl: string;
 }

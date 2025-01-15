@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   Post,
   UseGuards,
@@ -11,6 +12,7 @@ import { UserTransactionService } from './usertransaction.service';
 import {
   BookingTransactionReturnDto,
   getHashInputDto,
+  initiatePaymentInputDto,
 } from 'src/dto/transactions.dto';
 import { AuthGuard } from 'src/guards/jwt.guard';
 
@@ -34,12 +36,27 @@ export class UserTransactionController {
     }
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post('gethashfortransaction')
+  @HttpCode(200)
   async getHashfortransactionController(@Body() userInputs: getHashInputDto) {
     const { data, error } =
       await this.usertransactionservice.getHashforTransaction(userInputs);
     if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Post('initiatepayment')
+  @HttpCode(200)
+  async initiatePayment(@Body() userInputs: initiatePaymentInputDto) {
+    const { data, error } = await this.usertransactionservice.initiatePayment(userInputs);
+    if (data) {
+      // const updateddata = await data.text();
       return {
         data,
       };
