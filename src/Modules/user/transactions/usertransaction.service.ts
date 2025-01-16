@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { BookingStatusEnum } from 'src/dto/bookings.dto';
 import {
   BookingTransactionReturnDto,
   getHashInputDto,
   initiatePaymentInputDto,
+  payUTransactionDetailsDto,
+  TransactionStatusEnum,
 } from 'src/dto/transactions.dto';
 import { PaymentService } from 'src/Services/payment.service';
 import { PrismaService } from 'src/Services/prisma.service';
@@ -95,31 +98,20 @@ export class UserTransactionService {
     }
   }
 
-  async onsuccessfullPayment(userInput: initiatePaymentInputDto) {
+  async onsuccessfullPayment(userInput: payUTransactionDetailsDto) {
     try {
-      const { error } = validatePaymentInitiation(userInput);
-      if (error) {
-        return { error };
-      }
-      const { data , values} = await this.paymentService.initiatePayment(userInput);
-      if (data) {
-        const userDetails = await this.prismaService.user.findUnique({
-          where: { email: userInput.email },
-        });
-        await this.prismaService.transactions.create({
-          data: {
-            txnid: values.txnid,
-            User: { connect: { id: userDetails.id } },
-            Bookings: { connect: { id: userInput.bookingId } },
-            amount: Number(userInput.amount),
-            payurefid: new Date().getTime().toString(),
-            paymentmethod: 'CASH',
-            transactionTime: new Date().getTime(),
+      await this.prismaService.transactions.update({
+        where: { txnid: userInput.txnid },
+        data: {
+          status: TransactionStatusEnum.COMPLETED,
+          payurefid: userInput.undefinedmihpayid,
+          transactionTime: new Date(userInput.addedon).getTime(),
+          Bookings: {
+            update: { data: { bookingstatus: BookingStatusEnum.ACCEPTED } },
           },
-        });
-        return { data };
-      }
-      return { error: { status: 422, message: 'Server Error' } };
+        },
+      });
+      return { success: 'true' }
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -132,7 +124,8 @@ export class UserTransactionService {
       if (error) {
         return { error };
       }
-      const { data , values} = await this.paymentService.initiatePayment(userInput);
+      const { data, values } =
+        await this.paymentService.initiatePayment(userInput);
       if (data) {
         const userDetails = await this.prismaService.user.findUnique({
           where: { email: userInput.email },

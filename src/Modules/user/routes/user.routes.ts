@@ -44,3 +44,9 @@ export const UserSessionInnerRoute = {
 export const UsernotificationInnerRoute = {
   getusernotifications: 'usernotification'
 }
+
+export const UserTransactionInnerRoute = {
+  gethashfortransaction: 'gethashfortransaction',
+  initiatepayment: 'initiatepayment',
+  onsuccesspayment: 'onsuccesspayment'
+}

@@ -7,12 +7,13 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { UserTransactionsRoute } from '../routes/user.routes';
+import { UserTransactionInnerRoute, UserTransactionsRoute } from '../routes/user.routes';
 import { UserTransactionService } from './usertransaction.service';
 import {
   BookingTransactionReturnDto,
   getHashInputDto,
   initiatePaymentInputDto,
+  payUTransactionDetailsDto,
 } from 'src/dto/transactions.dto';
 import { AuthGuard } from 'src/guards/jwt.guard';
 
@@ -37,7 +38,7 @@ export class UserTransactionController {
   }
 
   // @UseGuards(AuthGuard)
-  @Post('gethashfortransaction')
+  @Post(UserTransactionInnerRoute.gethashfortransaction)
   @HttpCode(200)
   async getHashfortransactionController(@Body() userInputs: getHashInputDto) {
     const { data, error } =
@@ -51,14 +52,31 @@ export class UserTransactionController {
     }
   }
 
-  @Post('initiatepayment')
+  @Post(UserTransactionInnerRoute.initiatepayment)
   @HttpCode(200)
   async initiatePayment(@Body() userInputs: initiatePaymentInputDto) {
-    const { data, error } = await this.usertransactionservice.initiatePayment(userInputs);
+    const { data, error } =
+      await this.usertransactionservice.initiatePayment(userInputs);
     if (data) {
       // const updateddata = await data.text();
       return {
         data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Post(UserTransactionInnerRoute.onsuccesspayment)
+  @HttpCode(200)
+  async successPayment(@Body() userInputs: payUTransactionDetailsDto) {
+    const { success, error } =
+      await this.usertransactionservice.onsuccessfullPayment(userInputs);
+    if (success) {
+      // const updateddata = await data.text();
+      return {
+        success: true,
+        message: 'Transaction Updated Successfully',
       };
     } else {
       throw new HttpException(error.message, error.status);

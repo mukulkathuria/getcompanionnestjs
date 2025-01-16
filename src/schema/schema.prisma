@@ -282,7 +282,7 @@ model Booking {
 
 model Transactions {
   id              String            @id @default(uuid())
-  txnid           String
+  txnid           String            @unique
   payurefid       String
   userid          String
   User            User              @relation(fields: [userid], references: [id])
