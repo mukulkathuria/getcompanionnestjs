@@ -26,7 +26,7 @@ export enum FemaleCompanionBodyTypeEnum {
 export enum CompanionSkinToneEnum {
   FAIR = 'FAIR',
   DARK = 'DARK',
-  BROWN = 'BOWN',
+  BROWN = 'BROWN',
 }
 
 export enum CompanionEatingHabitsEnum {

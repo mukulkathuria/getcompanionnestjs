@@ -23,7 +23,8 @@ export class CompanionFindService {
       const userdata = (await this.prismaService.user.findMany(data));
       if (userdata && userdata.length) {
         const companions = userdata.map((l) => l.Companion[0]).filter((l) => l);
-        const companionplaces = companions.length
+        const baselocations = companions.every((l) => l.baselocation.length)
+        const companionplaces = companions.length && baselocations
           ? companions.map((l) => ({
               id: l.id,
               lat: l.baselocation[0].lat,

@@ -17,7 +17,6 @@ import {
   forgotPasswordInitDto,
   loginBodyDto,
   loginUserDto,
-  logoutParamsDto,
   refreshTokenParamsDto,
   registerBodyDto,
 } from 'src/dto/auth.module.dto';
@@ -81,15 +80,23 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Post(UserAuthInnerRoute.logout)
   @HttpCode(200)
-  async logoutUser(@Req() req: logoutParamsDto) {
-    const { success, error } = await this.authService.getLogout(req);
-    if (success) {
-      return {
-        success: true,
-        messasge: 'User removed successfully.',
-      };
+  async logoutUser(@Req() req: Request) {
+    const { decodeExpressRequest } = await import(
+      '../../guards/strategies/jwt.strategy'
+    );
+    const { data, error: TokenError } = decodeExpressRequest(req);
+    if (data) {
+      const { success, error } = await this.authService.getLogout(data);
+      if (success) {
+        return {
+          success: true,
+          messasge: 'User removed successfully.',
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
     } else {
-      throw new HttpException(error.message, error.status);
+      throw new HttpException(TokenError, 422);
     }
   }
 

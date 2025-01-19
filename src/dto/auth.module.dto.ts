@@ -3,6 +3,7 @@ import {
   CompanionDescriptionEnum,
   CompanionDrinkingHabitEnum,
   CompanionEatingHabitsEnum,
+  CompanionSkinToneEnum,
   CompanionSmokingHabitEnum,
   FemaleCompanionBodyTypeEnum,
   GenderEnum,
@@ -28,7 +29,7 @@ export type registerCompanionBodyDto = {
   gender: GenderEnum;
   age: string;
   description: CompanionDescriptionEnum[];
-  skintone: string;
+  skintone: CompanionSkinToneEnum;
   city: string;
   zipcode?: string;
   lat: string;

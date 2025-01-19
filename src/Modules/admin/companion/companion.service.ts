@@ -32,11 +32,12 @@ export class CompanionService {
         return { error: { status: 422, message: 'User already exists' } };
       }
       const allimages = images.map((l) => l.destination + '/' + l.filename);
-      if (allimages.length < 2) {
-        return {
-          error: { status: 422, message: 'Atleast 2 images are required' },
-        };
-      } else if (allimages.length > 4) {
+      // if (allimages.length < 2) {
+      //   return {
+      //     error: { status: 422, message: 'Atleast 2 images are required' },
+      //   };
+      // } 
+       if (allimages.length > 4) {
         return {
           error: { status: 422, message: 'Images more than 4 is not allowed' },
         };
@@ -69,11 +70,16 @@ export class CompanionService {
         eatinghabits: user.eatinghabits,
         drinkinghabits: user.drinkinghabits,
         smokinghabits: user.smokinghabits,
-        baselocation: { create: location }
+        baselocation: { create: location },
       };
-      userdata['Companion'] = { create: companion };
-      await this.prismaService.user.create({
-        data: userdata,
+      const prismauser = await this.prismaService.user.create({
+        data: { ...userdata },
+      });
+      await this.prismaService.companion.create({
+        data: {
+          userid: prismauser.id,
+          ...companion,
+        },
       });
       return {
         success: true,

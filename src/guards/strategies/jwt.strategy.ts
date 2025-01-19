@@ -75,3 +75,21 @@ export const decodeAccessToken = (token: string) => {
     return { error: 'Not valid Token' };
   }
 };
+
+export const decodeExpressRequest = (req: Request) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if(token){
+    try {
+      const data = verify(
+        token,
+        process.env[AccessTokenSecret],
+      ) as AccessTokenDto;
+      return { data };
+      // eslint-disable-next-line
+    } catch (err) {
+      return { error: 'Not valid Token' };
+    }
+  }else {
+    return { error: 'Not valid Token' };
+  }
+}
