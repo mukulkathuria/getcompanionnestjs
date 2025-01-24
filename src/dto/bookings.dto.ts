@@ -32,7 +32,7 @@ export interface UserBookingReturnDto extends errorDto {
 export interface userBookingBodyDto {
   userId: string;
   companionId: string;
-  bookingdate: Date;
+  bookingdate: string;
   bookingduration: number;
   bookingdurationUnit: BookingDurationUnitEnum;
   bookinglocation: userCompanionFindLocationInputDto;
@@ -50,4 +50,8 @@ export interface companionslotsavailabilityDto {
 export interface cancelBookingInputDto {
   bookingid: number;
   userId: string;
+}
+
+export interface bookingIdDto {
+  bookingid: number;
 }

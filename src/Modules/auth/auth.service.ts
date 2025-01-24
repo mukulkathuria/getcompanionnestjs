@@ -208,12 +208,11 @@ export class AuthService {
     if (error) {
       return { error };
     }
-
     const payload = {
-      reId: refreshToken.id,
       email: refreshToken.email,
-      role: refreshToken.role,
-      name: refreshToken.name,
+      role: refreshToken?.role || Roles.NORMAL,
+      userId: refreshToken?.id,
+      isCompanion: Boolean(refreshToken?.isCompanion),
     };
     return {
       access_token: sign(

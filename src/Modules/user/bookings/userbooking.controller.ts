@@ -15,6 +15,7 @@ import {
 import { UserBookingsService } from './userbooking.service';
 import { AuthGuard } from 'src/guards/jwt.guard';
 import {
+  bookingIdDto,
   cancelBookingInputDto,
   userBookingBodyDto,
 } from 'src/dto/bookings.dto';
@@ -57,12 +58,13 @@ export class UserBookingController {
   @HttpCode(200)
   async createBookingDetailsController(
     @Body() userinfo: userBookingBodyDto,
-  ): Promise<controllerReturnDto> {
-    const { success, error } =
+  ): Promise<controllerReturnDto & bookingIdDto> {
+    const { success , bookingid, error } =
       await this.userbookingservice.bookaCompanion(userinfo);
     if (success) {
       return {
         success,
+        bookingid: bookingid,
         message: 'Booking created successfully.',
       };
     } else {

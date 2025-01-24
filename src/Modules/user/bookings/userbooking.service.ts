@@ -80,23 +80,23 @@ export class UserBookingsService {
         bookingDetails.bookingdurationUnit === BookingDurationUnitEnum.HOUR
           ? 'hour'
           : 'minute';
-      const endDate = dayjs(bookingDetails.bookingdate)
-        .add(bookingDetails.bookingduration, hrmin)
-        .toDate()
-        .getTime();
+      const endDate = new Date(bookingDetails.bookingdate).setHours(
+        new Date(bookingDetails.bookingdate).getHours() +
+          bookingDetails.bookingduration +
+          1,
+      );
       const isSlotAvailable = await this.prismaService.user.findMany({
         where: { id: bookingDetails.companionId, isCompanion: true },
         include: {
           Booking: {
             where: {
               bookingstart: {
-                lte: dayjs(bookingDetails.bookingdate).toDate().getTime(),
+                gte: new Date(bookingDetails.bookingdate).setHours(
+                  new Date(bookingDetails.bookingdate).getHours() - 1,
+                ),
               },
               bookingend: {
-                gt: dayjs(bookingDetails.bookingdate)
-                  .add(1, 'hour')
-                  .toDate()
-                  .getTime(),
+                lte: endDate,
               },
             },
           },
@@ -129,12 +129,18 @@ export class UserBookingsService {
           bookingstatus: BookingStatusEnum['TRANSACTIONPENDING'],
           bookingdurationUnit: bookingDetails.bookingdurationUnit,
           Meetinglocation: {
-            create: { ...bookingDetails.bookinglocation, basefrom: 'BOOKING' },
+            create: {
+              city: bookingDetails.bookinglocation.city,
+              state: bookingDetails.bookinglocation.state,
+              lat: bookingDetails.bookinglocation.lat,
+              lng: bookingDetails.bookinglocation.lng,
+              basefrom: 'BOOKING',
+            },
           },
           ...rates,
         },
       });
-      return { success: true };
+      return { success: true, bookingid: data.id };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

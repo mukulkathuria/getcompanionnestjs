@@ -20,18 +20,25 @@ export class CompanionFindService {
       if (error) {
         return { error };
       }
-      const userdata = (await this.prismaService.user.findMany(data));
+      const userdata = await this.prismaService.user.findMany(data);
       if (userdata && userdata.length) {
-        const companions = userdata.map((l) => l.Companion[0]).filter((l) => l);
-        const baselocations = companions.every((l) => l.baselocation.length)
-        const companionplaces = companions.length && baselocations
-          ? companions.map((l) => ({
-              id: l.id,
-              lat: l.baselocation[0].lat,
-              lng: l.baselocation[0].lng,
-              companiondata: l,
-            }))
-          : [];
+        const companions = userdata
+          .map((l) => ({
+            ...l.Companion[0],
+            firstname: l.firstname,
+            images: l.Images,
+          }))
+          .filter((l) => l && l?.baselocation?.length);
+        const baselocations = companions.every((l) => l.baselocation.length);
+        const companionplaces =
+          companions.length && baselocations
+            ? companions.map((l) => ({
+                id: l.id,
+                lat: l.baselocation[0].lat,
+                lng: l.baselocation[0].lng,
+                companiondata: l,
+              }))
+            : [];
         const sortedCompanions = companionplaces.length
           ? sortCompanion(userLocation, companionplaces)
           : [];
