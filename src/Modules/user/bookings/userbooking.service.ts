@@ -264,4 +264,27 @@ export class UserBookingsService {
       return { error: { status: 500, message: 'Server error' } };
     }
   }
+
+  async getUserBookingDetails(bookingid: string) {
+    try {
+      const booking = Number(bookingid);
+      if(isNaN(booking) || !bookingid){
+        return { error: { status: 422, message: 'Booking Id is required' } }
+      }
+      const data = await this.prismaService.booking.findUnique({
+        where: { id: booking },
+        select: {
+          User: { select: { firstname: true, email: true, isCompanion: true } },
+          bookingduration: true,
+          bookingrate: true,
+          bookingdurationUnit: true,
+          id: true
+        },
+      });
+      return { data }
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
 }

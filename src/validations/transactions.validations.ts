@@ -3,6 +3,7 @@ import { successErrorDto } from 'src/dto/common.dto';
 import {
   getHashInputDto,
   initiatePaymentInputDto,
+  payUTransactionDetailsDto,
 } from 'src/dto/transactions.dto';
 
 export const validatehashGeneration = (
@@ -43,8 +44,24 @@ export const validatePaymentInitiation = (
     return { error: { status: 422, message: 'Product Info is required' } };
   } else if (!userinputs.productinfo.trim().length) {
     return { error: { status: 422, message: 'Product Info is not valid' } };
-  } else if (!userinputs.bookingId || typeof userinputs.bookingId !== 'number') {
+  } else if (
+    !userinputs.bookingId ||
+    typeof userinputs.bookingId !== 'number'
+  ) {
     return { error: { status: 422, message: 'Booking Id is required' } };
+  }
+  return { success: true };
+};
+
+export const validatePaymentStatus = (
+  details: payUTransactionDetailsDto,
+): successErrorDto => {
+  if (!details.amount?.trim().length) {
+    return { error: { status: 422, message: 'Amount is required' } };
+  } else if (!details.mode?.trim().length) {
+    return { error: { status: 422, message: 'Payment Mode is required' } };
+  } else if (!details.txnid?.trim().length) {
+    return { error: { status: 422, message: 'Transaction is required' } };
   }
   return { success: true };
 };

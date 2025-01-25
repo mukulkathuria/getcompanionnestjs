@@ -37,7 +37,7 @@ export class UserTransactionController {
     }
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post(UserTransactionInnerRoute.gethashfortransaction)
   @HttpCode(200)
   async getHashfortransactionController(@Body() userInputs: getHashInputDto) {
@@ -52,6 +52,7 @@ export class UserTransactionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post(UserTransactionInnerRoute.initiatepayment)
   @HttpCode(200)
   async initiatePayment(@Body() userInputs: initiatePaymentInputDto) {
@@ -67,11 +68,29 @@ export class UserTransactionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post(UserTransactionInnerRoute.onsuccesspayment)
   @HttpCode(200)
   async successPayment(@Body() userInputs: payUTransactionDetailsDto) {
     const { success, error } =
       await this.usertransactionservice.onsuccessfullPayment(userInputs);
+    if (success) {
+      // const updateddata = await data.text();
+      return {
+        success: true,
+        message: 'Transaction Updated Successfully',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(UserTransactionInnerRoute.onfailurepayment)
+  @HttpCode(200)
+  async onfailurePayment(@Body() userInputs: payUTransactionDetailsDto) {
+    const { success, error } =
+      await this.usertransactionservice.onFailedPayment(userInputs);
     if (success) {
       // const updateddata = await data.text();
       return {

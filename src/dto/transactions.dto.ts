@@ -194,6 +194,7 @@ export interface initiatePaymentInputDto extends getHashInputDto {
 }
 
 export interface paymentdetailsDto {
+  [key: string]: any;
   paymentId: string;
   paymentMethod: PaymentmethodEnum;
   cardType?: CardTypeEnum;

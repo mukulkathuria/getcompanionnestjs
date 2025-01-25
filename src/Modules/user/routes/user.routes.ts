@@ -32,7 +32,8 @@ export const UserBookingInnerRoute = {
   previousbookings: 'prevousbookgs',
   bookacompanion: 'bookacompanion',
   checkcompanionslot: 'checkcompanionslot',
-  cancelbooking: 'cancelbooking'
+  cancelbooking: 'cancelbooking',
+  getBookingDetailsforUser: 'userbookingdetails'
 }
 
 export const UserSessionInnerRoute = {
@@ -48,5 +49,6 @@ export const UsernotificationInnerRoute = {
 export const UserTransactionInnerRoute = {
   gethashfortransaction: 'gethashfortransaction',
   initiatepayment: 'initiatepayment',
-  onsuccesspayment: 'onsuccesspayment'
+  onsuccesspayment: 'onsuccesspayment',
+  onfailurepayment: 'onfaliurepaymnt'
 }

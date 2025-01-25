@@ -9,9 +9,11 @@ import {
 } from 'src/dto/transactions.dto';
 import { PaymentService } from 'src/Services/payment.service';
 import { PrismaService } from 'src/Services/prisma.service';
+import { makePaymentdetailsjson } from 'src/utils/transactions.utils';
 import {
   validatehashGeneration,
   validatePaymentInitiation,
+  validatePaymentStatus,
 } from 'src/validations/transactions.validations';
 
 @Injectable()
@@ -100,50 +102,59 @@ export class UserTransactionService {
 
   async onsuccessfullPayment(userInput: payUTransactionDetailsDto) {
     try {
+      const { error } = validatePaymentStatus(userInput);
+      if (error) return { error };
+      const { data } = makePaymentdetailsjson(userInput);
+      const previousbookings = await this.prismaService.transactions.findUnique(
+        { where: { txnid: userInput.txnid }, include: { Bookings: true } },
+      );
+      if (!previousbookings) {
+        return { error: { status: 404, message: 'Trsaction not found' } };
+      } else if (
+        previousbookings.Bookings.bookingstatus !== 'TRANSACTIONPENDING' ||
+        previousbookings.status !== 'UNDERPROCESSED'
+      ) {
+        return { error: { status: 422, message: 'Invalid transaction' } };
+      }
       await this.prismaService.transactions.update({
         where: { txnid: userInput.txnid },
         data: {
           status: TransactionStatusEnum.COMPLETED,
           payurefid: userInput.undefinedmihpayid,
+          paymentdetails: data || {},
           transactionTime: new Date(userInput.addedon).getTime(),
           Bookings: {
-            update: { data: { bookingstatus: BookingStatusEnum.ACCEPTED } },
+            update: { data: { bookingstatus: BookingStatusEnum.UNDERREVIEW } },
           },
         },
       });
-      return { success: 'true' }
+      return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
   }
 
-  async onFailedPayment(userInput: initiatePaymentInputDto) {
+  async onFailedPayment(userInput: payUTransactionDetailsDto) {
     try {
-      const { error } = validatePaymentInitiation(userInput);
-      if (error) {
-        return { error };
-      }
-      const { data, values } =
-        await this.paymentService.initiatePayment(userInput);
-      if (data) {
-        const userDetails = await this.prismaService.user.findUnique({
-          where: { email: userInput.email },
-        });
-        await this.prismaService.transactions.create({
-          data: {
-            txnid: values.txnid,
-            User: { connect: { id: userDetails.id } },
-            Bookings: { connect: { id: userInput.bookingId } },
-            amount: Number(userInput.amount),
-            payurefid: new Date().getTime().toString(),
-            paymentmethod: 'CASH',
-            transactionTime: new Date().getTime(),
+      const { error } = validatePaymentStatus(userInput);
+      if (error) return { error };
+      const { data } = makePaymentdetailsjson(userInput);
+      await this.prismaService.transactions.update({
+        where: { txnid: userInput.txnid },
+        data: {
+          status: TransactionStatusEnum.DECLINED,
+          payurefid: userInput.undefinedmihpayid,
+          transactionTime: new Date(userInput.addedon).getTime(),
+          paymentdetails: data || {},
+          Bookings: {
+            update: {
+              data: { bookingstatus: BookingStatusEnum.TRANSACTIONPENDING },
+            },
           },
-        });
-        return { data };
-      }
-      return { error: { status: 422, message: 'Server Error' } };
+        },
+      });
+      return { success: 'true' };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

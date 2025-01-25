@@ -99,4 +99,18 @@ export class UserBookingController {
       throw new HttpException(error.message, error.status);
     }
   }
+
+  @UseGuards(AuthGuard)
+  @Get(UserBookingInnerRoute.getBookingDetailsforUser)
+  async getBookingDetailsController(@Query() bookingid: bookingIdDto) {
+    const { data, error } =
+      await this.userbookingservice.getUserBookingDetails(String(bookingid?.bookingid));
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }
