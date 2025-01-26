@@ -8,6 +8,7 @@ import {
 import { AdminAcceptanceRoute } from '../routes/admin.routes';
 import { AdminGuard } from 'src/guards/admin.guard';
 import { AcceptanceService } from './acceptance.service';
+import { bookingIdDto } from 'src/dto/bookings.dto';
 
 @Controller(AdminAcceptanceRoute)
 export class AcceptanceController {
@@ -15,18 +16,18 @@ export class AcceptanceController {
 
   @UseGuards(AdminGuard)
   @Get('booking')
-  async acceptBookingController(@Query() bookingid: string) {
-    if (!bookingid || !bookingid.trim().length) {
+  async acceptBookingController(@Query() bookingdetails:bookingIdDto) {
+    if (!bookingdetails || typeof bookingdetails.bookingid !== 'number') {
       throw new HttpException('Booking id is required', 422);
     }
     try {
       const { success, error } = await this.acceptanceservice.acceptBooking(
-        Number(bookingid),
+        bookingdetails.bookingid,
       );
       if (success) {
         return {
           success,
-          message: 'Companion created successfully.',
+          message: 'Request Accepted successfully',
         };
       } else {
         throw new HttpException(error.message, error.status);
