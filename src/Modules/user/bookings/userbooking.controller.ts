@@ -6,6 +6,7 @@ import {
   HttpException,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -20,6 +21,7 @@ import {
   userBookingBodyDto,
 } from 'src/dto/bookings.dto';
 import { controllerReturnDto } from 'src/dto/common.dto';
+import { decodeExpressRequest } from 'src/guards/strategies/jwt.strategy';
 
 @Controller(UserBookingsRoute)
 export class UserBookingController {
@@ -41,9 +43,15 @@ export class UserBookingController {
 
   @UseGuards(AuthGuard)
   @Get(UserBookingInnerRoute.previousbookings)
-  async getpreviousbookingcontroller(@Query() userId: string) {
+  async getpreviousbookingcontroller(@Req() req: Request) {
+    const { data: tokendata, error: TokenError } = decodeExpressRequest(req);
+    if (TokenError) {
+      throw new HttpException('Invalid User', 403);
+    }
     const { data, error } =
-      await this.userbookingservice.getpreviousBookingsForUser(userId);
+      await this.userbookingservice.getpreviousBookingsForUser(
+        tokendata.userId,
+      );
     if (data) {
       return {
         data,
@@ -59,7 +67,7 @@ export class UserBookingController {
   async createBookingDetailsController(
     @Body() userinfo: userBookingBodyDto,
   ): Promise<controllerReturnDto & bookingIdDto> {
-    const { success , bookingid, error } =
+    const { success, bookingid, error } =
       await this.userbookingservice.bookaCompanion(userinfo);
     if (success) {
       return {
@@ -103,8 +111,9 @@ export class UserBookingController {
   @UseGuards(AuthGuard)
   @Get(UserBookingInnerRoute.getBookingDetailsforUser)
   async getBookingDetailsController(@Query() bookingid: bookingIdDto) {
-    const { data, error } =
-      await this.userbookingservice.getUserBookingDetails(String(bookingid?.bookingid));
+    const { data, error } = await this.userbookingservice.getUserBookingDetails(
+      String(bookingid?.bookingid),
+    );
     if (data) {
       return {
         data,

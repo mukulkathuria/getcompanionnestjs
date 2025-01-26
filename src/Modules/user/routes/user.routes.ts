@@ -29,7 +29,7 @@ export const UserprofileInnerRoute = {
 
 export const UserBookingInnerRoute = {
   upcomingbooking: 'upcomingbooking',
-  previousbookings: 'prevousbookgs',
+  previousbookings: 'previousbookings',
   bookacompanion: 'bookacompanion',
   checkcompanionslot: 'checkcompanionslot',
   cancelbooking: 'cancelbooking',

@@ -47,23 +47,35 @@ export class UserBookingsService {
     }
   }
 
-  async getpreviousBookingsForUser(
-    userId: string,
-  ): Promise<UserBookingReturnDto> {
+  async getpreviousBookingsForUser(userId: string) {
     try {
       if (!userId) {
         return { error: { status: 422, message: 'userId is required' } };
       }
-      const data = await this.prismaService.booking.findMany({
-        where: { bookingend: { lte: Date.now() } },
-        include: { User: { where: { id: userId } } },
-        orderBy: { bookingend: 'desc' },
-        take: 5,
+      const data = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        include: {
+          Booking: {
+            orderBy: { bookingend: 'desc' },
+            take: 5,
+            include: {
+              User: { select: { firstname: true, isCompanion: true } },
+            },
+          },
+        },
       });
-      if (!data) {
+
+      if (!data || !data.Booking.length) {
         return { error: { status: 404, message: 'No Bookings are available' } };
       }
-      return { data };
+      const filtervalues = data.Booking.map((l) => ({
+        bookingstart: String(l.bookingstart),
+        bookingend: String(l.bookingend),
+        status: l.bookingstatus,
+        amount: l.finalRate,
+        users: l.User,
+      }));
+      return { data: filtervalues };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -268,8 +280,8 @@ export class UserBookingsService {
   async getUserBookingDetails(bookingid: string) {
     try {
       const booking = Number(bookingid);
-      if(isNaN(booking) || !bookingid){
-        return { error: { status: 422, message: 'Booking Id is required' } }
+      if (isNaN(booking) || !bookingid) {
+        return { error: { status: 422, message: 'Booking Id is required' } };
       }
       const data = await this.prismaService.booking.findUnique({
         where: { id: booking },
@@ -278,10 +290,10 @@ export class UserBookingsService {
           bookingduration: true,
           bookingrate: true,
           bookingdurationUnit: true,
-          id: true
+          id: true,
         },
       });
-      return { data }
+      return { data };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

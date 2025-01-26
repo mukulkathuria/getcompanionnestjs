@@ -209,9 +209,10 @@ export class AuthService {
       return { error };
     }
     const payload = {
+      reId: refreshToken.id,
       email: refreshToken.email,
       role: refreshToken?.role || Roles.NORMAL,
-      userId: refreshToken?.id,
+      userId: refreshToken?.userId,
       isCompanion: Boolean(refreshToken?.isCompanion),
     };
     return {
