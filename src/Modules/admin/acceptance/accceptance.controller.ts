@@ -17,12 +17,12 @@ export class AcceptanceController {
   @UseGuards(AdminGuard)
   @Get('booking')
   async acceptBookingController(@Query() bookingdetails:bookingIdDto) {
-    if (!bookingdetails || typeof bookingdetails.bookingid !== 'number') {
+    if (!bookingdetails.bookingid) {
       throw new HttpException('Booking id is required', 422);
     }
     try {
       const { success, error } = await this.acceptanceservice.acceptBooking(
-        bookingdetails.bookingid,
+        Number(bookingdetails.bookingid),
       );
       if (success) {
         return {

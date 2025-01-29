@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Query,
+  Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -89,6 +90,29 @@ export class DeleteUsersController {
       };
     } else {
       throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(UserprofileInnerRoute.userProfileDetails)
+  async getUserDetails(@Req() req: Request) {
+    const { decodeExpressRequest } = await import(
+      '../../../guards/strategies/jwt.strategy'
+    );
+    const { data: Tokendata, error: TokenError } = decodeExpressRequest(req);
+    if (Tokendata) {
+      const { error, data } = await this.userservice.getUserDetails(
+        Tokendata.userId,
+      );
+      if (data) {
+        return {
+          data,
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
+    } else if (TokenError) {
+      throw new HttpException(TokenError, 403);
     }
   }
 }

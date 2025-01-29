@@ -30,6 +30,9 @@ export class AcceptanceService {
           },
         },
       });
+      if(!bookingDetails && bookingDetails.bookingstatus !== 'UNDERREVIEW'){
+        return { error:{ status: 404, message: 'Bookings not found' } }
+      }
       // eslint-disable-next-line
       const data = await this.prismaService.booking.update({
         where: { id: bookingId },

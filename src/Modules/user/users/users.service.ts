@@ -79,4 +79,24 @@ export class UsersService {
       return { error: { status: 500, message: 'Server error' } };
     }
   }
+
+  async getUserDetails(userId: string){
+    try {
+      if(!userId || typeof userId !== 'string') {
+        return { error: { status: 422, message: 'Invalid companion search' } };
+      }
+      const data = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        select:{ firstname: true, lastname: true, age: true, gender: true, Images: true }
+      });
+      if (!data) {
+        return { error: { status: 422, message: 'Invalid companion search' } };
+      }
+      // const finaldata = filterCompanionDetailsbyuser(data.Companion[0], data);
+      return { data };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
 }

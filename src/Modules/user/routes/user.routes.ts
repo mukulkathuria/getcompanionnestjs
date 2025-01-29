@@ -24,7 +24,8 @@ export const UserAuthInnerRoute = {
 export const UserprofileInnerRoute = { 
     deleteuser: 'delete',
     updateprofile: 'updateprofile/:id',
-    usertocompaniondetails: 'usercompaniondetails'
+    usertocompaniondetails: 'usercompaniondetails',
+    userProfileDetails: 'userprofiledetails'
 }
 
 export const UserBookingInnerRoute = {

@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/Services/prisma.service';
-import { filterUnderreviewBooking } from 'src/utils/admin.booking.utils';
 
 @Injectable()
 export class AdminBookingService {
@@ -14,8 +13,24 @@ export class AdminBookingService {
           bookingstatus: 'UNDERREVIEW',
           bookingend: { gte: Date.now() },
         },
+        select: {
+          User: {
+            select: {
+              firstname: true,
+              lastname: true,
+              gender: true,
+              isCompanion: true,
+            },
+          },
+          Meetinglocation: { select: { city: true } },
+          bookingstart: true,
+          id: true
+        },
       });
-      const filtereddata = filterUnderreviewBooking(data);
+      const filtereddata = data.map((l) => ({
+        ...l,
+        bookingstart: String(l.bookingstart),
+      }));
       return { data: filtereddata };
     } catch (error) {
       this.logger.error(error?.message || error);
@@ -27,9 +42,12 @@ export class AdminBookingService {
 
   async getBookingDetails(bookingId: number) {
     try {
+      if (!bookingId || typeof bookingId !== 'number') {
+        return { error: { status: 422, message: 'Booking id is required' } };
+      }
       const data = await this.prismaService.booking.findUnique({
         where: { id: bookingId },
-        include: {
+        select: {
           Meetinglocation: { select: { lat: true, lng: true, city: true } },
           User: {
             select: {
@@ -40,9 +58,24 @@ export class AdminBookingService {
               isCompanion: true,
             },
           },
+          bookingstart: true,
+          bookingrate: true,
+          bookingend: true,
+          bookingduration: true,
+          bookingpurpose: true,
+          finalRate: true,
+          bookingstatus: true,
         },
       });
-      return { data };
+      if (!data) {
+        return { error: { status: 404, message: 'Booking id not found' } };
+      }
+      const values = {
+        ...data,
+        bookingstart: String(data.bookingstart),
+        bookingend: String(data.bookingend),
+      };
+      return { data: values };
     } catch (error) {
       this.logger.error(error?.message || error);
       return {
