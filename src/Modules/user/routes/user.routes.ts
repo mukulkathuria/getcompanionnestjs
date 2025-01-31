@@ -53,3 +53,8 @@ export const UserTransactionInnerRoute = {
   onsuccesspayment: 'onsuccesspayment',
   onfailurepayment: 'onfaliurepaymnt'
 }
+
+export const ChatRoomInnerRoutes = {
+  getAllChatRoomRoute: 'getallchats',
+  getChatMessageHistoryRoute: 'getchathistory'
+}

@@ -134,6 +134,16 @@ export class UserBookingsService {
               { id: bookingDetails.companionId },
             ],
           },
+          ChatRoom: {
+            create: {
+              User: {
+                connect: [
+                  { id: bookingDetails.userId },
+                  { id: bookingDetails.companionId },
+                ],
+              },
+            },
+          },
           bookingduration: bookingDetails.bookingduration,
           bookingstart: dayjs(bookingDetails.bookingdate).toDate().getTime(),
           bookingend: endDate,
