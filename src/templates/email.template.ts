@@ -65,13 +65,15 @@ export default function (params: emailTemplateDto) {
     refundprocess:{
         subject: 'Your Refund is Being Wrapped Up With Care 🎁',
         body: `
-        Hi ${params.username},
-        We understand how precious your trust is, and we’ve expedited your refund of ₹${params.refundamount}. It will reach you within the next 3-5 business days.
+        <p>Hi <b>${params.username}</b></p>,
+        <p>We understand how precious your trust is, and we’ve expedited your refund of ₹${params.refundamount}. It will reach you within the next 3-5 business days.</p>
 
-        Thank you for your patience and understanding. We hope to welcome you back soon for a spectacular experience that exceeds your expectations.
-
-        With appreciation,  
-        Zestful Amigos Team
+        <p>Thank you for your patience and understanding. We hope to welcome you back soon for a spectacular experience that exceeds your expectations.</p>
+        <br/>
+        <br />
+        <p>With appreciation,</p>
+        <br/>  
+        <p>Zestful Amigos Team</p>
         `,
     }
   };

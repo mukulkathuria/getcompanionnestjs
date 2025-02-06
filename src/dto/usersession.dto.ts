@@ -7,6 +7,8 @@ export interface SessionIdBodyParamsDto {
     sessionid: string;
 }
 
-export interface SessionExtendBodyParamsDto extends SessionIdBodyParamsDto{
-    endtime: string;
+export interface SessionExtendBodyParamsDto {
+    bookingid: number;
+    endtime?: string;
+    extentedhours: number
 }

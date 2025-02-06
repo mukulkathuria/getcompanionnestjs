@@ -6,6 +6,7 @@ import {
   userBookingBodyDto,
   userBookingReturnDto,
 } from 'src/dto/bookings.dto';
+import { successErrorDto } from 'src/dto/common.dto';
 
 export function isUserBookingValid(
   userinfo: userBookingBodyDto,
@@ -54,10 +55,11 @@ export function isUserBookingValid(
 
 export function checkValidCancelBookngInputs(
   cancelInputs: cancelBookingInputDto,
-) {
+): successErrorDto {
   if (!cancelInputs.userId) {
     return { error: { status: 422, message: 'User Id is required' } };
   } else if (!cancelInputs.bookingid) {
     return { error: { status: 422, message: 'Booking Id is required' } };
   }
+  return { success: true };
 }

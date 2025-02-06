@@ -74,6 +74,7 @@ export class UserBookingsService {
         status: l.bookingstatus,
         amount: l.finalRate,
         users: l.User,
+        id: l.id
       }));
       return { data: filtervalues };
     } catch (error) {
@@ -196,7 +197,7 @@ export class UserBookingsService {
         where: { id: input.bookingid },
         include: { User: true },
       });
-      if (!bookingDetails) {
+      if (!bookingDetails || bookingDetails.bookingstart <= Date.now()) {
         return { error: { status: 404, message: 'No Bookings found' } };
       }
       const cancelledByCompanion = bookingDetails.User.find(
@@ -253,7 +254,7 @@ export class UserBookingsService {
       const { usercancelbooking, refundprocess } = emailTemplate({
         username: userdata.firstname,
         companion_name: companiondata.firstname,
-        refundamount: `₹${totalrefundamount}`,
+        refundamount: `${totalrefundamount}`,
       });
 
       if (timeofcancellation < 24) {

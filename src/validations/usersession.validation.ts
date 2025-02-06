@@ -33,25 +33,36 @@ export const checkValidEndSessionData = (
 export const checkValidExtendSessionData = (
   sessiondetails: SessionExtendBodyParamsDto,
 ) => {
-  const endTime = sessiondetails.endtime.split(' ')[0];
-  const endHour = sessiondetails.endtime.split(' ')[1];
-  if (!sessiondetails.sessionid || !sessiondetails.sessionid.trim().length) {
-    return { error: { status: 422, message: 'Session Id is required' } };
-  } else if (!sessiondetails.endtime || !sessiondetails.endtime.trim().length) {
-    return { error: { status: 422, message: 'EndTime is required' } };
-  } else if (
-    !endTime ||
-    isNaN(Number(endTime)) ||
-    (endHour != 'HOUR' && endHour != 'MINUTE')
+  // const endTime = sessiondetails.endtime.split(' ')[0];
+  // const endHour = sessiondetails.endtime.split(' ')[1];
+  // if (!sessiondetails.sessionid || !sessiondetails.sessionid.trim().length) {
+  //   return { error: { status: 422, message: 'Session Id is required' } };
+  // } else if (!sessiondetails.endtime || !sessiondetails.endtime.trim().length) {
+  //   return { error: { status: 422, message: 'EndTime is required' } };
+  // } else if (
+  //   !endTime ||
+  //   isNaN(Number(endTime)) ||
+  //   (endHour != 'HOUR' && endHour != 'MINUTE')
+  // ) {
+  //   return { error: { status: 422, message: 'End Time is not valid' } };
+  // }
+  // const hourend: ManipulateType = endHour === 'HOUR' ? 'hour' : 'minute'
+  // return {
+  //   data: {
+  //     ...sessiondetails,
+  //     endTime: Number(endTime),
+  //     endHour: hourend,
+  //   },
+  // };
+  if (
+    !sessiondetails.bookingid ||
+    typeof sessiondetails.bookingid !== 'number'
   ) {
-    return { error: { status: 422, message: 'End Time is not valid' } };
+    return { error: { status: 422, message: 'Booking Id is required' } };
+  } else if (
+    !sessiondetails.extentedhours ||
+    typeof sessiondetails.extentedhours !== 'number'
+  ) {
+    return { error: { status: 422, message: 'Extention is required' } };
   }
-  const hourend: ManipulateType = endHour === 'HOUR' ? 'hour' : 'minute'
-  return {
-    data: {
-      ...sessiondetails,
-      endTime: Number(endTime),
-      endHour: hourend,
-    },
-  };
 };

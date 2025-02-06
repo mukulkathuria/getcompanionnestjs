@@ -49,11 +49,12 @@ export class UserSessionController {
   async extendUserSessionController(
     @Body() session: SessionExtendBodyParamsDto,
   ) {
-    const { data, error } =
+    const { success, error } =
       await this.usersessionservice.extendSession(session);
-    if (data) {
+    if (success) {
       return {
-        data,
+        success: true,
+        message: 'Successfully extended the session',
       };
     } else {
       throw new HttpException(error.message, error.status);
