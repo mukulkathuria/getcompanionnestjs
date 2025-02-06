@@ -7,7 +7,7 @@ export const UserImageMulterConfig: MulterModuleOptions = {
   storage: diskStorage({
     destination: 'UserPhotos',
     filename(req, file, cb) {
-      cb(null, Date.now() + '-' + file.originalname);
+      cb(null, file.originalname);
     },
   }),
 };
@@ -20,4 +20,4 @@ export const UserIssuesImageMulterConfig: MulterModuleOptions = {
       cb(null, Date.now() + '-' + file.originalname);
     },
   }),
-}
+};

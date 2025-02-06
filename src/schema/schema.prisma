@@ -155,7 +155,7 @@ model notification {
   fromModule         NotificationFromModuleEnum @default(GLOBAL)
   moduleotherDetails Json?
   contentforadmin    String?
-  User               User?                      @relation(fields: [foruser], references: [id])
+  User               User?                       @relation(fields: [foruser], references: [id])
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
 }
@@ -268,7 +268,6 @@ model Booking {
   bookingstatus       BookingStatus           @default(UNDERREVIEW)
   bookingpurpose      String?
   finalRate           Float
-  purpose             String?
   OTP                 Int
   Transactions        Transactions[]
   ChatRoom            ChatRoom[]

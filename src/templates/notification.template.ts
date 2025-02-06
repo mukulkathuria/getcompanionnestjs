@@ -2,17 +2,17 @@ import { emailTemplateDto } from './templates.dto';
 
 export default function (params: emailTemplateDto) {
   return {
-    bookingconfirmation: `Your booking with ${params.username} is confirmed! See you on ${params.date_time}. 🎉`,
-    bookingreminder: `Just a reminder – your booking with ${params.companion_name} is coming up soon! Don’t be late! ⏰`,
-    transactionsucess: `Payment successful! You’re all set for a fantastic time with ${params.companion_name}. 💸✨`,
-    transactionfailure: `Oops! Your payment didn’t go through. Please try again to confirm your booking. 🚫💳`,
-    bookingpending: `Your booking is pending . We’ll update you soon! 🕒`,
-    cancelationbyuser: `Your booking with ${params.companion_name} has been cancelled. Hope to see you back soon! 👋`,
-    cancellationbyadmin: `We’re sorry, your booking with ${params.companion_name} has been cancelled. Check your inbox for details. ❌`,
+    bookingconfirmation: `Your booking with ${params.companion_name} is confirmed! See you on ${params.date_time}.`,
+    bookingreminder: `Just a reminder – your booking with ${params.companion_name} is coming up soon! Don’t be late!`,
+    transactionsucess: `Payment successful! You’re all set for a fantastic time with ${params.companion_name}.`,
+    transactionfailure: `Oops! Your payment didn’t go through. Please try again to confirm your booking.`,
+    bookingpending: `Your booking is pending . We’ll update you soon!`,
+    cancelationbyuser: `Your booking with ${params.companion_name} has been cancelled. Hope to see you back soon!`,
+    cancellationbyadmin: `We’re sorry, your booking with ${params.companion_name} has been cancelled. Check your inbox for details.`,
     cancelationrequestbycompanion: `Your cancellation request for ${params.username} and time ${params.date_time} is under consideration. Admin will contact you soon.`,
     welcomeuser: `Welcome to Zestful Amigos! Let’s get you set up for an unforgettable experience`,
-    profileupdate: `Profile updated successfully! Your details are now up-to-date. ✏️✅`,
-    getrating: `How was your experience with ${params.companion_name}? Rate your time with us! ⭐️`,
+    profileupdate: `Profile updated successfully! Your details are now up-to-date.`,
+    getrating: `How was your experience with ${params.companion_name}? Rate your time with us!`,
   };
 }
 

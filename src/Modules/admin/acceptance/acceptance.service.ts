@@ -43,7 +43,9 @@ export class AcceptanceService {
       const reminders = [];
       for (let i = 0; i < Notificationreminders.length; i += 1) {
         if (
-          dayjs(Number(bookingDetails.bookingstart)).subtract(Notificationreminders[i]).valueOf() > Date.now()
+          dayjs(Number(bookingDetails.bookingstart))
+            .subtract(Notificationreminders[i])
+            .valueOf() > Date.now()
         ) {
           reminders.push(
             `${dayjs(Number(bookingDetails.bookingstart)).subtract(12).valueOf()},${Notificationreminders[i]}`,
@@ -56,16 +58,16 @@ export class AcceptanceService {
           expiry: addHours(Notificationhours.getrating),
           content: notificationTemplate({
             companion_name: companiondata.firstname,
-            username: userdata.id,
+            username: companiondata.firstname,
             date_time: convertToDateTime(bookingDetails.bookingstart),
           }).bookingconfirmation,
           reminders,
-          User: { connect: { id: userdata.id } },
+          User: { connect:{ id: userdata.id } },
         },
       });
       return { success: true };
     } catch (error) {
-      this.logger.error(error?.message || error);
+      this.logger.error(error);
       return {
         error: { status: 500, message: 'Server error' },
       };

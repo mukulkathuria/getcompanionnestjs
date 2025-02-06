@@ -36,6 +36,7 @@ export interface userBookingBodyDto {
   bookingduration: number;
   bookingdurationUnit: BookingDurationUnitEnum;
   bookinglocation: userCompanionFindLocationInputDto;
+  purpose: string
 }
 
 export interface userBookingReturnDto extends errorDto {

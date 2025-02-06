@@ -36,6 +36,10 @@ export function isUserBookingValid(
     return {
       error: { status: 422, message: "You can't book on past date" },
     };
+  } else if (!userinfo.purpose || !userinfo.purpose.trim().length) {
+    return {
+      error: { status: 422, message: 'Booking purpose is required' },
+    };
   } else if (
     !userinfo?.bookinglocation?.city?.trim().length ||
     !userinfo.bookinglocation?.lat ||
