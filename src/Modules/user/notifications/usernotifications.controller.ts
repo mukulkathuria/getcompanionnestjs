@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpException,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -20,15 +21,23 @@ export class UserNotificationController {
   @UseGuards(AuthGuard)
   @Get(UsernotificationInnerRoute.getusernotifications)
   @HttpCode(200)
-  async getUserNotificationController(@Query() userId: string) {
-    const { data, error } =
-      await this.notificationservice.getNotificationforUser(userId);
-    if (data) {
-      return {
-        data,
-      };
+  async getUserNotificationController(@Req() req: Request) {
+    const { decodeExpressRequest } = await import(
+      '../../../guards/strategies/jwt.strategy'
+    );
+    const { data: Tokendata, error: TokenError } = decodeExpressRequest(req);
+    if (Tokendata) {
+      const { data, error } =
+        await this.notificationservice.getNotificationforUser(Tokendata.userId);
+      if (data) {
+        return {
+          data,
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
     } else {
-      throw new HttpException(error.message, error.status);
+      throw new HttpException('Server Error', 500);
     }
   }
 }

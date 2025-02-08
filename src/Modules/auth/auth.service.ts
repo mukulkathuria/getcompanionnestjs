@@ -213,6 +213,7 @@ export class AuthService {
       email: refreshToken.email,
       role: refreshToken?.role || Roles.NORMAL,
       userId: refreshToken?.userId,
+      name: refreshToken.name,
       isCompanion: Boolean(refreshToken?.isCompanion),
     };
     return {

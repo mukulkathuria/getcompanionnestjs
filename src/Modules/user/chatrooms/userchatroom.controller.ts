@@ -49,7 +49,7 @@ export class UserChatRoomController {
   @Get(ChatRoomInnerRoutes.getChatMessageHistoryRoute)
   async getUserChatMessageController(
     @Body() chatroomid: ChatRoomIdDto,
-  ): Promise<UserChatMessagesReturnDto> {
+  ) {
     const { data, error } =
       await this.companionfindservice.getChatsFromChatid(chatroomid);
     if (data) {

@@ -14,10 +14,21 @@ export class UserNotificationServices {
           expiry: { lt: Date.now() },
           OR: [{ isGobal: true }, { foruser: userId }],
         },
+        select: {
+          id: true,
+          content: true,
+          foruser: true,
+          isGobal: true,
+          reminders: true,
+          fromModule: true,
+          moduleotherDetails: true,
+          contentforadmin: true,
+          createdAt: true
+        },
       });
-      const finalResults: notification[] = [];
+      const finalResults = [];
       for (let i = 0; i <= data.length; i += 1) {
-        if (data[i].reminders.length) {
+        if (data[i]?.reminders?.length) {
           const reminders = data[i].reminders;
           for (let j = 0; j < reminders.length; j += 1) {
             const timer = Number(reminders[j].split(',')[0]);

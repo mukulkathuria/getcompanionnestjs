@@ -20,7 +20,18 @@ export class UserChatRoomsService {
         select: {
           id: true,
           User: {
-            select: { firstname: true, lastname: true, isCompanion: true, id: true },
+            select: {
+              firstname: true,
+              lastname: true,
+              isCompanion: true,
+              id: true,
+            },
+          },
+          Bookings: {
+            select: {
+              id: true,
+              Sessions: { select: { id: true, isExtended: true } },
+            },
           },
         },
       });
