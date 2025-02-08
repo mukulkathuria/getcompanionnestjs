@@ -1,69 +1,75 @@
 import { UseGuards } from '@nestjs/common';
 import {
+  ConnectedSocket,
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { WsAuthGuard } from 'src/guards/wsjwt.guard';
-import {  messageRoomDto } from './dto/joinroom.dto';
+import { joinedRoomDto, messageRoomDto } from './dto/joinroom.dto';
 import {
+  joinedRoomValidation,
   messageRoomValidation,
 } from './validations/chat.validations';
 import { ChatService } from './chat.service';
 import { WsThrottlerGuard } from 'src/guards/throttler.guard';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
 export class ChatController {
   constructor(private readonly eventService: ChatService) {}
 
   @WebSocketServer()
   server: Server;
 
-//   @UseGuards(WsAuthGuard)
-//   @SubscribeMessage('joinchatroom')
-//   async addedUser(
-//     @MessageBody() roomdata: joinedRoomDto,
-//     @ConnectedSocket() client: Socket,
-//   ): Promise<void> {
-//     const { error } = joinedRoomValidation(roomdata);
-//     if (!error) {
-//       const { data, error: serverErr } =
-//         await this.eventService.adduserchatroom(roomdata);
-//       if (data) {
-//         client.join(data.chatroomid);
-//         this.server.to(data.chatroomid).emit('joinedUser', data);
-//       } else if (serverErr) {
-//         throw new WsException(serverErr);
-//       }
-//     } else {
-//       throw new WsException(error.message);
-//     }
-//   }
+  @UseGuards(WsAuthGuard)
+  @SubscribeMessage('joinchatroom')
+  async addedUser(
+    @MessageBody() roomdata: joinedRoomDto,
+    @ConnectedSocket() client: Socket,
+  ): Promise<void> {
+    console.log("roomdata",roomdata)
+    const { error } = joinedRoomValidation(roomdata);
+    if (!error) {
+      const { data, error: serverErr } =
+        await this.eventService.adduserchatroom(roomdata);
+      if (data) {
+        client.join(roomdata.roomid);
+        this.server.to(roomdata.roomid).emit('joinedUser', data);
+      } else if (serverErr) {
+        throw new WsException(serverErr);
+      }
+    } else {
+      throw new WsException(error.message);
+    }
+  }
 
-//   @SubscribeMessage('leavechatroom')
-//   async leaveroom(
-//     @MessageBody() roomdata: joinedRoomDto,
-//     @ConnectedSocket() client: Socket,
-//   ): Promise<void> {
-//     const { error } = joinedRoomValidation(roomdata);
-//     if (!error) {
-//       const { data, error: serverErr } =
-//         await this.eventService.removeuserchatroom(roomdata);
-//       if (data) {
-//         this.server.to(data.chatroomid).emit('leaveroom', data);
-//         client.leave(data.chatroomid);
-//       } else if (serverErr) {
-//         throw new WsException(serverErr);
-//       }
-//     } else {
-//       throw new WsException(error.message);
-//     }
-//   }
+  //   @SubscribeMessage('leavechatroom')
+  //   async leaveroom(
+  //     @MessageBody() roomdata: joinedRoomDto,
+  //     @ConnectedSocket() client: Socket,
+  //   ): Promise<void> {
+  //     const { error } = joinedRoomValidation(roomdata);
+  //     if (!error) {
+  //       const { data, error: serverErr } =
+  //         await this.eventService.removeuserchatroom(roomdata);
+  //       if (data) {
+  //         this.server.to(data.chatroomid).emit('leaveroom', data);
+  //         client.leave(data.chatroomid);
+  //       } else if (serverErr) {
+  //         throw new WsException(serverErr);
+  //       }
+  //     } else {
+  //       throw new WsException(error.message);
+  //     }
+  //   }
 
-  @UseGuards(WsThrottlerGuard)
   @UseGuards(WsAuthGuard)
   @SubscribeMessage('sendMessage')
   async sendMessage(@MessageBody() data: messageRoomDto): Promise<void> {
@@ -71,7 +77,7 @@ export class ChatController {
     if (!error) {
       const { userData } = await this.eventService.sendMessageRoom(data);
       if (userData) {
-        this.server.to(userData[0].chatroomid).emit('message', userData); // room id has to be added
+        this.server.to(data.roomid).emit('message', userData); // room id has to be added
       } else {
         throw new WsException('Chat room not available');
       }
@@ -80,16 +86,16 @@ export class ChatController {
     }
   }
 
-//   @UseGuards(WsThrottlerGuard)
-//   @UseGuards(WsAuthGuard)
-//   @SubscribeMessage('sendFile')
-//   async sendFile(@MessageBody() data: sendFileDto): Promise<void> {
-//     const { userData } = await this.eventService.sendFileinRoom(data);
-//     if (userData) {
-//       this.server.to(userData.chatroomid).emit('message', userData);
-//     } else {
-//       throw new WsException('Error occured');
-//     }
-//   }
-// }
+  //   @UseGuards(WsThrottlerGuard)
+  //   @UseGuards(WsAuthGuard)
+  //   @SubscribeMessage('sendFile')
+  //   async sendFile(@MessageBody() data: sendFileDto): Promise<void> {
+  //     const { userData } = await this.eventService.sendFileinRoom(data);
+  //     if (userData) {
+  //       this.server.to(userData.chatroomid).emit('message', userData);
+  //     } else {
+  //       throw new WsException('Error occured');
+  //     }
+  //   }
+  // }
 }

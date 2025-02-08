@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   // ImageMimeType,
-  // joinedRoomDto,
+  joinedRoomDto,
   messageRoomDto,
   // sendFileDto,
 } from './dto/joinroom.dto';
@@ -12,15 +12,26 @@ export class ChatService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(PrismaService.name);
 
-  // async adduserchatroom(roomuser: joinedRoomDto) {
-  //   const { username, roomid } = roomuser;
-  //   try {
+  async adduserchatroom(roomuser: joinedRoomDto) {
+    const { userid, roomid } = roomuser;
+    try {
+      const data = await this.prismaService.message.findMany({
+        where: { chatroomid: roomid },
+        select: {
+          id: true,
+          isHide: true,
+          senderid: true,
+          body: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'asc' },
+      });
 
-  //     return { data };
-  //   } catch (error) {
-  //     return { error: { status: 500, message: 'Server error' } };
-  //   }
-  // }
+      return { data };
+    } catch (error) {
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
 
   // async removeuserchatroom(roomuser: joinedRoomDto) {
   //   const { username, roomid } = roomuser;
@@ -51,7 +62,13 @@ export class ChatService {
     try {
       const data = await this.prismaService.message.findMany({
         where: { chatroomid: roomid },
-        include: { User: true },
+        select: {
+          id: true,
+          isHide: true,
+          senderid: true,
+          body: true,
+          createdAt: true,
+        },
         orderBy: { createdAt: 'asc' },
       });
       const AddMessageChat = await this.prismaService.message.create({
@@ -62,7 +79,6 @@ export class ChatService {
         },
       });
       const updatedMessges = [...data, AddMessageChat];
-      console.log(updatedMessges);
       return { userData: updatedMessges };
     } catch (error) {
       this.logger.error(error?.message || error);

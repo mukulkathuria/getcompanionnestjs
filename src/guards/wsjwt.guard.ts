@@ -8,10 +8,14 @@ export class WsAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const server: Server = context.switchToWs().getClient<Server>();
-    const { token } = request.handshake?.auth;
+    console.log(request && request.connection ? request.connection : request)
+    const token = request?.handshake?.auth?.token;
+    if (!token) {
+      return false;
+    }
     const { data, error } = validateToken(token as string);
     if (data) {
-      request.username = data.name;
+      request.userId = data.userId;
       return true;
     } else {
       if (error.status === 403) {

@@ -6,7 +6,7 @@ export enum ImageMimeType {
   
   export type joinedRoomDto = {
     roomid: string;
-    username: string;
+    userid: string;
   };
   
   export interface messageContentType {

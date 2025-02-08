@@ -20,7 +20,7 @@ export class UserChatRoomsService {
         select: {
           id: true,
           User: {
-            select: { firstname: true, lastname: true, isCompanion: true },
+            select: { firstname: true, lastname: true, isCompanion: true, id: true },
           },
         },
       });
@@ -35,7 +35,13 @@ export class UserChatRoomsService {
     try {
       const data = await this.prismaService.message.findMany({
         where: { chatroomid: chatId.chatroomid },
-        include: { User: true },
+        select: {
+          id: true,
+          isHide: true,
+          senderid: true,
+          body: true,
+          createdAt: true,
+        },
         orderBy: { createdAt: 'asc' },
       });
       return { data };

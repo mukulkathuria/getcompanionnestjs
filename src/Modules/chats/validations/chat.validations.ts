@@ -6,21 +6,21 @@ import {
 } from '../dto/joinroom.dto';
 
 export const joinedRoomValidation = (roomdata: joinedRoomDto) => {
-  const { roomid, username } = roomdata;
+  const { roomid, userid } = roomdata;
   if (!roomid) {
     return { error: { status: 422, message: 'Chat Room is required' } };
-  } else if (!username || !username.trim().length) {
-    return { error: { status: 422, message: 'Username is required' } };
+  } else if (!userid || !userid.trim().length) {
+    return { error: { status: 422, message: 'userid is required' } };
   }
   return { user: roomdata };
 };
 
 export const messageRoomValidation = (roomdata: messageRoomDto) => {
-  const { roomid, username, message } = roomdata;
+  const { roomid, userid, message } = roomdata;
   if (!roomid) {
     return { error: { status: 422, message: 'Chat Room is required' } };
-  } else if (!username || !username.trim().length) {
-    return { error: { status: 422, message: 'Username is required' } };
+  } else if (!userid || !userid.trim().length) {
+    return { error: { status: 422, message: 'userid is required' } };
   } else if (message && (!message?.sender || !message?.content)) {
     return { error: { status: 422, message: 'Message Type is required' } };
   }
@@ -28,11 +28,11 @@ export const messageRoomValidation = (roomdata: messageRoomDto) => {
 };
 
 export const fileSendValidation = (roomdata: sendFileDto) => {
-  const { roomid, username, file, mimeType } = roomdata;
+  const { roomid, userid, file, mimeType } = roomdata;
   if (!roomid) {
     return { error: { status: 422, message: 'Chat Room is required' } };
-  } else if (!username || !username.trim().length) {
-    return { error: { status: 422, message: 'Username is required' } };
+  } else if (!userid || !userid.trim().length) {
+    return { error: { status: 422, message: 'userid is required' } };
   } else if (!file) {
     return { error: { status: 422, message: 'File is required' } };
   } else if (file.byteLength > 1024 * 1024 * 2) {
