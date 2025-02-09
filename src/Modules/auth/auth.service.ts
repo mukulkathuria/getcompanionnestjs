@@ -55,6 +55,7 @@ export class AuthService {
       name: user?.firstname + ' ' + user?.lastname,
       userId: user?.id,
       isCompanion: Boolean(user?.isCompanion),
+      Images: user.Images
     };
     const id = uuid();
     const refresh_token = sign(
@@ -121,6 +122,7 @@ export class AuthService {
               content: notificationTemplate({
                 username: user.firstname,
               }).welcomeuser,
+              reminders: []
             },
           },
         },
@@ -215,6 +217,7 @@ export class AuthService {
       userId: refreshToken?.userId,
       name: refreshToken.name,
       isCompanion: Boolean(refreshToken?.isCompanion),
+      Images: refreshToken.Images
     };
     return {
       access_token: sign(

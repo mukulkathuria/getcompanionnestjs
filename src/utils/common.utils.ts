@@ -88,13 +88,20 @@ export function sortCompanion(
   const sortedOnes = companionwithdistances.sort((a, b) => {
     return a.distance - b.distance;
   });
-  return sortedOnes.map((l) => ({ ...l.companiondata, distance: l.distance }));
+  return sortedOnes.map((l) => ({
+    ...l.companiondata,
+    images: l.images,
+    firstname: l.firstname,
+    distance: l.distance,
+  }));
 }
 
-export function addHours(hour: number, hourorminute? : dayjs.ManipulateType){
-  return dayjs().add(hour, hourorminute || 'hour').valueOf()
+export function addHours(hour: number, hourorminute?: dayjs.ManipulateType) {
+  return dayjs()
+    .add(hour, hourorminute || 'hour')
+    .valueOf();
 }
 
-export function convertToDateTime(date: bigint){
-  return dayjs(Number(date)).format("DD/MM/YYYY HH:mm")
+export function convertToDateTime(date: bigint) {
+  return dayjs(Number(date)).format('DD/MM/YYYY HH:mm');
 }

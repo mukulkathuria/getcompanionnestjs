@@ -44,6 +44,7 @@ export class CompanionService {
       }
       const location = {
         city: user?.city,
+        state: user?.state,
         zipcode: Number(user?.zipcode) || null,
         lat: Number(user?.lat) || null,
         lng: Number(user?.lng) || null,

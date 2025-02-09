@@ -24,7 +24,7 @@ export class AdminBookingService {
           },
           Meetinglocation: { select: { city: true } },
           bookingstart: true,
-          id: true
+          id: true,
         },
       });
       const filtereddata = data.map((l) => ({
@@ -69,7 +69,7 @@ export class AdminBookingService {
       });
       if (!data) {
         return { error: { status: 404, message: 'Booking id not found' } };
-      }
+      } 
       const values = {
         ...data,
         bookingstart: String(data.bookingstart),

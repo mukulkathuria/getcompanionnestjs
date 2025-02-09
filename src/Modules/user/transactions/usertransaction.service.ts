@@ -11,6 +11,7 @@ import { PaymentService } from 'src/Services/payment.service';
 import { PrismaService } from 'src/Services/prisma.service';
 import { makePaymentdetailsjson } from 'src/utils/transactions.utils';
 import {
+  validateFailurePaymentStatus,
   validatehashGeneration,
   validatePaymentInitiation,
   validatePaymentStatus,
@@ -137,7 +138,7 @@ export class UserTransactionService {
 
   async onFailedPayment(userInput: payUTransactionDetailsDto) {
     try {
-      const { error } = validatePaymentStatus(userInput);
+      const { error } = validateFailurePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
       await this.prismaService.transactions.update({
@@ -146,7 +147,7 @@ export class UserTransactionService {
           status: TransactionStatusEnum.DECLINED,
           payurefid: userInput.undefinedmihpayid,
           transactionTime: new Date(userInput.addedon).getTime(),
-          paymentdetails: data || {},
+          paymentdetails: data ? { ...data, content: userInput.field9 } : {},
           Bookings: {
             update: {
               data: { bookingstatus: BookingStatusEnum.TRANSACTIONPENDING },

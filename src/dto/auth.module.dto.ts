@@ -31,6 +31,7 @@ export type registerCompanionBodyDto = {
   description: CompanionDescriptionEnum[];
   skintone: CompanionSkinToneEnum;
   city: string;
+  state: string;
   zipcode?: string;
   lat: string;
   lng: string;

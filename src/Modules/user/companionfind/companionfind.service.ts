@@ -12,9 +12,7 @@ export class CompanionFindService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(CompanionFindService.name);
 
-  async getFindCompanion(
-    userLocation: userCompanionFindLocationInputDto,
-  ): Promise<CompanionFindReturnDto> {
+  async getFindCompanion(userLocation: userCompanionFindLocationInputDto) {
     try {
       const { data, error } = validateCompanionSearch(userLocation);
       if (error) {
@@ -37,12 +35,22 @@ export class CompanionFindService {
                 lat: l.baselocation[0].lat,
                 lng: l.baselocation[0].lng,
                 companiondata: l,
+                images: l.images,
+                firstname: l.firstname
               }))
             : [];
         const sortedCompanions = companionplaces.length
           ? sortCompanion(userLocation, companionplaces)
           : [];
-        return { data: sortedCompanions };
+        const filteredData = sortedCompanions.map((l) => ({
+          bookingrate: l.bookingrate,
+          userId: l.userid,
+          bookingrateunit: l.bookingrate,
+          distance: l.distance,
+          images: l.images,
+          firstname: l.firstname
+        }));
+        return { data: filteredData };
       }
       return { data: [] };
     } catch (error) {

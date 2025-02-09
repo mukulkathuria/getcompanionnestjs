@@ -25,6 +25,7 @@ export class UserChatRoomsService {
               lastname: true,
               isCompanion: true,
               id: true,
+              Images: true
             },
           },
           Bookings: {

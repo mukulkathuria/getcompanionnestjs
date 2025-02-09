@@ -54,7 +54,7 @@ export function validateregisterCompanion(userinfo: registerCompanionBodyDto) {
   const { firstname, lastname, email, password, gender, age } = userinfo;
   const location = {
     city: userinfo?.city && userinfo.city.trim(),
-    zipcode: userinfo?.zipcode && userinfo?.zipcode.trim(),
+    state: userinfo?.state && userinfo.state.trim(),
     lat: userinfo?.lat && userinfo.lat.trim(),
     lng: userinfo?.lng && userinfo.lng.trim(),
   };
@@ -101,7 +101,7 @@ export function validateregisterCompanion(userinfo: registerCompanionBodyDto) {
     return { error: { status: 422, message: 'Below 18 is not allowed' } };
   } else if (!GenderEnum[gender]) {
     return { error: { status: 422, message: 'Gender is not valid' } };
-  } else if (!Object.values(location).some((l) => l)) {
+  } else if (!Object.values(location).every((l) => l)) {
     return { error: { status: 422, message: 'Location is required' } };
   } else if (!companion.Skintone) {
     return {

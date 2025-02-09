@@ -1,4 +1,4 @@
-import { Companion } from '@prisma/client';
+import { Companion, User } from '@prisma/client';
 import { errorDto } from './common.dto';
 import { coordinatesDto } from './location.dto';
 
@@ -8,6 +8,8 @@ export interface CompanionFindReturnDto extends errorDto {
 export interface CompanionDistanceDto extends coordinatesDto {
   id: string;
   companiondata: Companion;
+  images: string[];
+  firstname: string;
 }
 
 export interface companionfiltersDto {

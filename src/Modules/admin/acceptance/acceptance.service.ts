@@ -30,8 +30,13 @@ export class AcceptanceService {
           },
         },
       });
-      if(!bookingDetails && bookingDetails.bookingstatus !== 'UNDERREVIEW'){
-        return { error:{ status: 404, message: 'Bookings not found' } }
+      if (!bookingDetails) {
+        return { error: { status: 404, message: 'Bookings not found' } };
+      } else if (
+        bookingDetails &&
+        bookingDetails?.bookingstatus !== 'UNDERREVIEW'
+      ) {
+        return { error: { status: 404, message: 'Bookings Already Accepted' } };
       }
       // eslint-disable-next-line
       const data = await this.prismaService.booking.update({
@@ -44,11 +49,11 @@ export class AcceptanceService {
       for (let i = 0; i < Notificationreminders.length; i += 1) {
         if (
           dayjs(Number(bookingDetails.bookingstart))
-            .subtract(Notificationreminders[i])
+            .subtract(Notificationreminders[i], 'hours')
             .valueOf() > Date.now()
         ) {
           reminders.push(
-            `${dayjs(Number(bookingDetails.bookingstart)).subtract(12).valueOf()},${Notificationreminders[i]}`,
+            `${dayjs(Number(bookingDetails.bookingstart)).subtract(Notificationreminders[i]).valueOf()},${Notificationreminders[i]}`,
           );
         }
       }
@@ -62,7 +67,7 @@ export class AcceptanceService {
             date_time: convertToDateTime(bookingDetails.bookingstart),
           }).bookingconfirmation,
           reminders,
-          User: { connect:{ id: userdata.id } },
+          User: { connect: { id: userdata.id } },
         },
       });
       return { success: true };

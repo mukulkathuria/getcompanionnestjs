@@ -8,7 +8,7 @@ import {
 import { UserCompanionFindRoute } from '../routes/user.routes';
 import { CompanionFindService } from './companionfind.service';
 import {
-  CompanionFindReturnDto,
+  // CompanionFindReturnDto,
   userCompanionFindLocationInputDto,
 } from 'src/dto/companionfind.dto';
 import { AuthGuard } from 'src/guards/jwt.guard';
@@ -21,7 +21,7 @@ export class CompanionFindController {
   @Post()
   async getCompanionFindController(
     @Body() userDetails: userCompanionFindLocationInputDto,
-  ): Promise<CompanionFindReturnDto> {
+  ) {
     const { data, error } =
       await this.companionfindservice.getFindCompanion(userDetails);
     if (data) {

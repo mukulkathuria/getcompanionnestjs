@@ -301,9 +301,16 @@ export class UserBookingsService {
           bookingduration: true,
           bookingrate: true,
           bookingdurationUnit: true,
+          bookingstatus: true,
           id: true,
         },
       });
+      if(!data){
+        return { error: { status: 404, message: 'Booking not found' } };
+      }
+      else if (data.bookingstatus !== 'TRANSACTIONPENDING') {
+        return { error: { status: 404, message: 'Transaction Already done' } };
+      }
       return { data };
     } catch (error) {
       this.logger.debug(error?.message || error);

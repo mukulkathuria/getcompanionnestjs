@@ -65,3 +65,14 @@ export const validatePaymentStatus = (
   }
   return { success: true };
 };
+
+export const validateFailurePaymentStatus = (
+  details: payUTransactionDetailsDto,
+): successErrorDto => {
+  if (!details.amount?.trim().length) {
+    return { error: { status: 422, message: 'Amount is required' } };
+  } else if (!details.txnid?.trim().length) {
+    return { error: { status: 422, message: 'Transaction is required' } };
+  }
+  return { success: true };
+};

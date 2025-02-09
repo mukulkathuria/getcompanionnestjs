@@ -16,25 +16,21 @@ export class AcceptanceController {
 
   @UseGuards(AdminGuard)
   @Get('booking')
-  async acceptBookingController(@Query() bookingdetails:bookingIdDto) {
+  async acceptBookingController(@Query() bookingdetails: bookingIdDto) {
     if (!bookingdetails.bookingid) {
       throw new HttpException('Booking id is required', 422);
     }
-    try {
-      const { success, error } = await this.acceptanceservice.acceptBooking(
-        Number(bookingdetails.bookingid),
-      );
-      if (success) {
-        return {
-          success,
-          message: 'Request Accepted successfully',
-        };
-      } else {
-        throw new HttpException(error.message, error.status);
-      }
-      // eslint-disable-next-line
-    } catch (error) {
-      throw new HttpException('Server error', 500);
+
+    const { success, error } = await this.acceptanceservice.acceptBooking(
+      Number(bookingdetails.bookingid),
+    );
+    if (success) {
+      return {
+        success,
+        message: 'Request Accepted successfully',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
     }
   }
 }

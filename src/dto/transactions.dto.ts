@@ -168,11 +168,21 @@ export interface payUTransactionDetailsDto {
   payment_source?: string;
   phone?: string;
   productinfo?: string;
-  state?: string;
+  state: string;
   status?: string;
   txnid: string;
   undefinedmihpayid?: string;
   vpa?: string;
+  field1?: string;
+  field2?: string;
+  field3?: string;
+  field4?: string;
+  field5?: string;
+  field6?: string;
+  field7?: string;
+  field8?: string;
+  field9?: string;
+  unmappedstatus?: string;
 }
 
 export interface BookingTransactionReturnDto extends errorDto {

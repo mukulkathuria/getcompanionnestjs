@@ -1,6 +1,7 @@
 export type tokenDto = {
   userId: string;
   isCompanion: boolean;
+  Images: string[];
   name: string;
   email: string;
   role: string;
@@ -27,6 +28,7 @@ export type authTokenDto = {
   role: string;
   firstname: string;
   lastname: string;
+  Images: string[];
 };
 
 export interface requestTokenDto {

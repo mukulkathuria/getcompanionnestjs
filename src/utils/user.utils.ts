@@ -18,6 +18,8 @@ export const filterCompanionDetailsbyuser = (
     lastname: userDetails.lastname,
     gender: userDetails.gender,
     images: userDetails.Images,
+    drinkinghabits: companionDetails.drinkinghabits,
+    eatinghabits: companionDetails.eatinghabits
   };
   return finaldata;
 };

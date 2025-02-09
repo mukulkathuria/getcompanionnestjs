@@ -18,7 +18,7 @@ export const makePaymentdetailsjson = (
   userInput: payUTransactionDetailsDto,
 ): payUTransactionDetailsJsonReturnDto => {
   const paymentMethod =
-    PaymentmethodEnum[userInput.mode as keyof typeof PaymentmethodEnum];
+    PaymentmethodEnum[userInput?.mode as keyof typeof PaymentmethodEnum];
   const cardDetails = {};
   switch (true) {
     case paymentMethod === PaymentmethodEnum.DC || paymentMethod === PaymentmethodEnum.CC:
@@ -57,6 +57,7 @@ export const makePaymentdetailsjson = (
     paymentId: userInput.undefinedmihpayid || new Date().getTime().toString(),
     paymentMethod:
       PaymentmethodEnum[userInput.mode as keyof typeof PaymentmethodEnum],
+    mappedstatus: userInput.unmappedstatus,
       ...cardDetails
   };
   if (userInput.cardCategory) {
