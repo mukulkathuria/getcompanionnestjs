@@ -15,6 +15,7 @@ export type registerBodyDto = {
   lastname: string;
   email: string;
   password: string;
+  phoneno: string;
   Images?: string[];
   gender: GenderEnum;
   age: string;
@@ -28,6 +29,7 @@ export type registerCompanionBodyDto = {
   Images?: string[];
   gender: GenderEnum;
   age: string;
+  phoneno: string;
   description: CompanionDescriptionEnum[];
   skintone: CompanionSkinToneEnum;
   city: string;

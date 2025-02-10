@@ -110,6 +110,7 @@ export class AuthService {
         age: Number(user.age),
         Images: [...allimages],
         lastlogin: Date.now(),
+        phoneno: Number(user.phoneno),
         expiryDate: getdefaultexpirydate(),
       };
       await this.prismaService.user.create({

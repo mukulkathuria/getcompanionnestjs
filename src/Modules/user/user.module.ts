@@ -8,6 +8,7 @@ import { UserSessionModule } from './sessions/usersession.module';
 import { S3Service } from 'src/Services/s3.service';
 import { UserNotificationModule } from './notifications/usernotifications.module';
 import { UserChatRoomsModule } from './chatrooms/userchatroom.module';
+import { UserIssuesModule } from './issues/userissues.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { UserChatRoomsModule } from './chatrooms/userchatroom.module';
     UserSessionModule,
     UsersModule,
     UserChatRoomsModule,
-    UserNotificationModule
+    UserNotificationModule,
+    UserIssuesModule
   ],
   providers: [S3Service],
 })

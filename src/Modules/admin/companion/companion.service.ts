@@ -59,6 +59,7 @@ export class CompanionService {
         isCompanion: true,
         Images: allimages,
         lastlogin: Date.now(),
+        phoneno: Number(user.phoneno),
         expiryDate: getdefaultexpirydate(),
       };
       const companion = {

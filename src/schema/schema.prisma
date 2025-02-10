@@ -155,7 +155,7 @@ model notification {
   fromModule         NotificationFromModuleEnum @default(GLOBAL)
   moduleotherDetails Json?
   contentforadmin    String?
-  User               User?                       @relation(fields: [foruser], references: [id])
+  User               User?                      @relation(fields: [foruser], references: [id])
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
 }
@@ -219,6 +219,7 @@ model User {
   role                     Roles                      @default(NORMAL)
   gender                   GenderEnum?
   age                      Int?
+  phoneno                  Int?
   lastlogin                BigInt
   isDeleted                Boolean                    @default(false)
   expiryDate               BigInt
@@ -360,27 +361,31 @@ model Sessions {
 
 model userissues {
   id          String               @id @default(uuid())
+  issueId     String               @unique()
   subject     String
   explanation String
   userid      String
   User        User                 @relation(references: [id], fields: [userid])
   status      UserIssuesStatusEnum @default(ACTIVE)
   resolvedBy  String?
-  screenshots String[]
+  screenshots String[]             @default([])
+  created     BigInt
   comments    issuescomments[]
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
 }
 
 model issuescomments {
-  id        Int        @id @default(autoincrement())
-  issueid   String
-  UserIssue userissues @relation(fields: [issueid], references: [id])
-  comment   String
-  userid    String
-  User      User       @relation(references: [id], fields: [userid])
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id          Int        @id @default(autoincrement())
+  issueid     String
+  UserIssue   userissues @relation(fields: [issueid], references: [id])
+  comment     String
+  userid      String
+  created     BigInt
+  screenshots String[]   @default([])
+  User        User       @relation(references: [id], fields: [userid])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model companionrequests {

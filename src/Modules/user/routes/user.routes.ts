@@ -18,15 +18,15 @@ export const UserAuthInnerRoute = {
   refreshtoken: 'refreshtoken',
   forgotpassword: 'forgot-password',
   googlelogin: 'google-login',
-  googleregister: 'google-register'
+  googleregister: 'google-register',
 };
 
-export const UserprofileInnerRoute = { 
-    deleteuser: 'delete',
-    updateprofile: 'updateprofile/:id',
-    usertocompaniondetails: 'usercompaniondetails',
-    userProfileDetails: 'userprofiledetails'
-}
+export const UserprofileInnerRoute = {
+  deleteuser: 'delete',
+  updateprofile: 'updateprofile/:id',
+  usertocompaniondetails: 'usercompaniondetails',
+  userProfileDetails: 'userprofiledetails',
+};
 
 export const UserBookingInnerRoute = {
   upcomingbooking: 'upcomingbooking',
@@ -34,27 +34,34 @@ export const UserBookingInnerRoute = {
   bookacompanion: 'bookacompanion',
   checkcompanionslot: 'checkcompanionslot',
   cancelbooking: 'cancelbooking',
-  getBookingDetailsforUser: 'userbookingdetails'
-}
+  getBookingDetailsforUser: 'userbookingdetails',
+};
 
 export const UserSessionInnerRoute = {
   startsession: 'startsession',
   endsession: 'endsession',
-  extendsession: 'extendsession'
-}
+  extendsession: 'extendsession',
+};
 
 export const UsernotificationInnerRoute = {
-  getusernotifications: 'usernotification'
-}
+  getusernotifications: 'usernotification',
+};
 
 export const UserTransactionInnerRoute = {
   gethashfortransaction: 'gethashfortransaction',
   initiatepayment: 'initiatepayment',
   onsuccesspayment: 'onsuccesspayment',
-  onfailurepayment: 'onfaliurepaymnt'
-}
+  onfailurepayment: 'onfaliurepaymnt',
+};
 
 export const ChatRoomInnerRoutes = {
   getAllChatRoomRoute: 'getallchats',
-  getChatMessageHistoryRoute: 'getchathistory'
-}
+  getChatMessageHistoryRoute: 'getchathistory',
+};
+
+export const UserIssuesInnerRoutes = {
+  getAllActiveIssuesRoute: 'getallactiveissues',
+  createNewIssueRoute: 'createnewissue',
+  getIssueDetailsRoute: 'getissuedetails',
+  addcommentonIssueRoute: 'addcommentonissue'
+};

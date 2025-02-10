@@ -1,4 +1,4 @@
-import { EmailRegex, PasswordRegex } from 'src/constants/regex.constants';
+import { EmailRegex, PasswordRegex, phoneRegex } from 'src/constants/regex.constants';
 import { Jwt } from 'src/tokens/Jwt';
 import {
   loginBodyDto,
@@ -25,7 +25,7 @@ import { User } from '@prisma/client';
 export const validateregisterUser = (
   userinfo: registerBodyDto,
 ): returnRegisterUserDto => {
-  const { firstname, lastname, email, password, gender, age } = userinfo;
+  const { firstname, lastname, email, password, gender, age, phoneno } = userinfo;
   if (!firstname || !firstname.trim().length) {
     return { error: { status: 422, message: 'First name is required' } };
   } else if (!lastname || !lastname.trim().length) {
@@ -46,12 +46,16 @@ export const validateregisterUser = (
     return { error: { status: 422, message: 'Below 18 is not allowed' } };
   } else if (!GenderEnum[gender]) {
     return { error: { status: 422, message: 'Gender is not valid' } };
-  }
+  } else if (!phoneno || !phoneno.trim().length) {
+    return { error: { status: 422, message: 'Phone no is required' } };
+  } else if (!phoneRegex.test(phoneno)) {
+    return { error: { status: 422, message: 'Phone no is not valid' } };
+  } 
   return { user: userinfo };
 };
 
 export function validateregisterCompanion(userinfo: registerCompanionBodyDto) {
-  const { firstname, lastname, email, password, gender, age } = userinfo;
+  const { firstname, lastname, email, password, gender, age, phoneno } = userinfo;
   const location = {
     city: userinfo?.city && userinfo.city.trim(),
     state: userinfo?.state && userinfo.state.trim(),
@@ -93,6 +97,10 @@ export function validateregisterCompanion(userinfo: registerCompanionBodyDto) {
     return { error: { status: 422, message: 'Password is required' } };
   } else if (!PasswordRegex.test(password)) {
     return { error: { status: 422, message: 'Password is not valid' } };
+  } else if (!phoneno || !phoneno.trim().length) {
+    return { error: { status: 422, message: 'Number is required' } };
+  } else if (!phoneRegex.test(phoneno)) {
+    return { error: { status: 422, message: 'Number is not valid' } };
   } else if (!gender || !gender.trim().length) {
     return { error: { status: 422, message: 'Gender is required' } };
   } else if (!age || !age.trim().length) {

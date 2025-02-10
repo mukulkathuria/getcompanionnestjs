@@ -297,7 +297,7 @@ export class UserBookingsService {
       const data = await this.prismaService.booking.findUnique({
         where: { id: booking },
         select: {
-          User: { select: { firstname: true, email: true, isCompanion: true } },
+          User: { select: { firstname: true, email: true, isCompanion: true, phoneno: true,  } },
           bookingduration: true,
           bookingrate: true,
           bookingdurationUnit: true,

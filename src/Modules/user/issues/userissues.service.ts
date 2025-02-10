@@ -1,9 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { successErrorReturnDto } from 'src/dto/common.dto';
 import {
   addCommentonIssueInputDto,
   createIssueInputDto,
+  getIssueDetailsQueryDto,
 } from 'src/dto/userissues.dto';
 import { PrismaService } from 'src/Services/prisma.service';
+import { getTxnId } from 'src/utils/uuid.utils';
+import { validateAddCommentonIssueInput, validateCreateIssueInput } from 'src/validations/userissues.validation';
 
 @Injectable()
 export class UserIssuesServices {
@@ -14,6 +18,7 @@ export class UserIssuesServices {
     try {
       const data = await this.prismaService.userissues.findMany({
         where: { status: 'ACTIVE', userid: userId },
+        select: { issueId: true, subject: true, status: true },
       });
       if (!data || !data.length) {
         return { error: { status: 404, message: 'No active issues' } };
@@ -25,16 +30,44 @@ export class UserIssuesServices {
     }
   }
 
-  async getIssueDetails(issueId: string) {
+  async getIssueDetails(issueIdQuery: getIssueDetailsQueryDto) {
     try {
-      const data = await this.prismaService.userissues.findMany({
-        where: { id: issueId },
-        include: { comments: { orderBy: { createdAt: 'desc' } } },
+      if (!issueIdQuery || !issueIdQuery.issueId) {
+        return { error: { status: 422, message: 'issue id is required' } };
+      }
+      const data = await this.prismaService.userissues.findUnique({
+        where: { issueId: issueIdQuery.issueId },
+        select: {
+          screenshots: true,
+          created: true,
+          resolvedBy: true,
+          status: true,
+          subject: true,
+          explanation: true,
+          User: { select: { firstname: true, isCompanion: true } },
+          comments: {
+            select: {
+              screenshots: true,
+              comment: true,
+              created: true,
+              User: { select: { firstname: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+          },
+        },
       });
       if (!data) {
         return { error: { status: 404, message: 'Issue not valid!' } };
       }
-      return { data };
+      const converted = {
+        ...data,
+        created: String(data.created),
+        comments: data.comments.map((l) => ({
+          ...l,
+          created: String(l.created),
+        })),
+      };
+      return { data: converted };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -44,8 +77,12 @@ export class UserIssuesServices {
   async createUserIssue(
     issueinput: createIssueInputDto,
     images: Express.Multer.File[],
-  ) {
+  ): Promise<successErrorReturnDto> {
     try {
+      const { error } = validateCreateIssueInput(issueinput)
+      if(error){
+        return { error }
+      }
       const allimages = images.map((l) => l.destination + '/' + l.filename);
       const data = await this.prismaService.userissues.create({
         data: {
@@ -53,23 +90,31 @@ export class UserIssuesServices {
           explanation: issueinput.explanation,
           subject: issueinput.subject,
           User: { connect: { id: issueinput.userid } },
+          created: Date.now(),
+          issueId: getTxnId(),
         },
       });
-      return { data };
+      return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
   }
 
-  async addCommentonIssue(commentInput: addCommentonIssueInputDto) {
+  async addCommentonIssue(
+    commentInput: addCommentonIssueInputDto,
+  ): Promise<successErrorReturnDto> {
     try {
-      // eslint-disable-next-line
+      const { error } = validateAddCommentonIssueInput(commentInput);
+      if(error){
+        return { error }
+      }
       const data = await this.prismaService.issuescomments.create({
         data: {
           comment: commentInput.comment,
           User: { connect: { id: commentInput.issueId } },
           UserIssue: { connect: { id: commentInput.issueId } },
+          created: Date.now(),
         },
       });
       return { success: true };
