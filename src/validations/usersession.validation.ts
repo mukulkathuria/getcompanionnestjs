@@ -1,4 +1,4 @@
-import { ManipulateType } from 'dayjs';
+// import { ManipulateType } from 'dayjs';
 // import * as customParseFormat from 'dayjs/plugin/customParseFormat';
 import { controllerReturnDto } from 'src/dto/common.dto';
 import {
@@ -32,7 +32,7 @@ export const checkValidEndSessionData = (
 
 export const checkValidExtendSessionData = (
   sessiondetails: SessionExtendBodyParamsDto,
-) => {
+):controllerReturnDto => {
   // const endTime = sessiondetails.endtime.split(' ')[0];
   // const endHour = sessiondetails.endtime.split(' ')[1];
   // if (!sessiondetails.sessionid || !sessiondetails.sessionid.trim().length) {
@@ -65,4 +65,5 @@ export const checkValidExtendSessionData = (
   ) {
     return { error: { status: 422, message: 'Extention is required' } };
   }
+  return { success: true }
 };

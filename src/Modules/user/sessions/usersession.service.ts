@@ -17,6 +17,7 @@ import { NotificationFromModuleEnum } from 'src/dto/bookings.dto';
 import { Notificationhours } from 'src/constants/common.constants';
 import { addHours } from 'src/utils/common.utils';
 import notificationTemplate from 'src/templates/notification.template';
+import { successErrorReturnDto } from 'src/dto/common.dto';
 
 @Injectable()
 export class UserSessionService {
@@ -26,7 +27,9 @@ export class UserSessionService {
   ) {}
   private readonly logger = new Logger(UserSessionService.name);
 
-  async startSession(sessionDetails: StartBookingBodyparamsDto) {
+  async startSession(
+    sessionDetails: StartBookingBodyparamsDto,
+  ): Promise<successErrorReturnDto> {
     try {
       const { error } = checkValidStartSessionData(sessionDetails);
       if (error) {
@@ -46,14 +49,16 @@ export class UserSessionService {
           isExtended: false,
         },
       });
-      return { data };
+      return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
   }
 
-  async endSession(sessionDetails: SessionIdBodyParamsDto) {
+  async endSession(
+    sessionDetails: SessionIdBodyParamsDto,
+  ): Promise<successErrorReturnDto> {
     try {
       const { error } = checkValidEndSessionData(sessionDetails);
       if (error) {
@@ -61,11 +66,17 @@ export class UserSessionService {
       }
       const userdata = await this.prismaService.sessions.findUnique({
         where: { id: sessionDetails.sessionid },
-        include: {
+        select: {
           Bookings: {
-            include: {
+            select: {
+              id: true,
               User: {
-                select: { firstname: true, isCompanion: true, email: true },
+                select: {
+                  firstname: true,
+                  isCompanion: true,
+                  email: true,
+                  id: true,
+                },
               },
             },
           },
@@ -75,6 +86,7 @@ export class UserSessionService {
         return { error: { status: 422, message: 'session not found' } };
       }
       const companiondata = userdata.Bookings.User.find((l) => l.isCompanion);
+      const userDetails = userdata.Bookings.User.find((l) => !l.isCompanion);
       const data = await this.prismaService.sessions.update({
         where: { id: sessionDetails.sessionid },
         data: {
@@ -101,7 +113,7 @@ export class UserSessionService {
             companion_name: companiondata.firstname,
           }).getrating,
           moduleotherDetails: { module: 'rating', id: userdata.Bookings.id },
-          User: { connect: { id: userdata.id } },
+          User: { connect: { id: userDetails.id } },
         },
       });
       this.nodemailerService
@@ -114,7 +126,7 @@ export class UserSessionService {
         .then(() => {
           this.logger.log(`Email sent to: ${user.email}`);
         });
-      return { data };
+      return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -151,12 +163,10 @@ export class UserSessionService {
           Booking: {
             where: {
               bookingstart: {
-                gte: new Date(Number(bookingDetails.bookingend)).setHours(
-                  new Date(Number(bookingDetails.bookingend)).getHours() - 1,
-                ),
+                gt: Number(bookingDetails.bookingend),
               },
               bookingend: {
-                lte: dayjs(endTime).add(1, 'hour').valueOf(),
+                lt: dayjs(endTime).add(1, 'hour').valueOf(),
               },
             },
           },
@@ -165,7 +175,7 @@ export class UserSessionService {
       if (isSlotAvailable[0].Booking.length) {
         return { error: { status: 422, message: 'Slot not available' } };
       }
-    await this.prismaService.sessions.update({
+      await this.prismaService.sessions.update({
         where: { id: bookingDetails.Sessions[0].id },
         data: {
           isExtended: true,

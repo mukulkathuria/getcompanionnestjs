@@ -21,10 +21,11 @@ export class UserSessionController {
   @UseGuards(AuthGuard)
   @Post(UserSessionInnerRoute.startsession)
   async startUserSessionController(@Body() session: StartBookingBodyparamsDto) {
-    const { data, error } = await this.usersessionservice.startSession(session);
-    if (data) {
+    const { success, error } = await this.usersessionservice.startSession(session);
+    if (success) {
       return {
-        data,
+        success,
+        message: 'Successfuly started session'
       };
     } else {
       throw new HttpException(error.message, error.status);
@@ -34,10 +35,11 @@ export class UserSessionController {
   @UseGuards(AuthGuard)
   @Post(UserSessionInnerRoute.endsession)
   async endUserSessionController(@Body() session: SessionIdBodyParamsDto) {
-    const { data, error } = await this.usersessionservice.endSession(session);
-    if (data) {
+    const { success, error } = await this.usersessionservice.endSession(session);
+    if (success) {
       return {
-        data,
+        success,
+        message: 'Successfuly end session'
       };
     } else {
       throw new HttpException(error.message, error.status);
