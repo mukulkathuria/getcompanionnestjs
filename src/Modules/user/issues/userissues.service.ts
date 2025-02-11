@@ -20,7 +20,7 @@ export class UserIssuesServices {
         where: { status: 'ACTIVE', userid: userId },
         select: { issueId: true, subject: true, status: true },
       });
-      if (!data || !data.length) {
+      if (!data) {
         return { error: { status: 404, message: 'No active issues' } };
       }
       return { data };

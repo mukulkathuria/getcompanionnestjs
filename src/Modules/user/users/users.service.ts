@@ -62,7 +62,7 @@ export class UsersService {
 
   async getCompanionDetails(companionId: string) {
     try {
-      if(!companionId || typeof companionId !== 'string') {
+      if (!companionId || typeof companionId !== 'string') {
         return { error: { status: 422, message: 'Invalid companion search' } };
       }
       const data = await this.prismaService.user.findUnique({
@@ -80,20 +80,28 @@ export class UsersService {
     }
   }
 
-  async getUserDetails(userId: string){
+  async getUserDetails(userId: string) {
     try {
-      if(!userId || typeof userId !== 'string') {
+      if (!userId || typeof userId !== 'string') {
         return { error: { status: 422, message: 'Invalid companion search' } };
       }
       const data = await this.prismaService.user.findUnique({
         where: { id: userId },
-        select:{ firstname: true, lastname: true, age: true, gender: true, Images: true }
+        select: {
+          firstname: true,
+          lastname: true,
+          age: true,
+          gender: true,
+          Images: true,
+          phoneno: true,
+        },
       });
       if (!data) {
         return { error: { status: 422, message: 'Invalid companion search' } };
       }
+      const filtered = { ...data, phoneno: String(data.phoneno) }
       // const finaldata = filterCompanionDetailsbyuser(data.Companion[0], data);
-      return { data };
+      return { data: filtered };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

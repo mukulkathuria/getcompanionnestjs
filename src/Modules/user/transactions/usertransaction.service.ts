@@ -110,7 +110,7 @@ export class UserTransactionService {
         { where: { txnid: userInput.txnid }, include: { Bookings: true } },
       );
       if (!previousbookings) {
-        return { error: { status: 404, message: 'Trsaction not found' } };
+        return { error: { status: 404, message: 'Transaction not found' } };
       } else if (
         previousbookings.Bookings.bookingstatus !== 'TRANSACTIONPENDING' ||
         previousbookings.status !== 'UNDERPROCESSED'

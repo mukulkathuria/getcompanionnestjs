@@ -74,7 +74,7 @@ export class UserBookingsService {
         status: l.bookingstatus,
         amount: l.finalRate,
         users: l.User,
-        id: l.id
+        id: l.id,
       }));
       return { data: filtervalues };
     } catch (error) {
@@ -297,7 +297,14 @@ export class UserBookingsService {
       const data = await this.prismaService.booking.findUnique({
         where: { id: booking },
         select: {
-          User: { select: { firstname: true, email: true, isCompanion: true, phoneno: true,  } },
+          User: {
+            select: {
+              firstname: true,
+              email: true,
+              isCompanion: true,
+              phoneno: true,
+            },
+          },
           bookingduration: true,
           bookingrate: true,
           bookingdurationUnit: true,
@@ -305,13 +312,17 @@ export class UserBookingsService {
           id: true,
         },
       });
-      if(!data){
+      if (!data) {
         return { error: { status: 404, message: 'Booking not found' } };
-      }
-      else if (data.bookingstatus !== 'TRANSACTIONPENDING') {
+      } else if (data.bookingstatus !== 'TRANSACTIONPENDING') {
         return { error: { status: 404, message: 'Transaction Already done' } };
       }
-      return { data };
+      return {
+        data: {
+          ...data,
+          User: data.User.map((l) => ({ ...l, phoneno: String(l.phoneno) })),
+        },
+      };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
