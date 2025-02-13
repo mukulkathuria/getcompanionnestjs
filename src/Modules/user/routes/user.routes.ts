@@ -35,6 +35,9 @@ export const UserBookingInnerRoute = {
   checkcompanionslot: 'checkcompanionslot',
   cancelbooking: 'cancelbooking',
   getBookingDetailsforUser: 'userbookingdetails',
+  rateabookingRoute: 'rateabookingRoute',
+  getBookingDetailsforall: 'getBookingDetailsforall',
+  getAverageRating: 'getaveragerating'
 };
 
 export const UserSessionInnerRoute = {

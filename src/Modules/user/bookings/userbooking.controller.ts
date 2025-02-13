@@ -18,6 +18,7 @@ import { AuthGuard } from 'src/guards/jwt.guard';
 import {
   bookingIdDto,
   cancelBookingInputDto,
+  ratingInputDto,
   userBookingBodyDto,
 } from 'src/dto/bookings.dto';
 import { controllerReturnDto } from 'src/dto/common.dto';
@@ -120,6 +121,71 @@ export class UserBookingController {
       };
     } else {
       throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(UserBookingInnerRoute.rateabookingRoute)
+  @HttpCode(200)
+  async rateabookingController(
+    @Body() ratingDetails: ratingInputDto,
+    @Req() req: Request,
+  ) {
+    const { decodeExpressRequest } = await import(
+      '../../../guards/strategies/jwt.strategy'
+    );
+    const { data, error: TokenError } = decodeExpressRequest(req);
+    if (data) {
+      const { success, error } =
+        await this.userbookingservice.rateabookingservice({
+          ...ratingDetails,
+          userId: data.userId,
+        });
+      if (success) {
+        return {
+          success,
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
+    } else {
+      throw new HttpException('Server Error', 500);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(UserBookingInnerRoute.getBookingDetailsforall)
+  async getBookingDetailsforAllController(@Query() bookingid: bookingIdDto) {
+    const { data, error } =
+      await this.userbookingservice.getBookingforAllService(
+        String(bookingid?.bookingid),
+      );
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Get(UserBookingInnerRoute.getAverageRating)
+  async getAverageRatingofCompanionController(@Req() req: Request) {
+    const { decodeExpressRequest } = await import(
+      '../../../guards/strategies/jwt.strategy'
+    );
+    const { data: TokenData, error: TokenError } = decodeExpressRequest(req);
+    if(TokenData){
+      const { data, error } = await this.userbookingservice.getRatingforUser(TokenData.userId);
+      if (data) {
+        return {
+          data,
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
+    }else {
+      throw new HttpException('Server Error', 500);
     }
   }
 }

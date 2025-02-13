@@ -56,3 +56,13 @@ export interface cancelBookingInputDto {
 export interface bookingIdDto {
   bookingid: number;
 }
+
+export interface ratingInputDto {
+  comment: string;
+  rating: number;
+  bookingid: number;
+}
+
+export interface userRatingDto extends ratingInputDto{
+  userId: string
+}

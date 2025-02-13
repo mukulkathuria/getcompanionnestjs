@@ -3,12 +3,15 @@ import * as dayjs from 'dayjs';
 import { Notificationhours } from 'src/constants/common.constants';
 import {
   BookingDurationUnitEnum,
+  bookingIdDto,
   BookingStatusEnum,
   cancelBookingInputDto,
   NotificationFromModuleEnum,
   userBookingBodyDto,
   UserBookingReturnDto,
+  userRatingDto,
 } from 'src/dto/bookings.dto';
+import { successErrorReturnDto } from 'src/dto/common.dto';
 import { NodeMailerService } from 'src/Services/nodemailer.service';
 import { PrismaService } from 'src/Services/prisma.service';
 import emailTemplate from 'src/templates/email.template';
@@ -17,6 +20,7 @@ import { filterSlotAvailability, getFinalRate } from 'src/utils/booking.utils';
 import { addHours, convertToDateTime, createOTP } from 'src/utils/common.utils';
 import {
   checkValidCancelBookngInputs,
+  checkvalidrating,
   isUserBookingValid,
 } from 'src/validations/booking.validation';
 
@@ -323,6 +327,93 @@ export class UserBookingsService {
           User: data.User.map((l) => ({ ...l, phoneno: String(l.phoneno) })),
         },
       };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async rateabookingservice(
+    userInputs: userRatingDto,
+  ): Promise<successErrorReturnDto> {
+    try {
+      const { error } = checkvalidrating(userInputs);
+      if (error) {
+        return { error };
+      }
+      const data = await this.prismaService.booking.findUnique({
+        where: { id: userInputs.bookingid },
+        include: {
+          User: { select: { id: true } },
+          rating: { select: { raterId: true } },
+        },
+      });
+      if (!data || !data.User.filter((l) => l.id === userInputs.userId)[0]) {
+        return { error: { status: 404, message: 'Booking not found' } };
+      } else if (data.rating.find((l) => l.raterId === userInputs.userId)) {
+        return { error: { status: 422, message: 'Already rated by you!' } };
+      }
+      const rateeId = data.User.find((l) => l.id !== userInputs.userId);
+      await this.prismaService.rating.create({
+        data: {
+          Booking: { connect: { id: userInputs.bookingid } },
+          rater: { connect: { id: userInputs.userId } },
+          ratee: { connect: { id: rateeId.id } },
+          comment: userInputs.comment,
+          ratings: userInputs.rating,
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getBookingforAllService(bookingid: string) {
+    try {
+      const booking = Number(bookingid);
+      if (isNaN(booking) || !bookingid) {
+        return { error: { status: 422, message: 'Booking Id is required' } };
+      }
+      const data = await this.prismaService.booking.findUnique({
+        where: { id: booking },
+        select: {
+          User: { select: { id: true, isCompanion: true, Images: true } },
+          bookingstart: true,
+          bookingend: true,
+        },
+      });
+      return {
+        data: {
+          ...data,
+          bookingstart: String(data.bookingstart),
+          bookingend: String(data.bookingend),
+        },
+      };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getRatingforUser(userId: string) {
+    try {
+      const { getAverageRatingRawQuery } = await import(
+        '../../../utils/booking.utils'
+      );
+      const query = await getAverageRatingRawQuery(userId);
+      const data = (await this.prismaService.$queryRawUnsafe(query)) as any;
+      const values = data
+        ? data?.map((l) => ({
+            ...l,
+            avg_rating: String(l.avg_rating),
+            last_rating: String(l.last_rating),
+            rating_count: String(l.rating_count),
+            bayesian_avg: String(l.bayesian_avg),
+          }))
+        : [];
+      return { data: values };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
