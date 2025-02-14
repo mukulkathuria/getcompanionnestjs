@@ -13,7 +13,10 @@ import {
 } from 'src/validations/usersession.validation';
 import emailTemplate from 'src/templates/email.template';
 import { NodeMailerService } from 'src/Services/nodemailer.service';
-import { NotificationFromModuleEnum } from 'src/dto/bookings.dto';
+import {
+  BookingStatusEnum,
+  NotificationFromModuleEnum,
+} from 'src/dto/bookings.dto';
 import { Notificationhours } from 'src/constants/common.constants';
 import { addHours } from 'src/utils/common.utils';
 import notificationTemplate from 'src/templates/notification.template';
@@ -186,6 +189,63 @@ export class UserSessionService {
               data: { bookingend: endTime },
             },
           },
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async startextendSession(sessionDetails: SessionExtendBodyParamsDto) {
+    try {
+      const { error } = checkValidExtendSessionData(sessionDetails);
+      if (error) {
+        return { error };
+      }
+      const bookingDetails = await this.prismaService.booking.findUnique({
+        where: { id: sessionDetails.bookingid },
+        select: {
+          User: { select: { id: true, isCompanion: true } },
+          Sessions: { select: { id: true } },
+          bookingend: true,
+        },
+      });
+      if (!bookingDetails || !bookingDetails.Sessions.length) {
+        if (!bookingDetails.Sessions.length)
+          return { error: { status: 422, message: 'Session not started yet' } };
+        return { error: { status: 422, message: 'Booking not found' } };
+      }
+      const endTime = dayjs(Number(bookingDetails.bookingend))
+        .add(sessionDetails.extentedhours, 'hour')
+        .valueOf();
+      const companionuser = bookingDetails.User.find((l) => l.isCompanion);
+
+      const isSlotAvailable = await this.prismaService.user.findMany({
+        where: { id: companionuser.id, isCompanion: true },
+        include: {
+          Booking: {
+            where: {
+              bookingstart: {
+                gt: Number(bookingDetails.bookingend),
+              },
+              bookingend: {
+                lt: dayjs(endTime).add(1, 'hour').valueOf(),
+              },
+            },
+          },
+        },
+      });
+      if (isSlotAvailable[0].Booking.length) {
+        return { error: { status: 422, message: 'Slot not available' } };
+      }
+      await this.prismaService.booking.update({
+        where: { id: sessionDetails.bookingid },
+        data: {
+          extendedendtime: endTime,
+          extendedhours: sessionDetails.extentedhours,
+          bookingstatus: BookingStatusEnum.UNDEREXTENSION,
         },
       });
       return { success: true };

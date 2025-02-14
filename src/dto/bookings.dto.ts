@@ -24,6 +24,7 @@ export enum BookingStatusEnum {
   CANCELLATIONAPPROVED = 'CANCELLATIONAPPROVED',
   CANCELLED = 'CANCELLED',
   TRANSACTIONPENDING = 'TRANSACTIONPENDING',
+  UNDEREXTENSION = 'UNDEREXTENSION'
 }
 export interface UserBookingReturnDto extends errorDto {
   data?: Booking[];

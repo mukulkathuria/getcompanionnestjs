@@ -161,4 +161,79 @@ export class UserTransactionService {
       return { error: { status: 500, message: 'Server error' } };
     }
   }
+
+  async onsuccessfullPaymentofExtension(userInput: payUTransactionDetailsDto) {
+    try {
+      const { error } = validatePaymentStatus(userInput);
+      if (error) return { error };
+      const { data } = makePaymentdetailsjson(userInput);
+      const previousbookings = await this.prismaService.transactions.findUnique(
+        { where: { txnid: userInput.txnid }, include: { Bookings: true } },
+      );
+      if (!previousbookings) {
+        return { error: { status: 404, message: 'Transaction not found' } };
+      } else if (
+        previousbookings.Bookings.bookingstatus !== 'TRANSACTIONPENDING' ||
+        previousbookings.status !== 'UNDERPROCESSED'
+      ) {
+        return { error: { status: 422, message: 'Invalid transaction' } };
+      }
+      await this.prismaService.transactions.update({
+        where: { txnid: userInput.txnid },
+        data: {
+          status: TransactionStatusEnum.COMPLETED,
+          payurefid: userInput.undefinedmihpayid,
+          paymentdetails: data || {},
+          transactionTime: new Date(userInput.addedon).getTime(),
+          Bookings: {
+            update: {
+              data: {
+                bookingstatus: BookingStatusEnum.ACCEPTED,
+                bookingend: previousbookings.Bookings.extendedendtime,
+                Sessions: {
+                  update: {
+                    where: { bookingid: previousbookings.bookingid },
+                    data: {
+                      isExtended: true,
+                      sessionEndTime: previousbookings.Bookings.extendedendtime,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async onFailedPaymentofExtension(userInput: payUTransactionDetailsDto) {
+    try {
+      const { error } = validateFailurePaymentStatus(userInput);
+      if (error) return { error };
+      const { data } = makePaymentdetailsjson(userInput);
+      await this.prismaService.transactions.update({
+        where: { txnid: userInput.txnid },
+        data: {
+          status: TransactionStatusEnum.DECLINED,
+          payurefid: userInput.undefinedmihpayid,
+          transactionTime: new Date(userInput.addedon).getTime(),
+          paymentdetails: data ? { ...data, content: userInput.field9 } : {},
+          Bookings: {
+            update: {
+              data: { bookingstatus: BookingStatusEnum.UNDEREXTENSION },
+            },
+          },
+        },
+      });
+      return { success: 'true' };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
 }

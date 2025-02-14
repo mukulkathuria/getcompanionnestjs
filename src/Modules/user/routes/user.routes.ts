@@ -44,6 +44,7 @@ export const UserSessionInnerRoute = {
   startsession: 'startsession',
   endsession: 'endsession',
   extendsession: 'extendsession',
+  startextendsession: 'startextendsession'
 };
 
 export const UsernotificationInnerRoute = {
@@ -55,6 +56,8 @@ export const UserTransactionInnerRoute = {
   initiatepayment: 'initiatepayment',
   onsuccesspayment: 'onsuccesspayment',
   onfailurepayment: 'onfaliurepaymnt',
+  onsuccesspaymentofextension: 'onsuccesspaymentofextension',
+  onfailurepaymentofextension: 'onfaliurepaymntofextension',
 };
 
 export const ChatRoomInnerRoutes = {

@@ -30,24 +30,24 @@ export enum CompanionSkinToneEnum {
 }
 
 export enum CompanionEatingHabitsEnum {
-  VEG='VEG',
-  NONVEG='NONVEG',
-  JAIN='JAIN',
-  EGGETERIAN='EGGETERIAN',
-  VEGAN='VEGAN'
+  VEG = 'VEG',
+  NONVEG = 'NONVEG',
+  JAIN = 'JAIN',
+  EGGETERIAN = 'EGGETERIAN',
+  VEGAN = 'VEGAN',
 }
 
 export enum CompanionSmokingHabitEnum {
-  PASSIVE_SMOKER='PASSIVE_SMOKER',
-  ACTIVE_SMOKER='ACTIVE_SMOKER',
-  NON_SMOKER='NON_SMOKER',
-  OCCASIONALLY='OCCASIONALLY'
+  PASSIVE_SMOKER = 'PASSIVE_SMOKER',
+  ACTIVE_SMOKER = 'ACTIVE_SMOKER',
+  NON_SMOKER = 'NON_SMOKER',
+  OCCASIONALLY = 'OCCASIONALLY',
 }
 
 export enum CompanionDrinkingHabitEnum {
-  DAILY_DRINKER='DAILY_DRINKER',
-  NON_DRINKER='NON_DRINKER',
-  OCCASIONALLY='OCCASIONALLY'
+  DAILY_DRINKER = 'DAILY_DRINKER',
+  NON_DRINKER = 'NON_DRINKER',
+  OCCASIONALLY = 'OCCASIONALLY',
 }
 
 export enum CompanionDescriptionEnum {
@@ -143,4 +143,24 @@ export interface registercompanionInputDto {
   age: string;
   phoneno: string;
   gender: string;
+}
+
+export interface CompanionUpdateRequestInputDto {
+  firstname: string;
+  lastname: string;
+  Images: string[];
+  age: string;
+  phoneno: string;
+  description: CompanionDescriptionEnum[];
+  skintone: CompanionSkinToneEnum;
+  city: string;
+  state: string;
+  zipcode?: string;
+  lat: string;
+  lng: string;
+  height: string;
+  bodytype: MaleCompanionBodyTypeEnum | FemaleCompanionBodyTypeEnum;
+  eatinghabits: CompanionEatingHabitsEnum;
+  drinkinghabits: CompanionDrinkingHabitEnum;
+  smokinghabits: CompanionSmokingHabitEnum;
 }

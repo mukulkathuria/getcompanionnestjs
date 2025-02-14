@@ -59,7 +59,6 @@ export class UserTransactionController {
     const { data, error } =
       await this.usertransactionservice.initiatePayment(userInputs);
     if (data) {
-      // const updateddata = await data.text();
       return {
         data,
       };
@@ -75,7 +74,6 @@ export class UserTransactionController {
     const { success, error } =
       await this.usertransactionservice.onsuccessfullPayment(userInputs);
     if (success) {
-      // const updateddata = await data.text();
       return {
         success: true,
         message: 'Transaction Updated Successfully',
@@ -92,7 +90,38 @@ export class UserTransactionController {
     const { success, error } =
       await this.usertransactionservice.onFailedPayment(userInputs);
     if (success) {
-      // const updateddata = await data.text();
+      return {
+        success: true,
+        message: 'Transaction Updated Successfully',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(UserTransactionInnerRoute.onsuccesspaymentofextension)
+  @HttpCode(200)
+  async successPaymentofExtensionController(@Body() userInputs: payUTransactionDetailsDto) {
+    const { success, error } =
+      await this.usertransactionservice.onsuccessfullPaymentofExtension(userInputs);
+    if (success) {
+      return {
+        success: true,
+        message: 'Transaction Updated Successfully',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(UserTransactionInnerRoute.onfailurepaymentofextension)
+  @HttpCode(200)
+  async onfailurePaymentofExtensionController(@Body() userInputs: payUTransactionDetailsDto) {
+    const { success, error } =
+      await this.usertransactionservice.onFailedPaymentofExtension(userInputs);
+    if (success) {
       return {
         success: true,
         message: 'Transaction Updated Successfully',

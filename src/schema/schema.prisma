@@ -162,21 +162,22 @@ model notification {
 }
 
 model location {
-  id        Int                  @id @default(autoincrement())
-  userid    String?
-  User      Companion?           @relation(fields: [userid], references: [id])
-  city      String?
-  zipcode   Int?
-  state     String?
-  lat       Float?
-  lng       Float?
-  userinput String?
-  googleloc String?
-  basefrom  LocationBaseFromEnum @default(USER)
-  bookingid Int?
-  Booking   Booking?             @relation(fields: [bookingid], references: [id])
-  createdAt DateTime             @default(now())
-  updatedAt DateTime             @updatedAt
+  id                Int                  @id @default(autoincrement())
+  userid            String?
+  User              Companion?           @relation(fields: [userid], references: [id])
+  city              String?
+  zipcode           Int?
+  state             String?
+  lat               Float?
+  lng               Float?
+  userinput         String?
+  googleloc         String?
+  islocationupdated Boolean              @default(false)
+  basefrom          LocationBaseFromEnum @default(USER)
+  bookingid         Int?
+  Booking           Booking?             @relation(fields: [bookingid], references: [id])
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
 }
 
 model livelocation {
@@ -222,7 +223,7 @@ model User {
   age                      Int?
   phoneno                  BigInt?
   lastlogin                BigInt
-  anybookingdone           Boolean                    @default(false)    
+  anybookingdone           Boolean                    @default(false)
   isDeleted                Boolean                    @default(false)
   expiryDate               BigInt
   Booking                  Booking[]
@@ -243,21 +244,22 @@ model User {
 }
 
 model Companion {
-  id              String                     @id @default(uuid())
-  userid          String                     @unique
-  User            User                       @relation(fields: [userid], references: [id])
-  bookingrate     Int
-  bookingrateunit CompanionBookingUnitEnum
-  description     String[]
-  Skintone        CompanionSkinToneEnum
-  height          Int
-  bodytype        CompanionBodyTypeEnum
-  eatinghabits    CompanionEatingHabitsEnum
-  drinkinghabits  CompanionDrinkingHabitEnum
-  smokinghabits   CompanionSmokingHabitEnum
-  account         AccountEnum                @default(REVIEWED)
-  rejectedreason  String?
-  baselocation    location[]
+  id                     String                     @id @default(uuid())
+  userid                 String                     @unique
+  User                   User                       @relation(fields: [userid], references: [id])
+  bookingrate            Int
+  bookingrateunit        CompanionBookingUnitEnum
+  description            String[]
+  Skintone               CompanionSkinToneEnum
+  height                 Int
+  bodytype               CompanionBodyTypeEnum
+  eatinghabits           CompanionEatingHabitsEnum
+  drinkinghabits         CompanionDrinkingHabitEnum
+  smokinghabits          CompanionSmokingHabitEnum
+  account                AccountEnum                @default(REVIEWED)
+  rejectedreason         String?
+  baselocation           location[]
+  companionupdaterequest companionupdaterequest[]
 }
 
 model Booking {
@@ -273,6 +275,10 @@ model Booking {
   finalRate           Float
   OTP                 Int
   extendedhours       Int                     @default(0)
+  updatedLocation     String?
+  updatedPurpose      String?
+  extentedfinalrate   Float                   @default(0)
+  extendedendtime     BigInt                  @default(0)
   Transactions        Transactions[]
   ChatRoom            ChatRoom[]
   Sessions            Sessions[]
@@ -402,4 +408,30 @@ model companionrequests {
   photos    String[]
   status    UserIssuesStatusEnum @default(ACTIVE)
   createdAt DateTime             @default(now())
+}
+
+model companionupdaterequest {
+  id               Int                        @id @default(autoincrement())
+  companionid      String
+  firstname        String
+  lastname         String
+  Images           String[]
+  age              String
+  phoneno          String
+  description      CompanionDescriptionEnum[]
+  skintone         CompanionSkinToneEnum
+  city             String
+  state            String
+  zipcode          String?
+  lat              String
+  lng              String
+  height           String
+  bodytype         CompanionBodyTypeEnum
+  eatinghabits     CompanionEatingHabitsEnum
+  drinkinghabits   CompanionDrinkingHabitEnum
+  smokinghabits    CompanionSmokingHabitEnum
+  companiondetails Companion                  @relation(fields: [companionid], references: [id])
+  status           AccountEnum                @default(REVIEWED)
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
 }
