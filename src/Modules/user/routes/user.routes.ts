@@ -9,6 +9,7 @@ export const UserSessionRoute = UserRoute + '/session';
 export const UserChatRoomRoute = UserRoute + '/chatrooms';
 export const UserNotificationRoute = UserRoute + '/notifications';
 export const UserIssuesRoute = UserRoute + '/issues';
+export const UserExtensionRoute = UserRoute + '/extension';
 
 export const UserAuthInnerRoute = {
   base: 'auth',
@@ -37,14 +38,14 @@ export const UserBookingInnerRoute = {
   getBookingDetailsforUser: 'userbookingdetails',
   rateabookingRoute: 'rateabookingRoute',
   getBookingDetailsforall: 'getBookingDetailsforall',
-  getAverageRating: 'getaveragerating'
+  getAverageRating: 'getaveragerating',
 };
 
 export const UserSessionInnerRoute = {
   startsession: 'startsession',
   endsession: 'endsession',
   extendsession: 'extendsession',
-  startextendsession: 'startextendsession'
+  startextendsession: 'startextendsession',
 };
 
 export const UsernotificationInnerRoute = {
@@ -69,5 +70,11 @@ export const UserIssuesInnerRoutes = {
   getAllActiveIssuesRoute: 'getallactiveissues',
   createNewIssueRoute: 'createnewissue',
   getIssueDetailsRoute: 'getissuedetails',
-  addcommentonIssueRoute: 'addcommentonissue'
+  addcommentonIssueRoute: 'addcommentonissue',
+};
+
+export const UserExtensionInnerRoute = {
+  getextensiondetails: 'getextensiondetails',
+  updaterecordextension: 'updaterecordextension',
+  updatebeforeextension: 'updatebeforeextension'
 };

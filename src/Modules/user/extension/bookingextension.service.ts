@@ -1,15 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { updateextensionbokingInputDto } from 'src/dto/bookings.dto';
 import { PrismaService } from 'src/Services/prisma.service';
+import { validateUpdateExtensionBooking } from 'src/validations/usersession.validation';
 
 @Injectable()
 export class BookingExtentionService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(BookingExtentionService.name);
 
-  async getExtensionDetails() {
+  async getExtensionDetails(bookingId: number) {
     try {
+      if (!bookingId || typeof bookingId !== 'number') {
+        return { error: { status: 422, message: 'Booking id is required' } };
+      }
       const data = await this.prismaService.booking.findUnique({
-        where: { id: 1 },
+        where: { id: bookingId },
         include: {
           User: { select: { firstname: true, phoneno: true, email: true } },
           Meetinglocation: {
@@ -17,18 +22,21 @@ export class BookingExtentionService {
           },
         },
       });
-      if (!data || data.bookingstatus !== 'UNDEREXTENSION') {
+      if (!data || data?.bookingstatus !== 'UNDEREXTENSION') {
         return { error: { status: 422, message: 'Booking not available' } };
       }
       const values = {
         id: data.id,
         bookingstart: String(data.bookingstart),
         bookingend: String(data.bookingend),
-        updatedrate: data.finalRate * data.extendedhours,
+        updatedrate: data.finalRate * (data.extendedhours || 1),
         bookingpurpose: data.bookingpurpose,
         extendedhours: data.extendedhours,
         meetinglocation: data.Meetinglocation[0],
-        userdetails: data.User,
+        userdetails: data.User.map((l) => ({
+          ...l,
+          phoneno: String(l.phoneno),
+        })),
       };
       return { data: values };
     } catch (error) {
@@ -38,16 +46,19 @@ export class BookingExtentionService {
     }
   }
 
-  async whenRejectedBooking() {
+  async whenRejectedBooking(bookingId: number) {
     try {
+      if (!bookingId || typeof bookingId !== 'number') {
+        return { error: { status: 422, message: 'Booking id is required' } };
+      }
       const data = await this.prismaService.booking.findUnique({
-        where: { id: 1 },
+        where: { id: bookingId },
       });
       if (!data || data.bookingstatus !== 'UNDEREXTENSION') {
         return { error: { status: 422, message: 'Booking not available' } };
       }
       await this.prismaService.booking.update({
-        where: { id: 1 },
+        where: { id: bookingId },
         data: {
           extendedhours: 0,
           bookingstatus: 'ACCEPTED',
@@ -96,22 +107,28 @@ export class BookingExtentionService {
     }
   }
 
-  async updateExtensionBookngDetails() {
+  async updateExtensionBookngDetails(
+    bookingdetails: updateextensionbokingInputDto,
+  ) {
     try {
+      const { error } = validateUpdateExtensionBooking(bookingdetails);
+      if (error) {
+        return { error };
+      }
       const data = await this.prismaService.booking.findUnique({
-        where: { id: 1 },
+        where: { id: bookingdetails.bookingid },
       });
       if (!data || data.bookingstatus !== 'UNDEREXTENSION') {
         return { error: { status: 422, message: 'Booking not available' } };
       }
       await this.prismaService.booking.update({
-        where: { id: 1 },
+        where: { id: bookingdetails.bookingid },
         data: {
-          extendedhours: 2,
-          extentedfinalrate: 1450,
+          extendedhours: bookingdetails.extendedhours,
+          extentedfinalrate: bookingdetails.extentedfinalrate,
           bookingstatus: 'ACCEPTED',
-          updatedLocation: 'Yes',
-          updatedPurpose: 'Any Purpose',
+          updatedLocation: bookingdetails.updatedLocation ? 'Yes' : null,
+          updatedPurpose: bookingdetails.updatedPurpose,
         },
       });
       return { success: true };

@@ -62,4 +62,21 @@ export class UserSessionController {
       throw new HttpException(error.message, error.status);
     }
   }
+
+  @UseGuards(AuthGuard)
+  @Post(UserSessionInnerRoute.startextendsession)
+  async startextendUserSessionController(
+    @Body() session: SessionExtendBodyParamsDto,
+  ) {
+    const { success, error } =
+      await this.usersessionservice.startextendSession(session);
+    if (success) {
+      return {
+        success: true,
+        message: 'Successfully extended the session',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }

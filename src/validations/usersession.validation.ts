@@ -1,5 +1,6 @@
 // import { ManipulateType } from 'dayjs';
 // import * as customParseFormat from 'dayjs/plugin/customParseFormat';
+import { updateextensionbokingInputDto } from 'src/dto/bookings.dto';
 import { controllerReturnDto } from 'src/dto/common.dto';
 import {
   SessionExtendBodyParamsDto,
@@ -32,7 +33,7 @@ export const checkValidEndSessionData = (
 
 export const checkValidExtendSessionData = (
   sessiondetails: SessionExtendBodyParamsDto,
-):controllerReturnDto => {
+): controllerReturnDto => {
   // const endTime = sessiondetails.endtime.split(' ')[0];
   // const endHour = sessiondetails.endtime.split(' ')[1];
   // if (!sessiondetails.sessionid || !sessiondetails.sessionid.trim().length) {
@@ -65,5 +66,44 @@ export const checkValidExtendSessionData = (
   ) {
     return { error: { status: 422, message: 'Extention is required' } };
   }
-  return { success: true }
+  return { success: true };
 };
+
+export function validateUpdateExtensionBooking(
+  input: updateextensionbokingInputDto,
+) {
+  if (!input.bookingid || typeof input.bookingid !== 'number') {
+    return { error: { status: 422, message: 'Booking id  is required' } };
+  }
+
+  if (
+    input.extendedhours === undefined ||
+    input.extendedhours === null ||
+    typeof input.extendedhours !== 'number'
+  ) {
+    return { error: { status: 422, message: 'extendedhours is required' } };
+  }
+
+  if (
+    input.extentedfinalrate === undefined ||
+    input.extentedfinalrate === null ||
+    typeof input.extentedfinalrate !== 'number'
+  ) {
+    return { error: { status: 422, message: 'extentedfinalrate is required' } };
+  }
+
+  // Optional fields check (if provided, they must not be empty)
+  if (input.updatedLocation && input.updatedLocation.trim() === '') {
+    return {
+      error: { status: 422, message: 'updatedLocation cannot be empty' },
+    };
+  }
+
+  if (input.updatedPurpose && input.updatedPurpose.trim() === '') {
+    return {
+      error: { status: 422, message: 'updatedPurpose cannot be empty' },
+    };
+  }
+
+  return { success: true };
+}

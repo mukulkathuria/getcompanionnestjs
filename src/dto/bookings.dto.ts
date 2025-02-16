@@ -24,7 +24,7 @@ export enum BookingStatusEnum {
   CANCELLATIONAPPROVED = 'CANCELLATIONAPPROVED',
   CANCELLED = 'CANCELLED',
   TRANSACTIONPENDING = 'TRANSACTIONPENDING',
-  UNDEREXTENSION = 'UNDEREXTENSION'
+  UNDEREXTENSION = 'UNDEREXTENSION',
 }
 export interface UserBookingReturnDto extends errorDto {
   data?: Booking[];
@@ -37,7 +37,7 @@ export interface userBookingBodyDto {
   bookingduration: number;
   bookingdurationUnit: BookingDurationUnitEnum;
   bookinglocation: userCompanionFindLocationInputDto;
-  purpose: string
+  purpose: string;
 }
 
 export interface userBookingReturnDto extends errorDto {
@@ -64,6 +64,14 @@ export interface ratingInputDto {
   bookingid: number;
 }
 
-export interface userRatingDto extends ratingInputDto{
-  userId: string
+export interface userRatingDto extends ratingInputDto {
+  userId: string;
+}
+
+export interface updateextensionbokingInputDto {
+  bookingid: number;
+  extendedhours: number;
+  extentedfinalrate: number;
+  updatedLocation?: string;
+  updatedPurpose?: string;
 }
