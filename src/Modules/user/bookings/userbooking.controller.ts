@@ -23,6 +23,7 @@ import {
 } from 'src/dto/bookings.dto';
 import { controllerReturnDto } from 'src/dto/common.dto';
 import { decodeExpressRequest } from 'src/guards/strategies/jwt.strategy';
+import { companionDetailsQuery } from 'src/dto/companionfind.dto';
 
 @Controller(UserBookingsRoute)
 export class UserBookingController {
@@ -83,9 +84,9 @@ export class UserBookingController {
 
   @UseGuards(AuthGuard)
   @Get(UserBookingInnerRoute.checkcompanionslot)
-  async checkCompanionSlotController(@Query() companionId: string) {
+  async checkCompanionSlotController(@Query() companionId: companionDetailsQuery) {
     const { data, error } =
-      await this.userbookingservice.checkBookedSlotsforCompanion(companionId);
+      await this.userbookingservice.checkBookedSlotsforCompanion(companionId.companionId);
     if (data) {
       return {
         data,

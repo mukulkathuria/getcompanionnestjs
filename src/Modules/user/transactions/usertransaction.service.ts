@@ -172,11 +172,6 @@ export class UserTransactionService {
       );
       if (!previousbookings) {
         return { error: { status: 404, message: 'Transaction not found' } };
-      } else if (
-        previousbookings.Bookings.bookingstatus !== 'TRANSACTIONPENDING' ||
-        previousbookings.status !== 'UNDERPROCESSED'
-      ) {
-        return { error: { status: 422, message: 'Invalid transaction' } };
       }
       await this.prismaService.transactions.update({
         where: { txnid: userInput.txnid },

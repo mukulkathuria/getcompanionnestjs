@@ -63,7 +63,8 @@ export class UserBookingsService {
             orderBy: { bookingend: 'desc' },
             take: 5,
             include: {
-              User: { select: { firstname: true, isCompanion: true } },
+              User: { select: { firstname: true, isCompanion: true, Images: true, age: true } },
+              Meetinglocation:{ select:{ city: true, state: true, } }
             },
           },
         },
