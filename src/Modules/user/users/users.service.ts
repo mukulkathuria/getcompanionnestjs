@@ -2,9 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/Services/prisma.service';
 import { successErrorReturnDto } from 'src/dto/common.dto';
 // import { AccountEnum } from '@prisma/client';
-import { UpdateUserProfileBodyDto } from 'src/dto/user.dto';
+import {
+  CompanionUpdateRequestInputDto,
+  UpdateUserProfileBodyDto,
+} from 'src/dto/user.dto';
 import { getdeletedUserexpirydate } from 'src/utils/common.utils';
 import { filterCompanionDetailsbyuser } from 'src/utils/user.utils';
+import { validatecompanionupdaterequest } from 'src/validations/companionrequest.validation';
 import { isvalidUserinputs } from 'src/validations/user.validations';
 
 @Injectable()
@@ -83,7 +87,7 @@ export class UsersService {
   async getUserDetails(userId: string) {
     try {
       if (!userId || typeof userId !== 'string') {
-        return { error: { status: 422, message: 'Invalid companion search' } };
+        return { error: { status: 422, message: 'Invalid user search' } };
       }
       const data = await this.prismaService.user.findUnique({
         where: { id: userId },
@@ -104,6 +108,80 @@ export class UsersService {
       const filtered = { ...data, phoneno: String(data.phoneno) };
       // const finaldata = filterCompanionDetailsbyuser(data.Companion[0], data);
       return { data: filtered };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getfullCompanionDetails(userId: string) {
+    try {
+      if (!userId || typeof userId !== 'string') {
+        return { error: { status: 422, message: 'Invalid companion search' } };
+      }
+      const data = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        select: {
+          phoneno: true,
+          email: true,
+          Images: true,
+          age: true,
+          firstname: true,
+          lastname: true,
+          Companion: {
+            select: {
+              id: true,
+              bookingrateunit: true,
+              description: true,
+              Skintone: true,
+              height: true,
+              bodytype: true,
+              eatinghabits: true,
+              drinkinghabits: true,
+              smokinghabits: true,
+              baselocation: {
+                select: {
+                  city: true,
+                  state: true,
+                  lat: true,
+                  lng: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      if(!data){
+        return { error: { status: 422, message: 'Invalid companion search' } };
+      }
+      return { data };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async updatecompanionrequest(
+    userinfo: CompanionUpdateRequestInputDto,
+    images: Express.Multer.File[],
+    userId: string,
+  ) {
+    try {
+      const { user, error } = validatecompanionupdaterequest(userinfo);
+      if (error) {
+        return { error };
+      }
+      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      if (allimages.length >= 1) {
+        user['Images'] = allimages;
+      }
+      await this.prismaService.companionupdaterequest.create({
+        data: {
+          ...user,
+          companiondetails: { connect: { id: userId } },
+        },
+      });
+      return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

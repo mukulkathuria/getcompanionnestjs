@@ -17,12 +17,14 @@ import { AuthGuard } from 'src/guards/jwt.guard';
 import { UserprofileInnerRoute, UserProfileRoute } from '../routes/user.routes';
 import { UsersService } from './users.service';
 import {
+  COMPANIONIMAGESMAXCOUNT,
   UserImageMulterConfig,
   USERIMAGESMAXCOUNT,
 } from 'src/config/multer.config';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { controllerReturnDto } from 'src/dto/common.dto';
 import {
+  CompanionUpdateRequestInputDto,
   UpdateUserProfileBodyDto,
   UserProfileParamsDto,
 } from 'src/dto/user.dto';
@@ -113,6 +115,59 @@ export class DeleteUsersController {
       }
     } else if (TokenError) {
       throw new HttpException(TokenError, 403);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(UserprofileInnerRoute.getcompanionfulldetails)
+  async getCompanionFullDetailsController(@Req() req: Request) {
+    const { decodeExpressRequest } = await import(
+      '../../../guards/strategies/jwt.strategy'
+    );
+    const { data: Tokendata, error: TokenError } = decodeExpressRequest(req);
+    if (Tokendata) {
+      const { error, data } = await this.userservice.getfullCompanionDetails(
+        Tokendata.userId,
+      );
+      if (data) {
+        return {
+          data,
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
+    } else if (TokenError) {
+      throw new HttpException(TokenError, 403);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(UserprofileInnerRoute.updatecompanionrequest)
+  @HttpCode(200)
+  @UseInterceptors(
+    FilesInterceptor('images', COMPANIONIMAGESMAXCOUNT, UserImageMulterConfig),
+  )
+  async companionupdaterequestController(
+    @Param() id: UserProfileParamsDto,
+    @Body() userinfo: CompanionUpdateRequestInputDto,
+    @UploadedFiles(new FileSizeValidationPipe())
+    images: Express.Multer.File[],
+  ): Promise<controllerReturnDto> {
+    if (!id.id || typeof id.id !== 'string') {
+      throw new HttpException('Invalid User', 422);
+    }
+    const { success, error } = await this.userservice.updateUserProfile(
+      userinfo,
+      images,
+      id.id,
+    );
+    if (success) {
+      return {
+        success,
+        message: 'Companion request successfully.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
     }
   }
 }
