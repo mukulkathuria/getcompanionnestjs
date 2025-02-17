@@ -1,8 +1,19 @@
-import { Body, Controller, Get, HttpCode, HttpException, Post, UseGuards } from "@nestjs/common";
-import { AdminBookingInnerRoutes, AdminUserBookingsRoute } from "../routes/admin.routes";
-import { AdminBookingService } from "./adminbooking.service";
-import { AdminGuard } from "src/guards/admin.guard";
-import { bookingIdDto } from "src/dto/bookings.dto";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpException,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  AdminBookingInnerRoutes,
+  AdminUserBookingsRoute,
+} from '../routes/admin.routes';
+import { AdminBookingService } from './adminbooking.service';
+import { AdminGuard } from 'src/guards/admin.guard';
+import { bookingIdDto } from 'src/dto/bookings.dto';
 
 @Controller(AdminUserBookingsRoute)
 export class AdminBookingController {
@@ -26,8 +37,22 @@ export class AdminBookingController {
   @Post(AdminBookingInnerRoutes.bookingdetailsroute)
   @HttpCode(200)
   async getAdminBookingDetails(@Body() bookingid: bookingIdDto) {
-    const { data, error } =
-      await this.adminbookingservice.getBookingDetails(bookingid?.bookingid);
+    const { data, error } = await this.adminbookingservice.getBookingDetails(
+      bookingid?.bookingid,
+    );
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminBookingInnerRoutes.getallbookinglistroute)
+  async getAllBookingList() {
+    const { data, error } = await this.adminbookingservice.getBookingList();
     if (data) {
       return {
         data,

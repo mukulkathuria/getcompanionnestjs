@@ -11,7 +11,8 @@ export class AdminNotificationServices {
       const data = await this.prismaService.notification.findMany({
         where: { contentforadmin: { not: null }, expiry: { gt: Date.now() } },
       });
-      return { data };
+      const values = data.map((l) => ({ ...l, expiry: String(l.expiry) }));
+      return { data: values };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

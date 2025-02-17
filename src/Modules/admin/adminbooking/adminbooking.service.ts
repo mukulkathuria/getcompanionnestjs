@@ -65,16 +65,56 @@ export class AdminBookingService {
           bookingpurpose: true,
           finalRate: true,
           bookingstatus: true,
+          Transactions: {
+            select: {
+              status: true,
+              amount: true,
+              txnid: true,
+              transactionTime: true,
+            },
+          },
         },
       });
       if (!data) {
         return { error: { status: 404, message: 'Booking id not found' } };
-      } 
+      }
       const values = {
         ...data,
         bookingstart: String(data.bookingstart),
         bookingend: String(data.bookingend),
+        Transactions: data.Transactions.map((l) => ({
+          ...l,
+          transactionTime: String(l.transactionTime),
+        })),
       };
+      return { data: values };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
+  async getBookingList() {
+    try {
+      const data = await this.prismaService.booking.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: {
+          User: {
+            select: { Images: true, firstname: true, isCompanion: true },
+          },
+          Meetinglocation: { select: { city: true, state: true } },
+          bookingpurpose: true,
+          bookingstart: true,
+          bookingstatus: true
+        },
+      });
+      const values = data.map((l) => ({
+        ...l,
+        bookingstart: String(l.bookingstart),
+      }));
       return { data: values };
     } catch (error) {
       this.logger.error(error?.message || error);
