@@ -18,12 +18,20 @@ export class CompanionRequestService {
       return { error };
     }
     try {
-      const isUserExists =
-        await this.prismaService.user.findUnique({
-          where: { email: userinfo.email },
-        });
+      const isUserExists = await this.prismaService.user.findUnique({
+        where: { email: userinfo.email },
+      });
       if (isUserExists) {
         return { error: { status: 422, message: 'Email Already exists' } };
+      }
+      if (!images.length) {
+        return { error: { status: 422, message: 'images are required' } };
+      } else if (images.length < 2) {
+        return { error: { status: 422, message: 'Minimum 2 Images required' } };
+      } else if (images.length > 2) {
+        return {
+          error: { status: 422, message: 'Maximum 2 images are allowed' },
+        };
       }
       const allimages = images.map((l) => l.destination + '/' + l.filename);
       const userdata = {
@@ -32,10 +40,11 @@ export class CompanionRequestService {
         email: userinfo.email,
         gender: GenderEnum[userinfo.gender],
         age: Number(userinfo.age),
-        Images: [...allimages],
-        phoneNo: Number(userinfo.phoneno)
+        photos: [...allimages],
+        phoneNo: Number(userinfo.phoneno),
       };
-      await this.prismaService.companionrequests.create({ data: userdata })
+      await this.prismaService.companionrequests.create({ data: userdata });
+      return { success: true }
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

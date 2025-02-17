@@ -94,12 +94,14 @@ export class UsersService {
           gender: true,
           Images: true,
           phoneno: true,
+          email: true,
+          id: true,
         },
       });
       if (!data) {
         return { error: { status: 422, message: 'Invalid companion search' } };
       }
-      const filtered = { ...data, phoneno: String(data.phoneno) }
+      const filtered = { ...data, phoneno: String(data.phoneno) };
       // const finaldata = filterCompanionDetailsbyuser(data.Companion[0], data);
       return { data: filtered };
     } catch (error) {

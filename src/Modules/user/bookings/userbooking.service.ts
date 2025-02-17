@@ -3,7 +3,6 @@ import * as dayjs from 'dayjs';
 import { Notificationhours } from 'src/constants/common.constants';
 import {
   BookingDurationUnitEnum,
-  bookingIdDto,
   BookingStatusEnum,
   cancelBookingInputDto,
   NotificationFromModuleEnum,
@@ -63,8 +62,16 @@ export class UserBookingsService {
             orderBy: { bookingend: 'desc' },
             take: 5,
             include: {
-              User: { select: { firstname: true, isCompanion: true, Images: true, age: true } },
-              Meetinglocation:{ select:{ city: true, state: true, } }
+              User: {
+                select: {
+                  firstname: true,
+                  isCompanion: true,
+                  Images: true,
+                  age: true,
+                  gender: true,
+                },
+              },
+              Meetinglocation: { select: { city: true, state: true } },
             },
           },
         },
@@ -80,6 +87,8 @@ export class UserBookingsService {
         amount: l.finalRate,
         users: l.User,
         id: l.id,
+        purpose: l.bookingpurpose,
+        meetinglocation: l.Meetinglocation,
       }));
       return { data: filtervalues };
     } catch (error) {

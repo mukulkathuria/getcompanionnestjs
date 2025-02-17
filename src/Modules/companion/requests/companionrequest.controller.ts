@@ -11,8 +11,9 @@ import { CompanionRequestInnerRoutes } from '../routes/companion.routes';
 import { CompanionRequestService } from './companionrequest.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
-  UserImageMulterConfig,
-  USERIMAGESMAXCOUNT,
+  COMPANIONREQUESTMAXCOUNT,
+  RequestCompanionImageMulterConfig,
+
 } from 'src/config/multer.config';
 import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
 import { registercompanionInputDto } from 'src/dto/user.dto';
@@ -27,7 +28,7 @@ export class CompanionRequestCotroller {
   @Post(CompanionRequestInnerRoutes.requestforcompanion)
   @HttpCode(200)
   @UseInterceptors(
-    FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
+    FilesInterceptor('images', COMPANIONREQUESTMAXCOUNT, RequestCompanionImageMulterConfig),
   )
   async requestforCompanionController(
     @Body() userinfo: registercompanionInputDto,

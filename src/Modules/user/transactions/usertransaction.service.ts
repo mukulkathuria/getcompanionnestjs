@@ -185,6 +185,7 @@ export class UserTransactionService {
               data: {
                 bookingstatus: BookingStatusEnum.ACCEPTED,
                 bookingend: previousbookings.Bookings.extendedendtime,
+                finalRate: previousbookings.Bookings.finalRate + Number(userInput.amount),
                 Sessions: {
                   update: {
                     where: { bookingid: previousbookings.bookingid },

@@ -36,6 +36,7 @@ export function validateCompanionRequestInput(
   } else if (!/^\d+$/.test(userinfo.phoneno) && userinfo.phoneno.length != 10) {
     return { error: { status: 422, message: 'Phone no is not valid' } };
   }
+  return { success: true }
 }
 
 export function validatecompanionupdaterequest(
