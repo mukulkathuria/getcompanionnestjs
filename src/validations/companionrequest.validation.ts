@@ -36,7 +36,7 @@ export function validateCompanionRequestInput(
   } else if (!/^\d+$/.test(userinfo.phoneno) && userinfo.phoneno.length != 10) {
     return { error: { status: 422, message: 'Phone no is not valid' } };
   }
-  return { success: true }
+  return { success: true };
 }
 
 export function validatecompanionupdaterequest(
@@ -147,6 +147,13 @@ export function validatecompanionupdaterequest(
   } else if (!companion.height) {
     return {
       error: { status: 422, message: 'Companion height is required' },
+    };
+  } else if (
+    userinfo.previousImages &&
+    !Array.isArray(userinfo.previousImages)
+  ) {
+    return {
+      error: { status: 422, message: 'Previous images should be an array' },
     };
   }
   return { user: userinfo };

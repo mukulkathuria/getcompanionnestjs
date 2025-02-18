@@ -148,6 +148,7 @@ export interface registercompanionInputDto {
 export interface CompanionUpdateRequestInputDto {
   firstname: string;
   lastname: string;
+  previousImages?: string[];
   Images: string[];
   age: string;
   phoneno: string;

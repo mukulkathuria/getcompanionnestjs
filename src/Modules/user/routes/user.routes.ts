@@ -1,4 +1,4 @@
-import { clear } from "node:console";
+import { clear } from 'node:console';
 
 export const UserRoute = '/user';
 export const UserLocationRoute = UserRoute + '/location';
@@ -30,7 +30,7 @@ export const UserprofileInnerRoute = {
   usertocompaniondetails: 'usercompaniondetails',
   userProfileDetails: 'userprofiledetails',
   getcompanionfulldetails: 'getcompanionfulldetails',
-  updatecompanionrequest: 'updatecompanionrequest',
+  updatecompanionrequest: 'updatecompanionrequest/:id',
 };
 
 export const UserBookingInnerRoute = {
@@ -83,5 +83,5 @@ export const UserIssuesInnerRoutes = {
 export const UserExtensionInnerRoute = {
   getextensiondetails: 'getextensiondetails',
   updaterecordextension: 'updaterecordextension',
-  updatebeforeextension: 'updatebeforeextension'
+  updatebeforeextension: 'updatebeforeextension',
 };

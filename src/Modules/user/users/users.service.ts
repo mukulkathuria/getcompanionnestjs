@@ -128,6 +128,7 @@ export class UsersService {
           age: true,
           firstname: true,
           lastname: true,
+          gender: true,
           Companion: {
             select: {
               id: true,
@@ -151,10 +152,11 @@ export class UsersService {
           },
         },
       });
-      if(!data){
+      if (!data) {
         return { error: { status: 422, message: 'Invalid companion search' } };
       }
-      return { data };
+      const values = { ...data, phoneno: String(data.phoneno) };
+      return { data: values };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -172,8 +174,22 @@ export class UsersService {
         return { error };
       }
       const allimages = images.map((l) => l.destination + '/' + l.filename);
+      if (!userinfo.previousImages && allimages.length < 2) {
+        return {
+          error: { status: 422, message: 'Images is required' },
+        };
+      } else if (
+        userinfo?.previousImages?.length + allimages.length < 2 ||
+        userinfo?.previousImages?.length + allimages.length > 4
+      ) {
+        return {
+          error: { status: 422, message: 'Images should be between 2 and 4' },
+        };
+      }
       if (allimages.length >= 1) {
-        user['Images'] = allimages;
+        user['Images'] = userinfo?.previousImages
+          ? [...allimages, ...userinfo.previousImages]
+          : allimages;
       }
       await this.prismaService.companionupdaterequest.create({
         data: {
