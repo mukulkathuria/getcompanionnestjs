@@ -65,6 +65,7 @@ export class AdminBookingService {
           bookingpurpose: true,
           finalRate: true,
           bookingstatus: true,
+          cancelledReason: true,
           Transactions: {
             select: {
               status: true,
@@ -108,7 +109,67 @@ export class AdminBookingService {
           Meetinglocation: { select: { city: true, state: true } },
           bookingpurpose: true,
           bookingstart: true,
-          bookingstatus: true
+          bookingstatus: true,
+        },
+      });
+      const values = data.map((l) => ({
+        ...l,
+        bookingstart: String(l.bookingstart),
+      }));
+      return { data: values };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
+  async getCancellationRequest() {
+    try {
+      const data = await this.prismaService.booking.findMany({
+        where: { bookingstatus: 'UNDERCANCELLATION' },
+        select: {
+          User: {
+            select: {
+              firstname: true,
+              lastname: true,
+              isCompanion: true,
+              gender: true,
+            },
+          },
+          bookingstart: true,
+          id: true,
+        },
+      });
+      const values = data.map((l) => ({
+        ...l,
+        bookingstart: String(l.bookingstart),
+      }));
+      return { data: values };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
+  async getExtensionRequest() {
+    try {
+      const data = await this.prismaService.booking.findMany({
+        where: { bookingstatus: 'UNDEREXTENSION' },
+        select: {
+          User: {
+            select: {
+              firstname: true,
+              lastname: true,
+              isCompanion: true,
+              gender: true,
+            },
+          },
+          bookingstart: true,
+          id: true,
         },
       });
       const values = data.map((l) => ({

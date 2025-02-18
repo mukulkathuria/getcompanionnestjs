@@ -220,9 +220,15 @@ export class UserBookingsService {
       const userdata = bookingDetails.User.find((l) => !l.isCompanion);
       const companiondata = bookingDetails.User.find((l) => l.isCompanion);
       if (cancelledByCompanion.isCompanion) {
+        if (!input.reason || !input.reason.trim().length) {
+          return { error: { status: 422, message: 'Reason is required' } };
+        }
         await this.prismaService.booking.update({
           where: { id: input.bookingid },
-          data: { bookingstatus: 'UNDERCANCELLATION' },
+          data: {
+            bookingstatus: BookingStatusEnum.UNDERCANCELLATION,
+            cancelledReason: input.reason,
+          },
         });
         await this.prismaService.notification.create({
           data: {
@@ -248,7 +254,7 @@ export class UserBookingsService {
       }
       await this.prismaService.booking.update({
         where: { id: input.bookingid },
-        data: { bookingstatus: 'CANCELLED' },
+        data: { bookingstatus: BookingStatusEnum.CANCELLED },
       });
       const totalrefundamount = bookingDetails.finalRate * 0.7;
       await this.prismaService.notification.create({
@@ -424,6 +430,100 @@ export class UserBookingsService {
           }))
         : [];
       return { data: values };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getUpcomingBookingsForCompanion(userId: string) {
+    try {
+      if (!userId) {
+        return { error: { status: 422, message: 'userId is required' } };
+      }
+      const data = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        include: {
+          Booking: {
+            where: { bookingstart: { gt: Date.now() }, bookingstatus: 'ACCEPTED' },
+            orderBy: { bookingend: 'desc' },
+            take: 5,
+            include: {
+              User: {
+                select: {
+                  firstname: true,
+                  isCompanion: true,
+                  Images: true,
+                  age: true,
+                  gender: true,
+                },
+              },
+              Meetinglocation: { select: { city: true, state: true } },
+            },
+          },
+        },
+      });
+
+      if (!data) {
+        return { error: { status: 404, message: 'No Bookings are available' } };
+      }
+      const filtervalues = data.Booking.map((l) => ({
+        bookingstart: String(l.bookingstart),
+        bookingend: String(l.bookingend),
+        status: l.bookingstatus,
+        amount: l.finalRate,
+        users: l.User,
+        id: l.id,
+        purpose: l.bookingpurpose,
+        meetinglocation: l.Meetinglocation,
+      }));
+      return { data: filtervalues };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getUpcomingBookingsForUser(userId: string) {
+    try {
+      if (!userId) {
+        return { error: { status: 422, message: 'userId is required' } };
+      }
+      const data = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        include: {
+          Booking: {
+            where: { bookingstart: { gt: Date.now() } },
+            orderBy: { bookingend: 'desc' },
+            take: 5,
+            include: {
+              User: {
+                select: {
+                  firstname: true,
+                  isCompanion: true,
+                  Images: true,
+                  age: true,
+                  gender: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!data) {
+        return { error: { status: 404, message: 'No Bookings are available' } };
+      }
+      const filtervalues = data.Booking.map((l) => ({
+        bookingstart: String(l.bookingstart),
+        bookingend: String(l.bookingend),
+        status: l.bookingstatus,
+        amount: l.finalRate,
+        users: l.User,
+        id: l.id,
+        purpose: l.bookingpurpose,
+      }));
+      return { data: filtervalues };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

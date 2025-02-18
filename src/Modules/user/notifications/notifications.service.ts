@@ -23,7 +23,7 @@ export class UserNotificationServices {
           fromModule: true,
           moduleotherDetails: true,
           contentforadmin: true,
-          createdAt: true
+          createdAt: true,
         },
       });
       const finalResults = [];
@@ -39,11 +39,28 @@ export class UserNotificationServices {
               });
             }
           }
-        } else {
-          finalResults.push(data[i]);
         }
+        finalResults.push(data[i]);
       }
       return { data: finalResults.filter((l) => l) };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async clearNotification(notificationId: number) {
+    try {
+      if (!notificationId || typeof notificationId !== 'number') {
+        return {
+          error: { status: 422, message: 'Notification id is required' },
+        };
+      }
+      await this.prismaService.notification.update({
+        where: { id: notificationId },
+        data: { expiry: Date.now() },
+      });
+      return { success: true, message: 'Notification cleared' };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

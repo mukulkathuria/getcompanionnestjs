@@ -189,4 +189,44 @@ export class UserBookingController {
       throw new HttpException('Server Error', 500);
     }
   }
+
+  @UseGuards(AuthGuard)
+  @Get(UserBookingInnerRoute.getupcomingbookingforcompanion)
+  async getupcomingbookingforcompanionController(@Req() req: Request) {
+    const { data: tokendata, error: TokenError } = decodeExpressRequest(req);
+    if (TokenError) {
+      throw new HttpException('Invalid User', 403);
+    }
+    const { data, error } =
+      await this.userbookingservice.getUpcomingBookingsForCompanion(
+        tokendata.userId,
+      );
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(UserBookingInnerRoute.previousbookings)
+  async getupcomingbookingforuserController(@Req() req: Request) {
+    const { data: tokendata, error: TokenError } = decodeExpressRequest(req);
+    if (TokenError) {
+      throw new HttpException('Invalid User', 403);
+    }
+    const { data, error } =
+      await this.userbookingservice.getUpcomingBookingsForUser(
+        tokendata.userId,
+      );
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }

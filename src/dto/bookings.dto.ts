@@ -52,6 +52,7 @@ export interface companionslotsavailabilityDto {
 export interface cancelBookingInputDto {
   bookingid: number;
   userId: string;
+  reason?: string;
 }
 
 export interface bookingIdDto {

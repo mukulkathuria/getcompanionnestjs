@@ -277,6 +277,7 @@ model Booking {
   extendedhours       Int                     @default(0)
   updatedLocation     String?
   updatedPurpose      String?
+  cancelledReason     String?
   extentedfinalrate   Float                   @default(0)
   extendedendtime     BigInt                  @default(0)
   Transactions        Transactions[]

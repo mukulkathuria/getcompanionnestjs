@@ -13,6 +13,7 @@ import {
 } from '../routes/user.routes';
 import { UserNotificationServices } from './notifications.service';
 import { AuthGuard } from 'src/guards/jwt.guard';
+import { UserProfileParamsDto as notificationIdDto } from 'src/dto/user.dto';
 
 @Controller(UserNotificationRoute)
 export class UserNotificationController {
@@ -38,6 +39,26 @@ export class UserNotificationController {
       }
     } else {
       throw new HttpException('Server Error', 500);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(UsernotificationInnerRoute.clearnotifications)
+  @HttpCode(200)
+  async clearNotificationController(
+    @Query() notificationId: notificationIdDto,
+  ) {
+    const { success, message, error } =
+      await this.notificationservice.clearNotification(
+        Number(notificationId.id),
+      );
+    if (success) {
+      return {
+        success,
+        message,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
     }
   }
 }

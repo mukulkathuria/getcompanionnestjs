@@ -12,7 +12,9 @@ export const AdminNotificaionRoute = AdminRoute + '/notification';
 export const AdminBookingInnerRoutes = {
     bookingrequestroute: 'bookingrequest',
     bookingdetailsroute: 'bookingdetails',
-    getallbookinglistroute: 'getallbookinglist'
+    getallbookinglistroute: 'getallbookinglist',
+    getcancelledbookinglistroute: 'getcancelledbookinglist',
+    getunderextensionbookinglistroute: 'getunderextensionbookinglist',
 }
 
 export const AdminIssuesInnerRoutes = {

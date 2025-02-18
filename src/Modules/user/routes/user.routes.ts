@@ -1,3 +1,5 @@
+import { clear } from "node:console";
+
 export const UserRoute = '/user';
 export const UserLocationRoute = UserRoute + '/location';
 export const UserDelete = UserRoute + '/delete';
@@ -41,6 +43,8 @@ export const UserBookingInnerRoute = {
   rateabookingRoute: 'rateabookingRoute',
   getBookingDetailsforall: 'getBookingDetailsforall',
   getAverageRating: 'getaveragerating',
+  getupcomingbookingforcompanion: 'getupcomingbookingforcompanion',
+  getupcomingbookingforuser: 'getupcomingbookingforuser',
 };
 
 export const UserSessionInnerRoute = {
@@ -52,6 +56,7 @@ export const UserSessionInnerRoute = {
 
 export const UsernotificationInnerRoute = {
   getusernotifications: 'usernotification',
+  clearnotifications: 'clearnotifications',
 };
 
 export const UserTransactionInnerRoute = {

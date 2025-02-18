@@ -61,4 +61,32 @@ export class AdminBookingController {
       throw new HttpException(error.message, error.status);
     }
   }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminBookingInnerRoutes.getcancelledbookinglistroute)
+  async getUnderCancellationBooking() {
+    const { data, error } =
+      await this.adminbookingservice.getCancellationRequest();
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminBookingInnerRoutes.getunderextensionbookinglistroute)
+  async getUnderExtensionBooking() {
+    const { data, error } =
+      await this.adminbookingservice.getExtensionRequest();
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }
