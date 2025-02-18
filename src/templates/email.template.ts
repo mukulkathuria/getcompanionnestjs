@@ -1,4 +1,4 @@
-import { emailTemplateDto } from "./templates.dto";
+import { emailTemplateDto } from './templates.dto';
 
 export default function (params: emailTemplateDto) {
   return {
@@ -13,7 +13,8 @@ export default function (params: emailTemplateDto) {
         </div>
         <br/>
         <div>
-        With excitement,  
+        With excitement,
+        <br/>  
         Zestful Amigos Team
         </div>
         `,
@@ -21,61 +22,268 @@ export default function (params: emailTemplateDto) {
     bookingconfirmation: {
       subject: 'Your Zestful Encounter is Officially Locked In! 🥂',
       body: `
-        Hello ${params.username},
+       <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Booking Confirmation</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                    background-color: #f9f9f9;
+                    padding: 20px;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .content {
+                    font-size: 16px;
+                    line-height: 1.5;
+                }
+                .footer {
+                    margin-top: 20px;
+                    font-size: 14px;
+                    text-align: center;
+                    color: #777;
+                }
+                .signature {
+                    font-weight: bold;
+                    color: #333;
+                }
+                .details {
+                    margin-top: 20px;
+                    padding: 10px;
+                    background-color: #f1f1f1;
+                    border-radius: 6px;
+                }
+                .details p {
+                    margin: 5px 0;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>Booking Confirmation</h2>
+                </div>
+                <div class="content">
+                    <p>Hello ${params.username},</p>
+                    <p>You’ve made a fantastic choice! Your rendezvous with ${params.companion_name} is confirmed, and we’re thrilled to curate a memorable experience for you. 💫</p>
 
-        You’ve made a fantastic choice! Your rendezvous with ${params.companion_name} is confirmed, and we’re thrilled to curate a memorable experience for you. 💫
+                    <div class="details">
+                        <p><strong>Details:</strong></p>
+                        <p><strong>Companion:</strong> ${params.companion_name}</p>
+                        <p><strong>Date & Time:</strong> ${params.date_time}</p>
+                        <p><strong>Meeting Spot:</strong> ${params.meetingpoint}</p>
+                    </div>
 
-        Details:
-        - Companion: ${params.companion_name}  
-        - Date & Time: ${params.date_time}  
-        - Meeting Spot: ${params.meetingpoint}
-
-        Prepare for an experience that will linger in your thoughts long after it ends. We’re here to elevate your moments!
-
-        With anticipation,  
-        Zestful Amigos Team
+                    <p>Prepare for an experience that will linger in your thoughts long after it ends. We’re here to elevate your moments!</p>
+                </div>
+                <div class="footer">
+                    <p class="signature">With anticipation, <br> Zestful Amigos Team</p>
+                </div>
+            </div>
+        </body>
+        </html>
         `,
     },
     feedbackrequest: {
       subject: 'How Was Your Exquisite Experience? We’re All Ears! 🎤',
       body: `
-        Hi ${params.username},
-
-        Your satisfaction is our pride, and we’d love to hear about your experience with ${params.companion_name}. 💬
-
-        Your words help us perfect every moment, ensuring your next rendezvous is even more delightful. Share your feedback [here]—your thoughts are as valuable as gold to us.
-
-        With gratitude,  
-        Zestful Amigos Team
+       <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Feedback Request</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                    background-color: #f9f9f9;
+                    padding: 20px;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .content {
+                    font-size: 16px;
+                    line-height: 1.5;
+                }
+                .footer {
+                    margin-top: 20px;
+                    font-size: 14px;
+                    text-align: center;
+                    color: #777;
+                }
+                .signature {
+                    font-weight: bold;
+                    color: #333;
+                }
+                .link {
+                    color: #1a73e8;
+                    text-decoration: none;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>We Value Your Feedback</h2>
+                </div>
+                <div class="content">
+                    <p>Hi ${params.username},</p>
+                    <p>Your satisfaction is our pride, and we’d love to hear about your experience with ${params.companion_name}. 💬</p>
+                    <p>Your words help us perfect every moment, ensuring your next rendezvous is even more delightful. Share your feedback <a href="[insert-feedback-link]" class="link">here</a>—your thoughts are as valuable as gold to us.</p>
+                </div>
+                <div class="footer">
+                    <p class="signature">With gratitude, <br> Zestful Amigos Team</p>
+                </div>
+            </div>
+        </body>
+        </html>
         `,
     },
     usercancelbooking: {
-        subject: 'Your Cancellation is Complete, But We’ll Miss You! 💔',
-        body: `
-        Dear ${params.username},
-
-        We’re sorry to see your plans change. Your booking with ${params.companion_name} has been canceled as requested. If life brings you back our way, we’d love nothing more than to make it up to you with an even better experience.
-
-        Should you wish to reconnect, our doors are always open!
-
-        Warmly,  
-        Zestful Amigos Team
+      subject: 'Your Cancellation is Complete, But We’ll Miss You! 💔',
+      body: `
+       <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Booking Cancellation</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                    background-color: #f9f9f9;
+                    padding: 20px;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .content {
+                    font-size: 16px;
+                    line-height: 1.5;
+                }
+                .footer {
+                    margin-top: 20px;
+                    font-size: 14px;
+                    text-align: center;
+                    color: #777;
+                }
+                .signature {
+                    font-weight: bold;
+                    color: #333;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>Booking Cancellation</h2>
+                </div>
+                <div class="content">
+                    <p>Dear ${params.username},</p>
+                    <p>We’re sorry to see your plans change. Your booking with ${params.companion_name} has been canceled as requested. If life brings you back our way, we’d love nothing more than to make it up to you with an even better experience.</p>
+                    <p>Should you wish to reconnect, our doors are always open!</p>
+                </div>
+                <div class="footer">
+                    <p class="signature">Warmly, <br> Zestful Amigos Team</p>
+                </div>
+            </div>
+        </body>
+        </html>
         `,
     },
-    refundprocess:{
-        subject: 'Your Refund is Being Wrapped Up With Care 🎁',
-        body: `
-        <p>Hi <b>${params.username}</b></p>,
-        <p>We understand how precious your trust is, and we’ve expedited your refund of ₹${params.refundamount}. It will reach you within the next 3-5 business days.</p>
+    refundprocess: {
+      subject: 'Your Refund is Being Wrapped Up With Care 🎁',
+      body: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Refund Confirmation</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                    background-color: #f9f9f9;
+                    padding: 20px;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                }
+                .content {
+                    font-size: 16px;
+                    line-height: 1.5;
+                }
+                .footer {
+                    margin-top: 20px;
+                    font-size: 14px;
+                    text-align: center;
+                    color: #777;
+                }
+                .signature {
+                    font-weight: bold;
+                    color: #333;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="content">
+                    <p>Hi <b>${params.username}</b>,</p>
+                    <p>We understand how precious your trust is, and we’ve expedited your refund of ₹${params.refundamount}. It will reach you within the next 3-5 business days.</p>
 
-        <p>Thank you for your patience and understanding. We hope to welcome you back soon for a spectacular experience that exceeds your expectations.</p>
-        <br/>
-        <br />
-        <p>With appreciation,</p>
-        <br/>  
-        <p>Zestful Amigos Team</p>
+                    <p>Thank you for your patience and understanding. We hope to welcome you back soon for a spectacular experience that exceeds your expectations.</p>
+                    
+                    <br />
+                    <p>With appreciation,</p>
+                    <br />
+                    <p class="signature">Zestful Amigos Team</p>
+                </div>
+            </div>
+        </body>
+        </html>
         `,
-    }
+    },
   };
 }
 
