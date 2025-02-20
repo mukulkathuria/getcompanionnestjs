@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpException,
   Param,
   Post,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -16,13 +18,16 @@ import {
 } from 'src/config/multer.config';
 import { controllerReturnDto } from 'src/dto/common.dto';
 import {
-  UpdateUserProfileBodyDto,
+  UpdateCompanionProfileBodyDto,
   UserProfileParamsDto,
 } from 'src/dto/user.dto';
 import { AdminGuard } from 'src/guards/admin.guard';
 import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
 import { CompanionService } from './companion.service';
-import { AdminUserProfileRoute } from '../routes/admin.routes';
+import {
+  AdminCompanionInnerRoutes,
+  AdminUserProfileRoute,
+} from '../routes/admin.routes';
 import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
 
 @Controller(AdminUserProfileRoute)
@@ -30,7 +35,7 @@ export class CompanionController {
   constructor(private readonly companionservice: CompanionService) {}
 
   @UseGuards(AdminGuard)
-  @Post('registercompanion')
+  @Post(AdminCompanionInnerRoutes.registercompanionroute)
   @HttpCode(200)
   @UseInterceptors(
     FilesInterceptor('images', COMPANIONIMAGESMAXCOUNT, UserImageMulterConfig),
@@ -55,14 +60,14 @@ export class CompanionController {
   }
 
   @UseGuards(AdminGuard)
-  @Post('updatecompanionprofile/:id')
+  @Post(AdminCompanionInnerRoutes.updatecompanionprofileroute)
   @HttpCode(200)
   @UseInterceptors(
     FilesInterceptor('images', COMPANIONIMAGESMAXCOUNT, UserImageMulterConfig),
   )
   async userupdatecompanionprofileController(
     @Param() id: UserProfileParamsDto,
-    @Body() userinfo: UpdateUserProfileBodyDto,
+    @Body() userinfo: UpdateCompanionProfileBodyDto,
     @UploadedFiles(new FileSizeValidationPipe())
     images: Express.Multer.File[],
   ): Promise<controllerReturnDto> {
@@ -77,7 +82,38 @@ export class CompanionController {
     if (success) {
       return {
         success,
-        message: 'User Updated successfully.',
+        message: 'Companion Updated successfully.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminCompanionInnerRoutes.getcompanionupdaterequestlistroute)
+  async getUpdateCompanionRequest() {
+    const { data, error } =
+      await this.companionservice.getUpdateCompanionList();
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminCompanionInnerRoutes.getupdatecompaniondetailsroute)
+  async getUpdateCompanionRequestDetails(@Query() id: UserProfileParamsDto) {
+    if (!id.id || typeof id.id !== 'string') {
+      throw new HttpException('Invalid User', 422);
+    }
+    const { data, error } =
+      await this.companionservice.getUpdateCompanionDetails(Number(id.id));
+    if (data) {
+      return {
+        data,
       };
     } else {
       throw new HttpException(error.message, error.status);

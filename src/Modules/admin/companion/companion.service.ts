@@ -3,7 +3,7 @@ import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
 import { successErrorDto } from 'src/dto/common.dto';
 import {
   CompanionBookingUnitEnum,
-  UpdateUserProfileBodyDto,
+  UpdateCompanionProfileBodyDto,
 } from 'src/dto/user.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import { getdefaultexpirydate } from 'src/utils/common.utils';
@@ -36,8 +36,8 @@ export class CompanionService {
         return {
           error: { status: 422, message: 'Atleast 2 images are required' },
         };
-      } 
-       if (allimages.length > 4) {
+      }
+      if (allimages.length > 4) {
         return {
           error: { status: 422, message: 'Images more than 4 is not allowed' },
         };
@@ -75,7 +75,7 @@ export class CompanionService {
         baselocation: { create: location },
       };
       await this.prismaService.user.create({
-        data: { ...userdata , Companion: { create: companion }},
+        data: { ...userdata, Companion: { create: companion } },
       });
       return {
         success: true,
@@ -89,7 +89,7 @@ export class CompanionService {
   }
 
   async updateUserProfile(
-    userinputs: UpdateUserProfileBodyDto,
+    userinputs: UpdateCompanionProfileBodyDto,
     images: Express.Multer.File[],
     id: string,
   ) {
@@ -106,7 +106,7 @@ export class CompanionService {
       const allimages = images.map((l) => l.destination + '/' + l.filename);
       if (allimages.length > 4) {
         return {
-          error: { status: 422, message: 'Images more than 3 is not allowed' },
+          error: { status: 422, message: 'Images more than 4 is not allowed' },
         };
       }
       // eslint-disable-next-line
@@ -114,7 +114,7 @@ export class CompanionService {
         where: { id },
         data: {
           ...userdata,
-          Images: allimages,
+          Images: allimages.length ? allimages : userinputs.Images,
           Companion: {
             update: {
               where: { userid: id },
@@ -132,6 +132,72 @@ export class CompanionService {
         },
       });
       return { success: true };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return { error: { status: 500, message: 'Something went wrong' } };
+    }
+  }
+
+  async getUpdateCompanionList() {
+    try {
+      const data = await this.prismaService.companionupdaterequest.findMany({
+        where: { status: 'REVIEWED' },
+        select: { firstname: true, Images: true, id: true, status: true },
+      });
+      return { data };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return { error: { status: 500, message: 'Something went wrong' } };
+    }
+  }
+
+  async getUpdateCompanionDetails(id: number) {
+    try {
+      if (!id || typeof id !== 'number') {
+        return { error: { status: 422, message: 'Invalid companion search' } };
+      }
+      const data = await this.prismaService.companionupdaterequest.findUnique({
+        where: { id },
+        include: {
+          companiondetails: {
+            select: {
+              User: {
+                select: {
+                  firstname: true,
+                  lastname: true,
+                  email: true,
+                  phoneno: true,
+                  age: true,
+                  Images: true,
+                },
+              },
+              bookingrate: true,
+              description: true,
+              Skintone: true,
+              height: true,
+              bodytype: true,
+              eatinghabits: true,
+              drinkinghabits: true,
+              smokinghabits: true,
+              account: true,
+            },
+          },
+        },
+      });
+      if (!data) {
+        return { error: { status: 422, message: 'Invalid companion search' } };
+      }
+      const values = {
+        ...data,
+        coompainondetails: {
+          ...data.companiondetails,
+          User: {
+            ...data.companiondetails.User,
+            phoneno: String(data.companiondetails.User.phoneno),
+          },
+        },
+      };
+      return { data: values };
     } catch (error) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };

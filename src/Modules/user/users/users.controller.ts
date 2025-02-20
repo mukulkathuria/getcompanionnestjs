@@ -156,7 +156,7 @@ export class DeleteUsersController {
     if (!id.id || typeof id.id !== 'string') {
       throw new HttpException('Invalid User', 422);
     }
-    const { success, error } = await this.userservice.updateUserProfile(
+    const { success, error } = await this.userservice.updatecompanionrequest(
       userinfo,
       images,
       id.id,

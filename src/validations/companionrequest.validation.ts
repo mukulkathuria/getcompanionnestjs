@@ -52,6 +52,10 @@ export function validatecompanionupdaterequest(
   try {
     if (userinfo.description) {
       const tempdesc = JSON.parse(userinfo.description as any);
+      const temppreviousImges = userinfo.previousImages
+        ? JSON.parse(userinfo.previousImages as any)
+        : [];
+      userinfo.previousImages = temppreviousImges;
       userinfo['description'] = Array.isArray(tempdesc)
         ? tempdesc.map((l) => l.trim())
         : [];
@@ -122,8 +126,8 @@ export function validatecompanionupdaterequest(
       error: { status: 422, message: 'Companion bodytype is required' },
     };
   } else if (
-    MaleCompanionBodyTypeEnum[userinfo.bodytype] ||
-    FemaleCompanionBodyTypeEnum[userinfo.bodytype]
+    !MaleCompanionBodyTypeEnum[userinfo.bodytype] &&
+    !FemaleCompanionBodyTypeEnum[userinfo.bodytype]
   ) {
     return {
       error: { status: 422, message: 'Companion bodytype is not valid' },
@@ -156,5 +160,30 @@ export function validatecompanionupdaterequest(
       error: { status: 422, message: 'Previous images should be an array' },
     };
   }
-  return { user: userinfo };
+  const values = [
+    'firstname',
+    'lastname',
+    'previousImages',
+    'Images',
+    'age',
+    'phoneno',
+    'description',
+    'skintone',
+    'city',
+    'state',
+    'lat',
+    'lng',
+    'height',
+    'bodytype',
+    'eatinghabits',
+    'drinkinghabits',
+    'smokinghabits',
+  ];
+  const keyvalues = {};
+  for (const key of values) {
+   if (userinfo[key]) {
+      keyvalues[key] = userinfo[key];
+    }
+  }
+  return { user: keyvalues as CompanionUpdateRequestInputDto };
 }

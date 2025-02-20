@@ -27,3 +27,10 @@ export const AdminIssuesInnerRoutes = {
 export const AdminNotificaionInnerRoute = {
     getallnotifications: 'getnotification'
 }
+
+export const AdminCompanionInnerRoutes = {
+    registercompanionroute: 'registercompanion',
+    updatecompanionprofileroute: 'updatecompanionprofile/:id',
+    getupdatecompaniondetailsroute: 'getupdatecompaniondetails',
+    getcompanionupdaterequestlistroute: 'getcompanionupdaterequestlist',
+}

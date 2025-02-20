@@ -110,6 +110,7 @@ export class AdminBookingService {
           bookingpurpose: true,
           bookingstart: true,
           bookingstatus: true,
+          id: true,
         },
       });
       const values = data.map((l) => ({
