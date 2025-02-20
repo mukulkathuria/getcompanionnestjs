@@ -1,9 +1,10 @@
-import { Controller, Get, HttpException } from '@nestjs/common';
+import { Controller, Get, HttpException, UseGuards } from '@nestjs/common';
 import {
   AdminNotificaionRoute,
   AdminNotificaionInnerRoute,
 } from '../routes/admin.routes';
 import { AdminNotificationServices } from './adminnotifications.service';
+import { AdminGuard } from 'src/guards/admin.guard';
 
 @Controller(AdminNotificaionRoute)
 export class AdminNotificationController {
@@ -11,6 +12,7 @@ export class AdminNotificationController {
     private readonly notificationservice: AdminNotificationServices,
   ) {}
 
+  @UseGuards(AdminGuard)
   @Get(AdminNotificaionInnerRoute.getallnotifications)
   async getAllNotificationsController() {
     const { data, error } =

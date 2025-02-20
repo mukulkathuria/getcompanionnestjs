@@ -45,6 +45,10 @@ export type registerCompanionBodyDto = {
   smokinghabits: CompanionSmokingHabitEnum;
 };
 
+export interface previousImagesDto {
+  previousImages?: string[];
+}
+
 export interface returnRegisterUserDto extends errorDto {
   user?: registerBodyDto;
 }

@@ -33,4 +33,5 @@ export const AdminCompanionInnerRoutes = {
     updatecompanionprofileroute: 'updatecompanionprofile/:id',
     getupdatecompaniondetailsroute: 'getupdatecompaniondetails',
     getcompanionupdaterequestlistroute: 'getcompanionupdaterequestlist',
+    updatecompaniondetailsroute: 'updatecompaniondetails/:id',
 }

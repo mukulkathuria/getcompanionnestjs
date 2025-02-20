@@ -119,4 +119,35 @@ export class CompanionController {
       throw new HttpException(error.message, error.status);
     }
   }
+
+  @UseGuards(AdminGuard)
+  @Post(AdminCompanionInnerRoutes.updatecompaniondetailsroute)
+  @HttpCode(200)
+  @UseInterceptors(
+    FilesInterceptor('images', COMPANIONIMAGESMAXCOUNT, UserImageMulterConfig),
+  )
+  async updatecompanionDetailsController(
+    @Param() id: UserProfileParamsDto,
+    @Body() userinfo: registerCompanionBodyDto,
+    @UploadedFiles(new FileSizeValidationPipe())
+    images: Express.Multer.File[],
+  ): Promise<controllerReturnDto> {
+    if (!id.id || typeof id.id !== 'string') {
+      throw new HttpException('Invalid User', 422);
+    }
+    const { success, error } =
+      await this.companionservice.updateCompanionDetails(
+        userinfo,
+        images,
+        id.id,
+      );
+    if (success) {
+      return {
+        success,
+        message: 'Companion Updated successfully.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }

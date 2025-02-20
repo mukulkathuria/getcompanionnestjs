@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
+import {
+  previousImagesDto,
+  registerCompanionBodyDto,
+} from 'src/dto/auth.module.dto';
 import { successErrorDto } from 'src/dto/common.dto';
 import {
   CompanionBookingUnitEnum,
@@ -8,7 +11,7 @@ import {
 import { PrismaService } from 'src/Services/prisma.service';
 import { getdefaultexpirydate } from 'src/utils/common.utils';
 import { encrypt } from 'src/utils/crypt.utils';
-import { validateregisterCompanion } from 'src/validations/auth.validation';
+import { validatepreviousImages, validateregisterCompanion } from 'src/validations/auth.validation';
 import { isvalidComanioninputs } from 'src/validations/user.validations';
 
 @Injectable()
@@ -142,7 +145,14 @@ export class CompanionService {
     try {
       const data = await this.prismaService.companionupdaterequest.findMany({
         where: { status: 'REVIEWED' },
-        select: { firstname: true, Images: true, id: true, status: true },
+        select: {
+          firstname: true,
+          Images: true,
+          id: true,
+          status: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
       });
       return { data };
     } catch (error) {
@@ -163,12 +173,14 @@ export class CompanionService {
             select: {
               User: {
                 select: {
+                  id: true,
                   firstname: true,
                   lastname: true,
                   email: true,
                   phoneno: true,
                   age: true,
                   Images: true,
+                  gender: true,
                 },
               },
               bookingrate: true,
@@ -189,7 +201,7 @@ export class CompanionService {
       }
       const values = {
         ...data,
-        coompainondetails: {
+        companiondetails: {
           ...data.companiondetails,
           User: {
             ...data.companiondetails.User,
@@ -198,6 +210,103 @@ export class CompanionService {
         },
       };
       return { data: values };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return { error: { status: 500, message: 'Something went wrong' } };
+    }
+  }
+
+  async updateCompanionDetails(
+    userinfo: registerCompanionBodyDto & previousImagesDto,
+    images: Express.Multer.File[],
+    id: string,
+  ): Promise<successErrorDto> {
+    const { user, error } = validateregisterCompanion(userinfo, true);
+    if (error) {
+      return { error };
+    }
+    try {
+      const isUserExists = await this.prismaService.user.findUnique({
+        where: { id },
+        include: { Companion: { include: { baselocation: true } } },
+      });
+      if (!isUserExists) {
+        return { error: { status: 422, message: 'User not Exists' } };
+      }
+      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      const { images:previousImages, error: imagesError } = validatepreviousImages(userinfo.previousImages);
+      if(imagesError){
+        return {error: imagesError}
+      }
+      if (!userinfo.previousImages && allimages.length < 2) {
+        return {
+          error: { status: 422, message: 'Images is required' },
+        };
+      } else if (
+        previousImages?.length + allimages.length < 2 ||
+        previousImages?.length + allimages.length > 4
+      ) {
+        return {
+          error: { status: 422, message: 'Images should be between 2 and 4' },
+        };
+      }
+      if (allimages.length >= 1) {
+        user['Images'] = userinfo.previousImages
+          ? [...allimages, ...previousImages]
+          : allimages;
+      } else {
+        user['Images'] = previousImages;
+      }
+      delete userinfo.previousImages;
+      const location = {
+        city: user?.city,
+        state: user?.state,
+        zipcode: Number(user?.zipcode) || null,
+        lat: Number(user?.lat) || null,
+        lng: Number(user?.lng) || null,
+      };
+      const userdata = {
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+        gender: user.gender,
+        age: Number(user.age),
+        // isCompanion: true,
+        Images: user.Images,
+        phoneno: Number(user.phoneno),
+      };
+      const companion = {
+        bookingrate: Number(user?.bookingrate) || null,
+        bookingrateunit: CompanionBookingUnitEnum.PERHOUR,
+        description: user.description,
+        Skintone: user.skintone,
+        height: Number(user.height),
+        bodytype: user.bodytype,
+        eatinghabits: user.eatinghabits,
+        drinkinghabits: user.drinkinghabits,
+        smokinghabits: user.smokinghabits,
+      };
+      await this.prismaService.user.update({
+        where: { email: user.email },
+        data: {
+          ...userdata,
+          Companion: {
+            update: {
+              where: { userid: id },
+              data: {
+                ...companion,
+                baselocation: {
+                  update: {
+                    where: { id: isUserExists.Companion[0].baselocation[0].id },
+                    data: location,
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      return { success: true };
     } catch (error) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };

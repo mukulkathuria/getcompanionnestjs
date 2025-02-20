@@ -1,4 +1,8 @@
-import { EmailRegex, PasswordRegex, phoneRegex } from 'src/constants/regex.constants';
+import {
+  EmailRegex,
+  PasswordRegex,
+  phoneRegex,
+} from 'src/constants/regex.constants';
 import { Jwt } from 'src/tokens/Jwt';
 import {
   loginBodyDto,
@@ -25,7 +29,8 @@ import { User } from '@prisma/client';
 export const validateregisterUser = (
   userinfo: registerBodyDto,
 ): returnRegisterUserDto => {
-  const { firstname, lastname, email, password, gender, age, phoneno } = userinfo;
+  const { firstname, lastname, email, password, gender, age, phoneno } =
+    userinfo;
   if (!firstname || !firstname.trim().length) {
     return { error: { status: 422, message: 'First name is required' } };
   } else if (!lastname || !lastname.trim().length) {
@@ -50,12 +55,16 @@ export const validateregisterUser = (
     return { error: { status: 422, message: 'Phone no is required' } };
   } else if (!phoneRegex.test(phoneno)) {
     return { error: { status: 422, message: 'Phone no is not valid' } };
-  } 
+  }
   return { user: userinfo };
 };
 
-export function validateregisterCompanion(userinfo: registerCompanionBodyDto) {
-  const { firstname, lastname, email, password, gender, age, phoneno } = userinfo;
+export function validateregisterCompanion(
+  userinfo: registerCompanionBodyDto,
+  isPasswordskip: boolean = false,
+) {
+  const { firstname, lastname, email, password, gender, age, phoneno } =
+    userinfo;
   const location = {
     city: userinfo?.city && userinfo.city.trim(),
     state: userinfo?.state && userinfo.state.trim(),
@@ -93,9 +102,9 @@ export function validateregisterCompanion(userinfo: registerCompanionBodyDto) {
     return { error: { status: 422, message: 'Email is required' } };
   } else if (!EmailRegex.test(email)) {
     return { error: { status: 422, message: 'Email is not valid' } };
-  } else if (!password || !password.trim().length) {
+  } else if ((!password || !password.trim().length) && !isPasswordskip) {
     return { error: { status: 422, message: 'Password is required' } };
-  } else if (!PasswordRegex.test(password)) {
+  } else if (!PasswordRegex.test(password) && !isPasswordskip) {
     return { error: { status: 422, message: 'Password is not valid' } };
   } else if (!phoneno || !phoneno.trim().length) {
     return { error: { status: 422, message: 'Number is required' } };
@@ -264,4 +273,16 @@ export const basicuservalidationforuserExists = (
     }
   }
   return { success: true };
+};
+
+export const validatepreviousImages = (images) => {
+  try {
+    if(!images){
+      return { images: [] };
+    }
+    const previousImages = JSON.parse(images);
+    return { images: previousImages };
+  } catch (error) {
+    return { error: { status: 422, message: 'Previous images are not valid' } };
+  }
 };
