@@ -239,6 +239,7 @@ model User {
   issuescomments           issuescomments[]
   ratingsGiven             rating[]                   @relation("Rater")
   ratingsReceived          rating[]                   @relation("Ratee")
+  cancelledBookings        Booking[]                  @relation("cancellationDetails")
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
 }
@@ -278,6 +279,9 @@ model Booking {
   updatedLocation     String?
   updatedPurpose      String?
   cancelledReason     String?
+  cancelledBy         String?
+  cancelledAt         BigInt?
+  cancellationDetails User?                  @relation("cancellationDetails", fields: [cancelledBy], references: [id])
   extentedfinalrate   Float                   @default(0)
   extendedendtime     BigInt                  @default(0)
   Transactions        Transactions[]

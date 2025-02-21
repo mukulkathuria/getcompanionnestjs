@@ -1,4 +1,5 @@
 import { EmailRegex, phoneRegex } from 'src/constants/regex.constants';
+import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
 import {
   CompanionDescriptionEnum,
   CompanionDrinkingHabitEnum,
@@ -186,4 +187,23 @@ export function validatecompanionupdaterequest(
     }
   }
   return { user: keyvalues as CompanionUpdateRequestInputDto };
+}
+
+
+export function validateRequestInput(requestInput: statusUpdateInputDto, idString: string) {
+  const { id, approve, reject } = requestInput;
+  if (!id || !id.trim().length) {
+    return { error: { status: 422, message: `${idString} Id is required` } };
+  } else if (id !== idString) {
+    return { error: { status: 422, message: 'Invalid Id' } };
+  } else if (!approve && !reject) {
+    return { error: { status: 422, message: 'Approve or reject is required' } };
+  } else if (approve && reject) {
+    return { error: { status: 422, message: 'Approve or reject is required' } };
+  } else if (approve && typeof approve !== 'boolean') {
+    return { error: { status: 422, message: 'Approve is not valid' } };
+  } else if (reject && typeof reject !== 'boolean') {
+    return { error: { status: 422, message: 'Reject is not valid' } };
+  }
+  return { success: true };
 }

@@ -34,4 +34,9 @@ export const AdminCompanionInnerRoutes = {
     getupdatecompaniondetailsroute: 'getupdatecompaniondetails',
     getcompanionupdaterequestlistroute: 'getcompanionupdaterequestlist',
     updatecompaniondetailsroute: 'updatecompaniondetails/:id',
+    updateCompanionRequestStatusRoute: 'updatecompanionrequeststatus',
+}
+
+export const AdminAcceptanceInnerRoute = {
+    updatecancellationstatusroute: 'updatecancellationstatus',
 }

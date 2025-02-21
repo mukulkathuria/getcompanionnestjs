@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
 import {
   previousImagesDto,
   registerCompanionBodyDto,
@@ -11,7 +12,11 @@ import {
 import { PrismaService } from 'src/Services/prisma.service';
 import { getdefaultexpirydate } from 'src/utils/common.utils';
 import { encrypt } from 'src/utils/crypt.utils';
-import { validatepreviousImages, validateregisterCompanion } from 'src/validations/auth.validation';
+import {
+  validatepreviousImages,
+  validateregisterCompanion,
+} from 'src/validations/auth.validation';
+import { validateRequestInput } from 'src/validations/companionrequest.validation';
 import { isvalidComanioninputs } from 'src/validations/user.validations';
 
 @Injectable()
@@ -234,9 +239,10 @@ export class CompanionService {
         return { error: { status: 422, message: 'User not Exists' } };
       }
       const allimages = images.map((l) => l.destination + '/' + l.filename);
-      const { images:previousImages, error: imagesError } = validatepreviousImages(userinfo.previousImages);
-      if(imagesError){
-        return {error: imagesError}
+      const { images: previousImages, error: imagesError } =
+        validatepreviousImages(userinfo.previousImages);
+      if (imagesError) {
+        return { error: imagesError };
       }
       if (!userinfo.previousImages && allimages.length < 2) {
         return {
@@ -305,6 +311,27 @@ export class CompanionService {
             },
           },
         },
+      });
+      return { success: true };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return { error: { status: 500, message: 'Something went wrong' } };
+    }
+  }
+
+  async updateCompanionStatus(companioninput: statusUpdateInputDto) {
+    try {
+      const id = Number(companioninput.id);
+      if (!id || typeof id !== 'number') {
+        return { error: { status: 422, message: 'Invalid companion search' } };
+      }
+      const { error } = validateRequestInput(companioninput, 'Companion');
+      if (error) {
+        return { error };
+      }
+      await this.prismaService.companionupdaterequest.update({
+        where: { id },
+        data: { status: companioninput.approve ? 'ACCEPTED' : 'REJECTED' },
       });
       return { success: true };
     } catch (error) {

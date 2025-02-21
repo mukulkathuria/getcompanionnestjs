@@ -9,6 +9,8 @@ import { PrismaService } from 'src/Services/prisma.service';
 import notificationTemplate from 'src/templates/notification.template';
 import { addHours, convertToDateTime } from 'src/utils/common.utils';
 import * as dayjs from 'dayjs';
+import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
+import { validateRequestInput } from 'src/validations/companionrequest.validation';
 
 @Injectable()
 export class AcceptanceService {
@@ -78,4 +80,25 @@ export class AcceptanceService {
       };
     }
   }
+
+   async updateCancellationRequestStatus(bookingInput: statusUpdateInputDto) {
+      try {
+        const id = Number(bookingInput.id);
+        if (!id || typeof id !== 'number') {
+          return { error: { status: 422, message: 'Invalid companion search' } };
+        }
+        const { error } = validateRequestInput(bookingInput, 'Booking');
+        if (error) {
+          return { error };
+        }
+        await this.prismaService.booking.update({
+          where: { id },
+          data: { bookingstatus: bookingInput.approve ? 'CANCELLATIONAPPROVED' : 'ACCEPTED' },
+        });
+        return { success: true };
+      } catch (error) {
+        this.logger.error(error?.message || error);
+        return { error: { status: 500, message: 'Something went wrong' } };
+      }
+    }
 }

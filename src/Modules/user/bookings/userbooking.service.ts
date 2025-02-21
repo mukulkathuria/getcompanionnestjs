@@ -228,6 +228,8 @@ export class UserBookingsService {
           data: {
             bookingstatus: BookingStatusEnum.UNDERCANCELLATION,
             cancelledReason: input.reason,
+            cancellationDetails:{ connect: { id: input.userId } },
+            cancelledAt: Date.now(),
           },
         });
         await this.prismaService.notification.create({
@@ -254,7 +256,11 @@ export class UserBookingsService {
       }
       await this.prismaService.booking.update({
         where: { id: input.bookingid },
-        data: { bookingstatus: BookingStatusEnum.CANCELLED },
+        data: {
+          bookingstatus: BookingStatusEnum.CANCELLED,
+          cancellationDetails:{ connect: { id: input.userId } },
+          cancelledAt: Date.now(),
+        },
       });
       const totalrefundamount = bookingDetails.finalRate * 0.7;
       await this.prismaService.notification.create({
@@ -445,7 +451,10 @@ export class UserBookingsService {
         where: { id: userId },
         include: {
           Booking: {
-            where: { bookingstart: { gt: Date.now() }, bookingstatus: 'ACCEPTED' },
+            where: {
+              bookingstart: { gt: Date.now() },
+              bookingstatus: 'ACCEPTED',
+            },
             orderBy: { bookingend: 'desc' },
             take: 5,
             include: {

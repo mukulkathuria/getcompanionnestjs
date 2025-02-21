@@ -1,14 +1,18 @@
 import {
+  Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AdminAcceptanceRoute } from '../routes/admin.routes';
+import { AdminAcceptanceInnerRoute, AdminAcceptanceRoute } from '../routes/admin.routes';
 import { AdminGuard } from 'src/guards/admin.guard';
 import { AcceptanceService } from './acceptance.service';
 import { bookingIdDto } from 'src/dto/bookings.dto';
+import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
 
 @Controller(AdminAcceptanceRoute)
 export class AcceptanceController {
@@ -33,4 +37,22 @@ export class AcceptanceController {
       throw new HttpException(error.message, error.status);
     }
   }
+
+   @UseGuards(AdminGuard)
+    @Post(AdminAcceptanceInnerRoute.updatecancellationstatusroute)
+    @HttpCode(200)
+    async updateCompanionRequestStatusController(
+      @Body() requestInput: statusUpdateInputDto,
+    ) {
+      const { success, error } =
+        await this.acceptanceservice.updateCancellationRequestStatus(requestInput);
+      if (success) {
+        return {
+          success,
+          message: 'Status updated Successfully.',
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
+    }
 }

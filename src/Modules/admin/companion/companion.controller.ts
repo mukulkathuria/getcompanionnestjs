@@ -29,6 +29,7 @@ import {
   AdminUserProfileRoute,
 } from '../routes/admin.routes';
 import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
+import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
 
 @Controller(AdminUserProfileRoute)
 export class CompanionController {
@@ -141,6 +142,24 @@ export class CompanionController {
         images,
         id.id,
       );
+    if (success) {
+      return {
+        success,
+        message: 'Companion Updated successfully.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Post(AdminCompanionInnerRoutes.updateCompanionRequestStatusRoute)
+  @HttpCode(200)
+  async updateCompanionRequestStatusController(
+    @Body() requestInput: statusUpdateInputDto,
+  ) {
+    const { success, error } =
+      await this.companionservice.updateCompanionStatus(requestInput);
     if (success) {
       return {
         success,
