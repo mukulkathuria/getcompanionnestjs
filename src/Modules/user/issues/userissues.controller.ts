@@ -67,21 +67,30 @@ export class UserIssuesController {
     @Body() issueinfo: createIssueInputDto,
     @UploadedFiles(new FileSizeValidationPipe())
     images: Express.Multer.File[],
+    @Req() req: Request,
   ) {
-    const { success, error } = await this.userissuesservices.createUserIssue(
-      issueinfo,
-      images,
+    const { decodeExpressRequest } = await import(
+      '../../../guards/strategies/jwt.strategy'
     );
-    if (success) {
-      return {
-        success,
-      };
+    const { data, error: TokenError } = decodeExpressRequest(req);
+    if (data) {
+      const { success, error } = await this.userissuesservices.createUserIssue(
+        issueinfo,
+        images,
+        data.userId,
+      );
+      if (success) {
+        return {
+          success,
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
     } else {
-      throw new HttpException(error.message, error.status);
+      throw new HttpException(TokenError || 'Server Error', 403);
     }
   }
 
-  
   @UseGuards(AuthGuard)
   @Get(UserIssuesInnerRoutes.getIssueDetailsRoute)
   async getIssueDetailsContoller(
@@ -102,15 +111,27 @@ export class UserIssuesController {
   @Post(UserIssuesInnerRoutes.addcommentonIssueRoute)
   async addCommentonIssueController(
     @Body() commentIput: addCommentonIssueInputDto,
+    @Req() req: Request,
   ) {
-    const { success, error } =
-      await this.userissuesservices.addCommentonIssue(commentIput);
-    if (success) {
-      return {
-        success,
-      };
+    const { decodeExpressRequest } = await import(
+      '../../../guards/strategies/jwt.strategy'
+    );
+    const { data, error: TokenError } = decodeExpressRequest(req);
+    if (data) {
+      const { success, error } =
+        await this.userissuesservices.addCommentonIssue(
+          commentIput,
+          data.userId,
+        );
+      if (success) {
+        return {
+          success,
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
     } else {
-      throw new HttpException(error.message, error.status);
+      throw new HttpException(TokenError || 'Server Error', 403);
     }
   }
 }

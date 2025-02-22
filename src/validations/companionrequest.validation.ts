@@ -194,8 +194,6 @@ export function validateRequestInput(requestInput: statusUpdateInputDto, idStrin
   const { id, approve, reject } = requestInput;
   if (!id || !id.trim().length) {
     return { error: { status: 422, message: `${idString} Id is required` } };
-  } else if (id !== idString) {
-    return { error: { status: 422, message: 'Invalid Id' } };
   } else if (!approve && !reject) {
     return { error: { status: 422, message: 'Approve or reject is required' } };
   } else if (approve && reject) {

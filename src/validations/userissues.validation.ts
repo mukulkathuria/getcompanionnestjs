@@ -6,10 +6,11 @@ import {
 
 export function validateCreateIssueInput(
   input: createIssueInputDto,
+  userId: string
 ): successErrorReturnDto {
   const trimmedExplanation = input?.explanation?.trim();
   const trimmedSubject = input?.subject?.trim();
-  const trimmedUserid = input?.userid?.trim();
+  const trimmedUserid = userId?.trim();
 
   if (!trimmedExplanation) {
     return {
@@ -43,8 +44,9 @@ export function validateCreateIssueInput(
 
 export function validateAddCommentonIssueInput(
   input: addCommentonIssueInputDto,
+  userId: string
 ): successErrorReturnDto {
-  const trimmedUserId = input?.userId?.trim();
+  const trimmedUserId = userId.trim();
   const trimmedIssueId = input?.issueId?.trim();
   const trimmedComment = input?.comment?.trim();
 

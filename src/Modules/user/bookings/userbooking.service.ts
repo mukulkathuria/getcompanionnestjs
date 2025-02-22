@@ -190,7 +190,7 @@ export class UserBookingsService {
         return { error: { status: 422, message: 'companionid is required' } };
       }
       const userdata = await this.prismaService.booking.findMany({
-        where: { bookingend: { lt: Date.now() } },
+        where: { bookingstart: { gt: Date.now() } },
         include: { User: { where: { id: companionId, isCompanion: true } } },
       });
       const filtereddata = filterSlotAvailability(userdata);
@@ -401,7 +401,7 @@ export class UserBookingsService {
       const data = await this.prismaService.booking.findUnique({
         where: { id: booking },
         select: {
-          User: { select: { id: true, isCompanion: true, Images: true } },
+          User: { select: { id: true, isCompanion: true, Images: true, firstname: true } },
           bookingstart: true,
           bookingend: true,
         },

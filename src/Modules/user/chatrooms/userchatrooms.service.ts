@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ChatRoomIdDto, ChatRoomReturnDto } from 'src/dto/chatrooms.dto';
 import { PrismaService } from 'src/Services/prisma.service';
+import { addHours } from 'src/utils/common.utils';
 
 @Injectable()
 export class UserChatRoomsService {
@@ -12,7 +13,7 @@ export class UserChatRoomsService {
       const data = await this.prismaService.chatRoom.findMany({
         where: {
           Bookings: {
-            bookingstart: { gt: Date.now() },
+            bookingend: { lt: addHours(1) },
             bookingstatus: 'ACCEPTED',
           },
           User: { some: { id: userId } },
@@ -25,18 +26,28 @@ export class UserChatRoomsService {
               lastname: true,
               isCompanion: true,
               id: true,
-              Images: true
+              Images: true,
             },
           },
           Bookings: {
             select: {
               id: true,
               Sessions: { select: { id: true, isExtended: true } },
+              bookingstart: true,
+              bookingend: true,
             },
           },
         },
       });
-      return { data };
+      const values = data.map((l) => ({
+        ...l,
+        Bookings: {
+          ...l.Bookings,
+          bookingstart: String(l.Bookings.bookingstart),
+          bookingend: String(l.Bookings.bookingend),
+        },
+      }));
+      return { data: values };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

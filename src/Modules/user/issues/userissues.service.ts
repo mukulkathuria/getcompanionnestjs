@@ -38,6 +38,7 @@ export class UserIssuesServices {
       const data = await this.prismaService.userissues.findUnique({
         where: { issueId: issueIdQuery.issueId },
         select: {
+          id: true,
           screenshots: true,
           created: true,
           resolvedBy: true,
@@ -50,7 +51,7 @@ export class UserIssuesServices {
               screenshots: true,
               comment: true,
               created: true,
-              User: { select: { firstname: true } },
+              User: { select: { firstname: true, role: true } },
             },
             orderBy: { createdAt: 'desc' },
           },
@@ -64,6 +65,10 @@ export class UserIssuesServices {
         created: String(data.created),
         comments: data.comments.map((l) => ({
           ...l,
+          User: {
+            firstname: l.User.firstname,
+            isAdmin: l.User.role === 'ADMIN',
+          },
           created: String(l.created),
         })),
       };
@@ -77,11 +82,12 @@ export class UserIssuesServices {
   async createUserIssue(
     issueinput: createIssueInputDto,
     images: Express.Multer.File[],
+    userId: string,
   ): Promise<successErrorReturnDto> {
     try {
-      const { error } = validateCreateIssueInput(issueinput)
-      if(error){
-        return { error }
+      const { error } = validateCreateIssueInput(issueinput, userId);
+      if (error) {
+        return { error };
       }
       const allimages = images.map((l) => l.destination + '/' + l.filename);
       const data = await this.prismaService.userissues.create({
@@ -89,7 +95,7 @@ export class UserIssuesServices {
           screenshots: allimages,
           explanation: issueinput.explanation,
           subject: issueinput.subject,
-          User: { connect: { id: issueinput.userid } },
+          User: { connect: { id: userId } },
           created: Date.now(),
           issueId: getTxnId(),
         },
@@ -103,16 +109,17 @@ export class UserIssuesServices {
 
   async addCommentonIssue(
     commentInput: addCommentonIssueInputDto,
+    userId: string
   ): Promise<successErrorReturnDto> {
     try {
-      const { error } = validateAddCommentonIssueInput(commentInput);
-      if(error){
-        return { error }
+      const { error } = validateAddCommentonIssueInput(commentInput, userId);
+      if (error) {
+        return { error };
       }
       const data = await this.prismaService.issuescomments.create({
         data: {
           comment: commentInput.comment,
-          User: { connect: { id: commentInput.issueId } },
+          User: { connect: { id: userId } },
           UserIssue: { connect: { id: commentInput.issueId } },
           created: Date.now(),
         },
