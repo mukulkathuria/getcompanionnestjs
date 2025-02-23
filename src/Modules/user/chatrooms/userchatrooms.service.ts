@@ -13,7 +13,7 @@ export class UserChatRoomsService {
       const data = await this.prismaService.chatRoom.findMany({
         where: {
           Bookings: {
-            bookingend: { lt: addHours(1) },
+            bookingstart: { gte: addHours(5) },
             bookingstatus: 'ACCEPTED',
           },
           User: { some: { id: userId } },
