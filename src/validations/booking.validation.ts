@@ -56,11 +56,14 @@ export function isUserBookingValid(
 
 export function checkValidCancelBookngInputs(
   cancelInputs: cancelBookingInputDto,
+  userId: string
 ): successErrorDto {
-  if (!cancelInputs.userId) {
+  if (!userId) {
     return { error: { status: 422, message: 'User Id is required' } };
   } else if (!cancelInputs.bookingid) {
     return { error: { status: 422, message: 'Booking Id is required' } };
+  } else if(cancelInputs.reason && !cancelInputs.reason.trim().length){
+    return { error: { status: 422, message: 'Reason must be valid' } };
   }
   return { success: true };
 }

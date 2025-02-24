@@ -201,9 +201,9 @@ export class UserBookingsService {
     }
   }
 
-  async cancelBooking(input: cancelBookingInputDto) {
+  async cancelBooking(input: cancelBookingInputDto, userId: string) {
     try {
-      const { error } = checkValidCancelBookngInputs(input);
+      const { error } = checkValidCancelBookngInputs(input, userId);
       if (error) {
         return { error };
       }
@@ -215,7 +215,7 @@ export class UserBookingsService {
         return { error: { status: 404, message: 'No Bookings found' } };
       }
       const cancelledByCompanion = bookingDetails.User.find(
-        (l) => l.id === input.userId,
+        (l) => l.id === userId,
       );
       const userdata = bookingDetails.User.find((l) => !l.isCompanion);
       const companiondata = bookingDetails.User.find((l) => l.isCompanion);
@@ -228,7 +228,7 @@ export class UserBookingsService {
           data: {
             bookingstatus: BookingStatusEnum.UNDERCANCELLATION,
             cancelledReason: input.reason,
-            cancellationDetails:{ connect: { id: input.userId } },
+            cancellationDetails:{ connect: { id: userId } },
             cancelledAt: Date.now(),
           },
         });
@@ -258,7 +258,7 @@ export class UserBookingsService {
         where: { id: input.bookingid },
         data: {
           bookingstatus: BookingStatusEnum.CANCELLED,
-          cancellationDetails:{ connect: { id: input.userId } },
+          cancellationDetails:{ connect: { id: userId } },
           cancelledAt: Date.now(),
         },
       });

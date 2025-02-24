@@ -84,9 +84,13 @@ export class UserBookingController {
 
   @UseGuards(AuthGuard)
   @Get(UserBookingInnerRoute.checkcompanionslot)
-  async checkCompanionSlotController(@Query() companionId: companionDetailsQuery) {
+  async checkCompanionSlotController(
+    @Query() companionId: companionDetailsQuery,
+  ) {
     const { data, error } =
-      await this.userbookingservice.checkBookedSlotsforCompanion(companionId.companionId);
+      await this.userbookingservice.checkBookedSlotsforCompanion(
+        companionId.companionId,
+      );
     if (data) {
       return {
         data,
@@ -98,15 +102,28 @@ export class UserBookingController {
 
   @UseGuards(AuthGuard)
   @Post(UserBookingInnerRoute.cancelbooking)
-  async cancelBookingController(@Body() bookingDetails: cancelBookingInputDto) {
-    const { success, error } =
-      await this.userbookingservice.cancelBooking(bookingDetails);
-    if (success) {
-      return {
-        data: success,
-      };
+  async cancelBookingController(
+    @Body() bookingDetails: cancelBookingInputDto,
+    @Req() req: Request,
+  ) {
+    const { decodeExpressRequest } = await import(
+      '../../../guards/strategies/jwt.strategy'
+    );
+    const { data, error: TokenError } = decodeExpressRequest(req);
+    if (data) {
+      const { success, error } = await this.userbookingservice.cancelBooking(
+        bookingDetails,
+        data.userId,
+      );
+      if (success) {
+        return {
+          data: success,
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
     } else {
-      throw new HttpException(error.message, error.status);
+      throw new HttpException(TokenError || 'Server Error', 403);
     }
   }
 
@@ -176,8 +193,10 @@ export class UserBookingController {
       '../../../guards/strategies/jwt.strategy'
     );
     const { data: TokenData, error: TokenError } = decodeExpressRequest(req);
-    if(TokenData){
-      const { data, error } = await this.userbookingservice.getRatingforUser(TokenData.userId);
+    if (TokenData) {
+      const { data, error } = await this.userbookingservice.getRatingforUser(
+        TokenData.userId,
+      );
       if (data) {
         return {
           data,
@@ -185,7 +204,7 @@ export class UserBookingController {
       } else {
         throw new HttpException(error.message, error.status);
       }
-    }else {
+    } else {
       throw new HttpException('Server Error', 500);
     }
   }
