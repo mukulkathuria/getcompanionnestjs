@@ -23,7 +23,7 @@ export class AdminIssuesServices {
         where: { status: 'ACTIVE' },
         select: { issueId: true, subject: true, status: true },
       });
-      if (!data || !data.length) {
+      if (!data) {
         return { error: { status: 404, message: 'No active issues' } };
       }
       return { data };

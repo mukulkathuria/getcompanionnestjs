@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
 import {
+  AccountEnum,
   previousImagesDto,
   registerCompanionBodyDto,
 } from 'src/dto/auth.module.dto';
@@ -80,6 +81,7 @@ export class CompanionService {
         eatinghabits: user.eatinghabits,
         drinkinghabits: user.drinkinghabits,
         smokinghabits: user.smokinghabits,
+        account: AccountEnum.ACCEPTED,
         baselocation: { create: location },
       };
       await this.prismaService.user.create({

@@ -23,7 +23,10 @@ import { join } from 'path';
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'UserPhotos'),
+      rootPath:
+        process.env.NODE_ENV !== 'production'
+          ? join(__dirname, '..', 'UserPhotos')
+          : join(__dirname, 'UserPhotos'),
       serveRoot: '/UserPhotos',
     }),
     GlobalModule,

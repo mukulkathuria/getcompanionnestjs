@@ -188,6 +188,10 @@ export function validateregisterCompanion(
     return {
       error: { status: 422, message: 'Companion bookingrate is required' },
     };
+  } else if (!Number(companion.bookingrate)) {
+    return {
+      error: { status: 422, message: 'Companion bookingrate should be valid' },
+    };
   } else if (!companion.height) {
     return {
       error: { status: 422, message: 'Companion height is required' },
@@ -277,7 +281,7 @@ export const basicuservalidationforuserExists = (
 
 export const validatepreviousImages = (images) => {
   try {
-    if(!images){
+    if (!images) {
       return { images: [] };
     }
     const previousImages = JSON.parse(images);
