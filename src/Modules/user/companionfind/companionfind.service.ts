@@ -45,7 +45,7 @@ export class CompanionFindService {
         const filteredData = sortedCompanions.map((l) => ({
           bookingrate: l.bookingrate,
           userId: l.userid,
-          bookingrateunit: l.bookingrate,
+          bookingrateunit: l.bookingrateunit,
           distance: l.distance,
           images: l.images,
           firstname: l.firstname
