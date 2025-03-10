@@ -50,7 +50,7 @@ export class UserBookingsService {
     }
   }
 
-  async getpreviousBookingsForUser(userId: string) {
+  async getpreviousBookingsForUser(userId: string, pageNo: number) {
     try {
       if (!userId) {
         return { error: { status: 422, message: 'userId is required' } };
@@ -60,10 +60,12 @@ export class UserBookingsService {
         include: {
           Booking: {
             orderBy: { bookingend: 'desc' },
+            skip: (pageNo - 1) * 5,
             take: 5,
             include: {
               User: {
                 select: {
+                  id: true,
                   firstname: true,
                   isCompanion: true,
                   Images: true,
@@ -228,7 +230,7 @@ export class UserBookingsService {
           data: {
             bookingstatus: BookingStatusEnum.UNDERCANCELLATION,
             cancelledReason: input.reason,
-            cancellationDetails:{ connect: { id: userId } },
+            cancellationDetails: { connect: { id: userId } },
             cancelledAt: Date.now(),
           },
         });
@@ -258,7 +260,7 @@ export class UserBookingsService {
         where: { id: input.bookingid },
         data: {
           bookingstatus: BookingStatusEnum.CANCELLED,
-          cancellationDetails:{ connect: { id: userId } },
+          cancellationDetails: { connect: { id: userId } },
           cancelledAt: Date.now(),
         },
       });
@@ -401,7 +403,14 @@ export class UserBookingsService {
       const data = await this.prismaService.booking.findUnique({
         where: { id: booking },
         select: {
-          User: { select: { id: true, isCompanion: true, Images: true, firstname: true } },
+          User: {
+            select: {
+              id: true,
+              isCompanion: true,
+              Images: true,
+              firstname: true,
+            },
+          },
           bookingstart: true,
           bookingend: true,
         },

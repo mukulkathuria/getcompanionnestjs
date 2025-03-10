@@ -1,34 +1,43 @@
 import { NestFactory } from '@nestjs/core';
-// import helmet from 'helmet';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
-// import { ClusterService } from './Services/cluster.service';
+import * as fs from 'fs';
+import { ClusterService } from './Services/cluster.service';
 
-// ClusterService.clusterize(async () => {
+ClusterService.clusterize(async () => {
+  const app = await NestFactory.create(AppModule, {
+    cors: true,
+    httpsOptions:{
+      key: fs.readFileSync('src/certificates/localhost-key.pem'),
+      cert: fs.readFileSync('src/certificates/localhost.pem')
+    }
+  });
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: {
+        policy: 'cross-origin',
+      },
+    }),
+  );
+  if (process.env.NODE_ENV !== 'production') {
+    app.getHttpAdapter().getInstance().set('json spaces', 2);
+  }
+  const Port = process.env['DEFAULT_PORT'];
+  const Host = process.env['DEFAULT_HOST'];
+  await app.listen(Port, Host);
+  console.log(`Server is running on ${Port}`);
+});
+
+// (async () => {
 //   const app = await NestFactory.create(AppModule, {
 //     cors: true,
+//     httpsOptions:{
+//       key: fs.readFileSync('src/certificates/localhost-key.pem'),
+//       cert: fs.readFileSync('src/certificates/localhost.pem')
+//     }
 //   });
-//   app.use(
-//     helmet({
-//       crossOriginResourcePolicy: {
-//         policy: 'cross-origin',
-//       },
-//     }),
-//   );
-//   if (process.env.NODE_ENV !== 'production') {
-//     app.getHttpAdapter().getInstance().set('json spaces', 2);
-//   }
 //   const Port = process.env['DEFAULT_PORT'];
 //   const Host = process.env['DEFAULT_HOST'];
 //   await app.listen(Port, Host);
 //   console.log('Server is running');
-// });
-
-(async () => {
-  const app = await NestFactory.create(AppModule, {
-    cors: true,
-  });
-  const Port = process.env['DEFAULT_PORT'];
-  const Host = process.env['DEFAULT_HOST'];
-  await app.listen(Port, Host);
-  console.log('Server is running');
-})();
+// })();

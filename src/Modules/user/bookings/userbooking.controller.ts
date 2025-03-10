@@ -53,6 +53,7 @@ export class UserBookingController {
     const { data, error } =
       await this.userbookingservice.getpreviousBookingsForUser(
         tokendata.userId,
+        1
       );
     if (data) {
       return {
