@@ -16,6 +16,7 @@ import {
   refreshTokenParamsDto,
   registerBodyDto,
   Roles,
+  tokenInputDto,
 } from 'src/dto/auth.module.dto';
 import { successErrorDto } from 'src/dto/common.dto';
 import { authTokenDto } from 'src/dto/tokens.dto';
@@ -304,10 +305,10 @@ export class AuthService {
     }
   }
 
-  async googleLogin(token: string) {
+  async googleLogin(tokenInput: tokenInputDto) {
     try {
       const { data: collectedData, error: googleerror } =
-        await this.googleservice.verifyGoogleToken(token);
+        await this.googleservice.verifyGoogleToken(tokenInput);
       if(googleerror){
         this.logger.error(googleerror)
         return { error: { status: 422, message: 'Invalid Token' } }
@@ -331,10 +332,10 @@ export class AuthService {
     }
   }
 
-  async registerGoogleUser(token: string) {
+  async registerGoogleUser(tokenInput: tokenInputDto) {
     try {
       const { data: collectedData } =
-        await this.googleservice.verifyGoogleToken(token);
+        await this.googleservice.verifyGoogleToken(tokenInput);
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: collectedData.email },
       });
@@ -342,7 +343,7 @@ export class AuthService {
       if (error) {
         return { error };
       }
-      await this.prismaService.user.create({
+      const userDetails = await this.prismaService.user.create({
         data: {
           firstname: collectedData?.given_name || collectedData?.name,
           lastname: collectedData?.family_name || collectedData?.name,
@@ -366,8 +367,11 @@ export class AuthService {
         .then(() => {
           this.logger.log(`Email sent to: ${collectedData.email}`);
         });
+        const { access_token, refresh_token } =
+        await this.getUserToken(userDetails);
       return {
-        success: true,
+        access_token,
+        refresh_token,
       };
     } catch (error) {
       this.logger.warn(error?.message || error);

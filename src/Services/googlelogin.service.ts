@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
+import { tokenInputDto } from 'src/dto/auth.module.dto';
 
 @Injectable()
 export class GoogleService {
@@ -8,23 +9,17 @@ export class GoogleService {
     this.client = new OAuth2Client(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_OAUTH_REDIRECT
     );
   }
 
-  async verifyGoogleToken(token: string) {
+  async verifyGoogleToken(tokenInput: tokenInputDto) {
     try {
-      // const userinfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      //   method: 'GET',
-      //   headers: { Authorization: `Bearer ${token}`},
-      // })
-      // console.log(await userinfo.json())
-      // const tokeninfo = await this.client.getTokenInfo(token);
-      // console.log(tokeninfo);
+      const idToken = await this.client.getToken(tokenInput.token)
       const payload = await this.client.verifyIdToken({
-        idToken: token,
+        idToken: idToken.tokens.id_token,
         audience: process.env.GOOGLE_CLIENT_ID,
       });
-      console.log(payload);
       const data = payload.getPayload();
       return { data };
     } catch (error) {

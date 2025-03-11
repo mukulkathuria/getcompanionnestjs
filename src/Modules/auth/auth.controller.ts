@@ -19,6 +19,7 @@ import {
   loginUserDto,
   refreshTokenParamsDto,
   registerBodyDto,
+  tokenInputDto,
 } from 'src/dto/auth.module.dto';
 import { controllerReturnDto } from 'src/dto/common.dto';
 import { AuthGuard } from 'src/guards/jwt.guard';
@@ -131,9 +132,9 @@ export class AuthController {
 
   @Post(UserAuthInnerRoute.googlelogin)
   @HttpCode(200)
-  async googleloginController(@Body() token: string): Promise<loginUserDto> {
+  async googleloginController(@Body() input: tokenInputDto): Promise<loginUserDto> {
     const { error, access_token, refresh_token } =
-      await this.authService.googleLogin(token);
+      await this.authService.googleLogin(input);
     if (access_token && refresh_token) {
       return {
         success: true,
@@ -148,13 +149,14 @@ export class AuthController {
   @Post(UserAuthInnerRoute.googleregister)
   @HttpCode(200)
   async googleregisterController(
-    @Body() token: string,
-  ): Promise<controllerReturnDto> {
-    const { success, error } = await this.authService.registerGoogleUser(token);
-    if (success) {
+    @Body() input: tokenInputDto,
+  ): Promise<loginUserDto> {
+    const { access_token, refresh_token, error } = await this.authService.registerGoogleUser(input);
+    if (access_token && refresh_token) {
       return {
-        success,
-        message: 'User created successfully.',
+        success: true,
+        access_token,
+        refresh_token,
       };
     } else {
       throw new HttpException(error.message, error.status);

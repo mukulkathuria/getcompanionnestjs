@@ -108,3 +108,8 @@ export interface sendMailInputDto {
   subject: string;
   html: string;
 }
+
+
+export interface tokenInputDto {
+  token: string;
+}
