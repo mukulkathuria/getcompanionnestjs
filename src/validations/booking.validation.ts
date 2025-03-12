@@ -42,6 +42,10 @@ export function isUserBookingValid(
     return {
       error: { status: 422, message: 'Booking purpose is required' },
     };
+  } else if (!userinfo.bookinglocation.name.trim().length) {
+    return { error: { status: 422, message: 'Booking place is required' } };
+  } else if (!userinfo.bookinglocation.formattedaddress.trim().length) {
+    return { error: { status: 422, message: 'Booking address is required' } };
   } else if (
     !userinfo?.bookinglocation?.city?.trim().length ||
     !userinfo.bookinglocation?.lat ||
@@ -50,19 +54,24 @@ export function isUserBookingValid(
     return {
       error: { status: 422, message: 'Booking Location is required' },
     };
+  } else if (
+    userinfo.bookinglocation.googleextra &&
+    typeof userinfo.bookinglocation.googleextra !== 'object'
+  ) {
+    return { error: { status: 422, message: 'Google parameter is not valid' } };
   }
   return { data: userinfo };
 }
 
 export function checkValidCancelBookngInputs(
   cancelInputs: cancelBookingInputDto,
-  userId: string
+  userId: string,
 ): successErrorDto {
   if (!userId) {
     return { error: { status: 422, message: 'User Id is required' } };
   } else if (!cancelInputs.bookingid) {
     return { error: { status: 422, message: 'Booking Id is required' } };
-  } else if(cancelInputs.reason && !cancelInputs.reason.trim().length){
+  } else if (cancelInputs.reason && !cancelInputs.reason.trim().length) {
     return { error: { status: 422, message: 'Reason must be valid' } };
   }
   return { success: true };

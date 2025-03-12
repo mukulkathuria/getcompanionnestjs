@@ -158,6 +158,14 @@ export class UserSessionService {
       const endTime = dayjs(Number(bookingDetails.bookingend))
         .add(sessionDetails.extentedhours, 'hour')
         .valueOf();
+      if (!new Date(endTime).getHours() || new Date(endTime).getHours() < 10) {
+        return {
+          error: {
+            status: 422,
+            message: 'Sorry our services available in around 9-12 only',
+          },
+        };
+      }
       const companionuser = bookingDetails.User.find((l) => l.isCompanion);
 
       const isSlotAvailable = await this.prismaService.user.findMany({
@@ -170,6 +178,15 @@ export class UserSessionService {
               },
               bookingend: {
                 lt: dayjs(endTime).add(1, 'hour').valueOf(),
+              },
+              bookingstatus: {
+                in: [
+                  'ACCEPTED',
+                  'COMPLETED',
+                  'TRANSACTIONPENDING',
+                  'UNDERCANCELLATION',
+                  'UNDEREXTENSION',
+                ],
               },
             },
           },

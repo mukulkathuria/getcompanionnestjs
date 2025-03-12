@@ -162,22 +162,24 @@ model notification {
 }
 
 model location {
-  id                Int                  @id @default(autoincrement())
-  userid            String?
-  User              Companion?           @relation(fields: [userid], references: [id])
-  city              String?
-  zipcode           Int?
-  state             String?
-  lat               Float?
-  lng               Float?
-  userinput         String?
-  googleloc         String?
-  islocationupdated Boolean              @default(false)
-  basefrom          LocationBaseFromEnum @default(USER)
-  bookingid         Int?
-  Booking           Booking?             @relation(fields: [bookingid], references: [id])
-  createdAt         DateTime             @default(now())
-  updatedAt         DateTime             @updatedAt
+  id                    Int                  @id @default(autoincrement())
+  userid                String?
+  User                  Companion?           @relation(fields: [userid], references: [id])
+  city                  String?
+  zipcode               Int?
+  state                 String?
+  lat                   Float?
+  lng                   Float?
+  userinput             String?
+  googleloc             String?
+  googleplaceextra      Json?
+  googleformattedadress String?
+  islocationupdated     Boolean              @default(false)
+  basefrom              LocationBaseFromEnum @default(USER)
+  bookingid             Int?
+  Booking               Booking?             @relation(fields: [bookingid], references: [id])
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
 }
 
 model livelocation {
@@ -281,7 +283,7 @@ model Booking {
   cancelledReason     String?
   cancelledBy         String?
   cancelledAt         BigInt?
-  cancellationDetails User?                  @relation("cancellationDetails", fields: [cancelledBy], references: [id])
+  cancellationDetails User?                   @relation("cancellationDetails", fields: [cancelledBy], references: [id])
   extentedfinalrate   Float                   @default(0)
   extendedendtime     BigInt                  @default(0)
   Transactions        Transactions[]

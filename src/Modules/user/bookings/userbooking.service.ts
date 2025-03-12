@@ -60,8 +60,6 @@ export class UserBookingsService {
         include: {
           Booking: {
             orderBy: { bookingend: 'desc' },
-            skip: (pageNo - 1) * 5,
-            take: 5,
             include: {
               User: {
                 select: {
@@ -126,6 +124,15 @@ export class UserBookingsService {
               bookingend: {
                 lte: dayjs(endDate).add(1, 'hour').valueOf(),
               },
+              bookingstatus: {
+                in: [
+                  'ACCEPTED',
+                  'COMPLETED',
+                  'TRANSACTIONPENDING',
+                  'UNDERCANCELLATION',
+                  'UNDEREXTENSION',
+                ],
+              },
             },
           },
           Companion: true,
@@ -173,6 +180,10 @@ export class UserBookingsService {
               state: bookingDetails.bookinglocation.state,
               lat: bookingDetails.bookinglocation.lat,
               lng: bookingDetails.bookinglocation.lng,
+              googleformattedadress: bookingDetails.bookinglocation.formattedaddress,
+              googleloc: bookingDetails.bookinglocation.name,
+              googleplaceextra: bookingDetails.bookinglocation.googleextra,
+              userinput: bookingDetails.bookinglocation.userInput,
               basefrom: 'BOOKING',
             },
           },
@@ -191,11 +202,28 @@ export class UserBookingsService {
       if (!companionId) {
         return { error: { status: 422, message: 'companionid is required' } };
       }
-      const userdata = await this.prismaService.booking.findMany({
-        where: { bookingstart: { gt: Date.now() } },
-        include: { User: { where: { id: companionId, isCompanion: true } } },
+      const userDetails = await this.prismaService.user.findUnique({
+        where: { id: companionId },
+        include: {
+          Booking: {
+            where: {
+              bookingstart: { gt: Date.now() },
+              bookingstatus: {
+                in: [
+                  'ACCEPTED',
+                  'TRANSACTIONPENDING',
+                  'UNDERCANCELLATION',
+                  'UNDEREXTENSION',
+                ],
+              },
+            },
+          },
+        },
       });
-      const filtereddata = filterSlotAvailability(userdata);
+      if (!userDetails || !userDetails.isCompanion) {
+        return { error: { status: 422, message: 'Invalid User' } };
+      }
+      const filtereddata = filterSlotAvailability(userDetails.Booking);
       return { data: filtereddata };
     } catch (error) {
       this.logger.debug(error?.message || error);
@@ -540,6 +568,64 @@ export class UserBookingsService {
         users: l.User,
         id: l.id,
         purpose: l.bookingpurpose,
+      }));
+      return { data: filtervalues };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getpreviousBookingsForCompanion(userId: string, pageNo: number) {
+    try {
+      if (!userId) {
+        return { error: { status: 422, message: 'userId is required' } };
+      }
+      const data = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        include: {
+          Booking: {
+            where: {
+              bookingend: { lt: Date.now() },
+              bookingstatus: {
+                in: [
+                  'ACCEPTED',
+                  'CANCELLED',
+                  'CANCELLATIONAPPROVED',
+                  'COMPLETED',
+                  'REJECTED',
+                ],
+              },
+            },
+            orderBy: { bookingend: 'desc' },
+            include: {
+              User: {
+                select: {
+                  id: true,
+                  firstname: true,
+                  Images: true,
+                  age: true,
+                  gender: true,
+                },
+              },
+              Meetinglocation: { select: { city: true, state: true } },
+            },
+          },
+        },
+      });
+
+      if (!data || !data.Booking.length) {
+        return { error: { status: 404, message: 'No Bookings are available' } };
+      }
+      const filtervalues = data.Booking.map((l) => ({
+        bookingstart: String(l.bookingstart),
+        bookingend: String(l.bookingend),
+        status: l.bookingstatus,
+        amount: l.finalRate,
+        users: l.User,
+        id: l.id,
+        purpose: l.bookingpurpose,
+        meetinglocation: l.Meetinglocation,
       }));
       return { data: filtervalues };
     } catch (error) {

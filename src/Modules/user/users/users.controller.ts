@@ -61,18 +61,18 @@ export class DeleteUsersController {
     @Body() userinfo: UpdateUserProfileBodyDto,
     @UploadedFiles(new FileSizeValidationPipe())
     images: Express.Multer.File[],
-  ): Promise<controllerReturnDto> {
+  ) {
     if (!id.id || typeof id.id !== 'string') {
       throw new HttpException('Invalid User', 422);
     }
-    const { success, error } = await this.userservice.updateUserProfile(
+    const { data, error } = await this.userservice.updateUserProfile(
       userinfo,
       images,
       id.id,
     );
-    if (success) {
+    if (data) {
       return {
-        success,
+        data,
         message: 'User Updated successfully.',
       };
     } else {

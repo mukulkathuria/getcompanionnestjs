@@ -49,17 +49,24 @@ export class UsersService {
           error: { status: 422, message: 'Images more than 1 is not allowed' },
         };
       }
-      if(allimages.length){
+      if (allimages.length) {
         userdata['Images'] = allimages;
       }
-      // eslint-disable-next-line
-      await this.prismaService.user.update({
+      const userDetails = await this.prismaService.user.update({
         where: { id },
         data: {
           ...userdata,
         },
       });
-      return { success: true };
+      const sendData = {
+        email: userDetails.email,
+        role: userDetails?.role,
+        name: userDetails?.firstname + ' ' + userDetails?.lastname,
+        userId: userDetails?.id,
+        isCompanion: Boolean(userDetails?.isCompanion),
+        Images: userDetails.Images,
+      };
+      return { data: sendData };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
