@@ -11,10 +11,15 @@ import { addHours, convertToDateTime } from 'src/utils/common.utils';
 import * as dayjs from 'dayjs';
 import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
 import { validateRequestInput } from 'src/validations/companionrequest.validation';
+import emailTemplate from 'src/templates/email.template';
+import { NodeMailerService } from 'src/Services/nodemailer.service';
 
 @Injectable()
 export class AcceptanceService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly nodemailerService: NodeMailerService,
+  ) {}
   private readonly logger = new Logger(PrismaService.name);
 
   async acceptBooking(bookingId: number): Promise<controllerReturnDto> {
@@ -29,6 +34,9 @@ export class AcceptanceService {
               isCompanion: true,
               id: true,
             },
+          },
+          Meetinglocation: {
+            select: { googleformattedadress: true, googleloc: true },
           },
         },
       });
@@ -72,6 +80,23 @@ export class AcceptanceService {
           User: { connect: { id: userdata.id } },
         },
       });
+      const {
+        bookingconfirmation: { subject, body },
+      } = emailTemplate({
+        username: userdata.firstname,
+        companion_name: companiondata.firstname,
+        date_time: convertToDateTime(bookingDetails.bookingstart),
+        meetingpoint: bookingDetails.Meetinglocation[0].googleformattedadress,
+        otp: String(bookingDetails.OTP),
+      });
+      const { error: mailerror } = await this.nodemailerService.sendMail({
+        to: userdata.email,
+        html: body,
+        subject,
+      });
+      if (mailerror) {
+        console.log('Error on send email to user');
+      }
       return { success: true };
     } catch (error) {
       this.logger.error(error);
@@ -81,24 +106,28 @@ export class AcceptanceService {
     }
   }
 
-   async updateCancellationRequestStatus(bookingInput: statusUpdateInputDto) {
-      try {
-        const id = Number(bookingInput.id);
-        if (!id || typeof id !== 'number') {
-          return { error: { status: 422, message: 'Invalid companion search' } };
-        }
-        const { error } = validateRequestInput(bookingInput, 'Booking');
-        if (error) {
-          return { error };
-        }
-        await this.prismaService.booking.update({
-          where: { id },
-          data: { bookingstatus: bookingInput.approve ? 'CANCELLATIONAPPROVED' : 'ACCEPTED' },
-        });
-        return { success: true };
-      } catch (error) {
-        this.logger.error(error?.message || error);
-        return { error: { status: 500, message: 'Something went wrong' } };
+  async updateCancellationRequestStatus(bookingInput: statusUpdateInputDto) {
+    try {
+      const id = Number(bookingInput.id);
+      if (!id || typeof id !== 'number') {
+        return { error: { status: 422, message: 'Invalid companion search' } };
       }
+      const { error } = validateRequestInput(bookingInput, 'Booking');
+      if (error) {
+        return { error };
+      }
+      await this.prismaService.booking.update({
+        where: { id },
+        data: {
+          bookingstatus: bookingInput.approve
+            ? 'CANCELLATIONAPPROVED'
+            : 'ACCEPTED',
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return { error: { status: 500, message: 'Something went wrong' } };
     }
+  }
 }

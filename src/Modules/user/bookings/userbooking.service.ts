@@ -148,6 +148,7 @@ export class UserBookingsService {
           isSlotAvailable[0].Companion[0],
         ),
       };
+      console.log("While creating Whats the rate" , rates)
       // eslint-disable-next-line
       const data = await this.prismaService.booking.create({
         data: {
@@ -316,7 +317,6 @@ export class UserBookingsService {
       if (timeofcancellation < 24) {
         this.nodemailerService
           .sendMail({
-            from: process.env['BREVO_SENDER_EMAIL'],
             to: userdata.email,
             subject: usercancelbooking.subject,
             html: usercancelbooking.body,
@@ -327,7 +327,6 @@ export class UserBookingsService {
       } else {
         this.nodemailerService
           .sendMail({
-            from: process.env['BREVO_SENDER_EMAIL'],
             to: userdata.email,
             subject: refundprocess.subject,
             html: refundprocess.body,
@@ -363,6 +362,7 @@ export class UserBookingsService {
           },
           bookingduration: true,
           bookingrate: true,
+          finalRate: true,
           bookingdurationUnit: true,
           bookingstatus: true,
           id: true,

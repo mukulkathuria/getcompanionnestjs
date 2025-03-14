@@ -103,7 +103,7 @@ export enum Roles {
 }
 
 export interface sendMailInputDto {
-  from: string;
+  from?: string;
   to: string;
   subject: string;
   html: string;

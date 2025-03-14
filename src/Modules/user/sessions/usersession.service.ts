@@ -238,7 +238,14 @@ export class UserSessionService {
         .add(sessionDetails.extentedhours, 'hour')
         .valueOf();
       const companionuser = bookingDetails.User.find((l) => l.isCompanion);
-
+      if (!new Date(endTime).getHours() || new Date(endTime).getHours() < 10) {
+        return {
+          error: {
+            status: 422,
+            message: 'Sorry our services available in around 9-12 only',
+          },
+        };
+      }
       const isSlotAvailable = await this.prismaService.user.findMany({
         where: { id: companionuser.id, isCompanion: true },
         include: {

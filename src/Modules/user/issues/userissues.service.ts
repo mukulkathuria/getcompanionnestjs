@@ -7,7 +7,10 @@ import {
 } from 'src/dto/userissues.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import { getTxnId } from 'src/utils/uuid.utils';
-import { validateAddCommentonIssueInput, validateCreateIssueInput } from 'src/validations/userissues.validation';
+import {
+  validateAddCommentonIssueInput,
+  validateCreateIssueInput,
+} from 'src/validations/userissues.validation';
 
 @Injectable()
 export class UserIssuesServices {
@@ -53,7 +56,7 @@ export class UserIssuesServices {
               created: true,
               User: { select: { firstname: true, role: true } },
             },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: 'asc' },
           },
         },
       });
@@ -109,12 +112,18 @@ export class UserIssuesServices {
 
   async addCommentonIssue(
     commentInput: addCommentonIssueInputDto,
-    userId: string
+    userId: string,
   ): Promise<successErrorReturnDto> {
     try {
       const { error } = validateAddCommentonIssueInput(commentInput, userId);
       if (error) {
         return { error };
+      }
+      const ticketDetails = await this.prismaService.userissues.findUnique({
+        where: { id: commentInput.issueId },
+      });
+      if (!ticketDetails) {
+        return { error: { status: 422, message: 'Invalid Ticket' } };
       }
       const data = await this.prismaService.issuescomments.create({
         data: {

@@ -134,7 +134,6 @@ export class AuthService {
       } = emailTemplate({ username: user.firstname });
       this.nodemailerService
         .sendMail({
-          from: process.env['BREVO_SENDER_EMAIL'],
           to: user.email,
           subject,
           html: body,
@@ -252,7 +251,6 @@ export class AuthService {
       const subject = 'Reset Password Email';
       const message = 'YOU forgot your password here is your OTP: ' + OTP;
       const mailOptions = {
-        from: process.env.BREVO_SENDER_EMAIL,
         to: dto.email,
         subject: subject,
         html: message,
@@ -359,7 +357,6 @@ export class AuthService {
       } = emailTemplate({ username: collectedData.given_name });
       this.nodemailerService
         .sendMail({
-          from: process.env['BREVO_SENDER_EMAIL'],
           to: collectedData.email,
           subject,
           html: body,

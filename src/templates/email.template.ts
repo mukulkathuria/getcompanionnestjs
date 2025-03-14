@@ -90,6 +90,9 @@ export default function (params: emailTemplateDto) {
 
                     <p>Prepare for an experience that will linger in your thoughts long after it ends. We’re here to elevate your moments!</p>
                 </div>
+                <div>
+                <p> Share the OTP with your companion when start the session : <strong>${params.otp}</strong></p>
+                </div>
                 <div class="footer">
                     <p class="signature">With anticipation, <br> Zestful Amigos Team</p>
                 </div>

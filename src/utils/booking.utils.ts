@@ -1,38 +1,42 @@
 import { Booking, Companion } from '@prisma/client';
 import * as dayjs from 'dayjs';
-import { companionslotsavailabilityDto, userBookingBodyDto } from 'src/dto/bookings.dto';
+import {
+  companionslotsavailabilityDto,
+  userBookingBodyDto,
+} from 'src/dto/bookings.dto';
 
 export const getFinalRate = (
   userInfo: userBookingBodyDto,
   companion: Companion,
 ) => {
-  // minute // hour
+  let amount = 0;
   if (
     userInfo.bookingdurationUnit === 'HOUR' &&
     companion.bookingrateunit === 'PERHOUR'
   ) {
-    return userInfo.bookingduration * companion.bookingrate;
+    amount = userInfo.bookingduration * companion.bookingrate;
   } else if (
     userInfo.bookingdurationUnit === 'MINUTE' &&
     companion.bookingrateunit === 'PERMINUTE'
   ) {
-    return userInfo.bookingduration * companion.bookingrate;
+    amount = userInfo.bookingduration * companion.bookingrate;
   } else if (
     userInfo.bookingdurationUnit === 'MINUTE' &&
     companion.bookingrateunit === 'PERHOUR'
   ) {
-    return userInfo.bookingduration * 0.0166667 * companion.bookingrate;
+    amount = userInfo.bookingduration * 0.0166667 * companion.bookingrate;
   } else if (
     userInfo.bookingdurationUnit === 'HOUR' &&
     companion.bookingrateunit === 'PERMINUTE'
   ) {
-    return userInfo.bookingduration * 60 * companion.bookingrate;
+    amount = userInfo.bookingduration * 60 * companion.bookingrate;
   }
-  return userInfo.bookingduration * companion.bookingrate;
+  return amount + (amount * 0.18);
 };
 
-
-export const filterSlotAvailability = (bookingDetails: Booking[]): companionslotsavailabilityDto[] => {
+export const filterSlotAvailability = (
+  bookingDetails: Booking[],
+): companionslotsavailabilityDto[] => {
   const bookings = bookingDetails.map((l) => ({
     start: Number(String(l.bookingstart)),
     end: dayjs(Number(l.bookingend)).add(1, 'hour').valueOf(),
@@ -40,9 +44,8 @@ export const filterSlotAvailability = (bookingDetails: Booking[]): companionslot
   return bookings;
 };
 
-
 export const getAverageRatingRawQuery = (companionId: string) => {
-  return`
+  return `
   WITH product_stats AS (
     SELECT 
         r."rateeId",
@@ -72,5 +75,5 @@ SELECT
 	  ps.rating_count,
     (gs.global_avg * gs.global_rating_count + ps.total_ratings) / (gs.global_rating_count + ps.rating_count) AS bayesian_avg
 FROM product_stats ps, global_stats gs
-ORDER BY ps."rateeId"`
-}
+ORDER BY ps."rateeId"`;
+};

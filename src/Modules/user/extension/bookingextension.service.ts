@@ -25,11 +25,12 @@ export class BookingExtentionService {
       if (!data || data?.bookingstatus !== 'UNDEREXTENSION') {
         return { error: { status: 422, message: 'Booking not available' } };
       }
+      const amount = data.finalRate * (data.extendedhours || 1)
       const values = {
         id: data.id,
         bookingstart: String(data.bookingstart),
         bookingend: String(data.bookingend),
-        updatedrate: data.finalRate * (data.extendedhours || 1),
+        updatedrate: amount + (amount * 0.18),
         bookingpurpose: data.bookingpurpose,
         extendedhours: data.extendedhours,
         meetinglocation: data.Meetinglocation[0],

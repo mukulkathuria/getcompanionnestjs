@@ -5,7 +5,7 @@ import { sendMailInputDto } from 'src/dto/auth.module.dto';
 
 @Injectable()
 export class NodeMailerService {
-    private readonly client: Transporter<SMTPTransport.SentMessageInfo>;
+  private readonly client: Transporter<SMTPTransport.SentMessageInfo>;
   constructor() {
     this.client = createTransport({
       host: process.env.BREVO_HOST,
@@ -23,7 +23,8 @@ export class NodeMailerService {
 
   async sendMail(mailOptions: sendMailInputDto) {
     try {
-      const mailSent = await this.client.sendMail(mailOptions);
+      const from = mailOptions.from || process.env['BREVO_SENDER_EMAIL'];
+      const mailSent = await this.client.sendMail({ ...mailOptions, from });
       console.log(mailSent);
       if (mailSent) {
         return {
@@ -38,7 +39,7 @@ export class NodeMailerService {
         };
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return {
         error: {
           status: 500,
