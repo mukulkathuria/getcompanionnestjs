@@ -6,6 +6,7 @@ import {
   // sendFileDto,
 } from './dto/joinroom.dto';
 import { PrismaService } from 'src/Services/prisma.service';
+import { validateMessage } from './validations/chat.validations';
 
 @Injectable()
 export class ChatService {
@@ -16,10 +17,9 @@ export class ChatService {
     const { userid, roomid } = roomuser;
     try {
       const data = await this.prismaService.message.findMany({
-        where: { chatroomid: roomid },
+        where: { chatroomid: roomid, isHide: { equals: false } },
         select: {
           id: true,
-          isHide: true,
           senderid: true,
           body: true,
           createdAt: true,
@@ -61,24 +61,25 @@ export class ChatService {
     const { roomid, message } = roomuser;
     try {
       const data = await this.prismaService.message.findMany({
-        where: { chatroomid: roomid },
+        where: { chatroomid: roomid , isHide:{ equals: false }},
         select: {
           id: true,
-          isHide: true,
           senderid: true,
           body: true,
           createdAt: true,
         },
         orderBy: { createdAt: 'asc' },
       });
+      const { error } = validateMessage(message.content);
       const AddMessageChat = await this.prismaService.message.create({
         data: {
           body: message.content,
           senderid: message.sender,
           chatroomid: roomid,
+          isHide: Boolean(error),
         },
       });
-      const updatedMessges = [...data, AddMessageChat];
+      const updatedMessges = error ? [...data] : [...data, AddMessageChat];
       return { userData: updatedMessges };
     } catch (error) {
       this.logger.error(error?.message || error);

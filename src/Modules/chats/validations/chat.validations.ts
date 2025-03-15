@@ -4,6 +4,7 @@ import {
   messageRoomDto,
   sendFileDto,
 } from '../dto/joinroom.dto';
+import { cuzzwords } from './chat.data';
 
 export const joinedRoomValidation = (roomdata: joinedRoomDto) => {
   const { roomid, userid } = roomdata;
@@ -42,3 +43,14 @@ export const fileSendValidation = (roomdata: sendFileDto) => {
   }
   return { user: roomdata };
 };
+
+export function containsWord(array: string[], inputString: string) {
+  return array.some((word) => inputString.toLocaleLowerCase().includes(word));
+}
+
+export function validateMessage(message: string){
+  if(containsWord(cuzzwords, message)){
+    return { error: 'Contains Cuzz words' }
+  }
+  return { success: true }
+}

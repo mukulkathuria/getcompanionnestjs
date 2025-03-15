@@ -512,7 +512,9 @@ export class UserBookingsService {
                   gender: true,
                 },
               },
-              Meetinglocation: { select: { city: true, state: true } },
+              Meetinglocation: {
+                select: { googleloc: true, googleformattedadress: true },
+              },
             },
           },
         },
@@ -529,7 +531,10 @@ export class UserBookingsService {
         users: l.User,
         id: l.id,
         purpose: l.bookingpurpose,
-        meetinglocation: l.Meetinglocation,
+        meetinglocation: {
+          address: l.Meetinglocation[0].googleformattedadress,
+          name: l.Meetinglocation[0].googleloc,
+        },
       }));
       return { data: filtervalues };
     } catch (error) {
@@ -584,7 +589,10 @@ export class UserBookingsService {
     }
   }
 
-  async getpreviousBookingsForCompanion(userId: string, params: pageNoQueryDto) {
+  async getpreviousBookingsForCompanion(
+    userId: string,
+    params: pageNoQueryDto,
+  ) {
     try {
       if (!userId) {
         return { error: { status: 422, message: 'userId is required' } };
