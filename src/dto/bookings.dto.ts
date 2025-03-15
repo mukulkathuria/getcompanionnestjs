@@ -37,7 +37,7 @@ export interface BookingMeetingLocationDto {
   name: string;
   userInput: string;
   formattedaddress: string;
-  googleextra: object
+  googleextra: object;
 }
 
 export interface userBookingBodyDto {
@@ -84,4 +84,8 @@ export interface updateextensionbokingInputDto {
   extentedfinalrate: number;
   updatedLocation?: string;
   updatedPurpose?: string;
+}
+
+export interface pageNoQueryDto {
+  pageNo: string;
 }

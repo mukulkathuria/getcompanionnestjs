@@ -6,6 +6,7 @@ import {
   BookingStatusEnum,
   cancelBookingInputDto,
   NotificationFromModuleEnum,
+  pageNoQueryDto,
   userBookingBodyDto,
   UserBookingReturnDto,
   userRatingDto,
@@ -50,15 +51,17 @@ export class UserBookingsService {
     }
   }
 
-  async getpreviousBookingsForUser(userId: string, pageNo: number) {
+  async getpreviousBookingsForUser(userId: string, params: pageNoQueryDto) {
     try {
       if (!userId) {
         return { error: { status: 422, message: 'userId is required' } };
       }
+      const pageNo = Number(params.pageNo) || 1;
       const data = await this.prismaService.user.findUnique({
         where: { id: userId },
         include: {
           Booking: {
+            where: { bookingend: { lt: Date.now() } },
             orderBy: { bookingend: 'desc' },
             include: {
               User: {
@@ -71,7 +74,6 @@ export class UserBookingsService {
                   gender: true,
                 },
               },
-              Meetinglocation: { select: { city: true, state: true } },
             },
           },
         },
@@ -88,9 +90,14 @@ export class UserBookingsService {
         users: l.User,
         id: l.id,
         purpose: l.bookingpurpose,
-        meetinglocation: l.Meetinglocation,
       }));
-      return { data: filtervalues };
+      const finalvalue = {
+        totalPages: Math.ceil(filtervalues.length / 5),
+        limit: 5,
+        currentPage: pageNo,
+        bookings: filtervalues.slice((pageNo - 1) * 5, pageNo * 5),
+      };
+      return { data: finalvalue };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -148,7 +155,7 @@ export class UserBookingsService {
           isSlotAvailable[0].Companion[0],
         ),
       };
-      console.log("While creating Whats the rate" , rates)
+      console.log('While creating Whats the rate', rates);
       // eslint-disable-next-line
       const data = await this.prismaService.booking.create({
         data: {
@@ -181,7 +188,8 @@ export class UserBookingsService {
               state: bookingDetails.bookinglocation.state,
               lat: bookingDetails.bookinglocation.lat,
               lng: bookingDetails.bookinglocation.lng,
-              googleformattedadress: bookingDetails.bookinglocation.formattedaddress,
+              googleformattedadress:
+                bookingDetails.bookinglocation.formattedaddress,
               googleloc: bookingDetails.bookinglocation.name,
               googleplaceextra: bookingDetails.bookinglocation.googleextra,
               userinput: bookingDetails.bookinglocation.userInput,
@@ -576,11 +584,12 @@ export class UserBookingsService {
     }
   }
 
-  async getpreviousBookingsForCompanion(userId: string, pageNo: number) {
+  async getpreviousBookingsForCompanion(userId: string, params: pageNoQueryDto) {
     try {
       if (!userId) {
         return { error: { status: 422, message: 'userId is required' } };
       }
+      const pageNo = Number(params.pageNo) || 1;
       const data = await this.prismaService.user.findUnique({
         where: { id: userId },
         include: {
@@ -606,6 +615,7 @@ export class UserBookingsService {
                   Images: true,
                   age: true,
                   gender: true,
+                  isCompanion: true,
                 },
               },
               Meetinglocation: { select: { city: true, state: true } },
@@ -627,7 +637,13 @@ export class UserBookingsService {
         purpose: l.bookingpurpose,
         meetinglocation: l.Meetinglocation,
       }));
-      return { data: filtervalues };
+      const finalvalue = {
+        totalPages: Math.ceil(filtervalues.length / 5),
+        limit: 5,
+        currentPage: pageNo,
+        bookings: filtervalues.slice((pageNo - 1) * 5, pageNo * 5),
+      };
+      return { data: finalvalue };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

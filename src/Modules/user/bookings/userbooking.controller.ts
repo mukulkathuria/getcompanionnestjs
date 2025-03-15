@@ -18,6 +18,7 @@ import { AuthGuard } from 'src/guards/jwt.guard';
 import {
   bookingIdDto,
   cancelBookingInputDto,
+  pageNoQueryDto,
   ratingInputDto,
   userBookingBodyDto,
 } from 'src/dto/bookings.dto';
@@ -45,7 +46,10 @@ export class UserBookingController {
 
   @UseGuards(AuthGuard)
   @Get(UserBookingInnerRoute.previousbookings)
-  async getpreviousbookingcontroller(@Req() req: Request) {
+  async getpreviousbookingcontroller(
+    @Req() req: Request,
+    @Query() params: pageNoQueryDto,
+  ) {
     const { data: tokendata, error: TokenError } = decodeExpressRequest(req);
     if (TokenError) {
       throw new HttpException('Invalid User', 403);
@@ -53,7 +57,7 @@ export class UserBookingController {
     const { data, error } =
       await this.userbookingservice.getpreviousBookingsForUser(
         tokendata.userId,
-        1
+        params,
       );
     if (data) {
       return {
@@ -231,7 +235,7 @@ export class UserBookingController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(UserBookingInnerRoute.previousbookings)
+  @Get(UserBookingInnerRoute.getupcomingbookingforuser)
   async getupcomingbookingforuserController(@Req() req: Request) {
     const { data: tokendata, error: TokenError } = decodeExpressRequest(req);
     if (TokenError) {
@@ -240,6 +244,30 @@ export class UserBookingController {
     const { data, error } =
       await this.userbookingservice.getUpcomingBookingsForUser(
         tokendata.userId,
+      );
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(UserBookingInnerRoute.getpreviousbookingforcompanion)
+  async getpreviousbookingforcompanionController(
+    @Req() req: Request,
+    @Query() params: pageNoQueryDto,
+  ) {
+    const { data: tokendata, error: TokenError } = decodeExpressRequest(req);
+    if (TokenError) {
+      throw new HttpException('Invalid User', 403);
+    }
+    const { data, error } =
+      await this.userbookingservice.getpreviousBookingsForCompanion(
+        tokendata.userId,
+        params,
       );
     if (data) {
       return {

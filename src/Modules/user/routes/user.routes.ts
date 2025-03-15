@@ -45,6 +45,7 @@ export const UserBookingInnerRoute = {
   getAverageRating: 'getaveragerating',
   getupcomingbookingforcompanion: 'getupcomingbookingforcompanion',
   getupcomingbookingforuser: 'getupcomingbookingforuser',
+  getpreviousbookingforcompanion: 'getpreviousbookingforcompanion'
 };
 
 export const UserSessionInnerRoute = {
