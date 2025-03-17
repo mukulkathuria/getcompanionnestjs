@@ -102,9 +102,18 @@ export class AdminIssuesController {
 
   @UseGuards(AdminGuard)
   @Post(AdminIssuesInnerRoutes.addcommentonIssueRoute)
+  @UseInterceptors(
+    FilesInterceptor(
+      'images',
+      USERISSUEIMAGESMAXCOUNT,
+      UserIssuesImageMulterConfig,
+    ),
+  )
   async addCommentonIssueController(
     @Body() commentIput: addCommentonIssueInputDto,
-    @Req() req: Request
+    @UploadedFiles(new FileSizeValidationPipe())
+    images: Express.Multer.File[],
+    @Req() req: Request,
   ) {
     const { decodeExpressRequest } = await import(
       '../../../guards/strategies/jwt.strategy'
@@ -115,6 +124,7 @@ export class AdminIssuesController {
         await this.adminissuesservices.addCommentonIssue(
           commentIput,
           data.userId,
+          images
         );
       if (success) {
         return {

@@ -113,12 +113,19 @@ export class UserIssuesServices {
   async addCommentonIssue(
     commentInput: addCommentonIssueInputDto,
     userId: string,
+    images: Express.Multer.File[],
   ): Promise<successErrorReturnDto> {
     try {
       const { error } = validateAddCommentonIssueInput(commentInput, userId);
       if (error) {
         return { error };
       }
+      if (images.length > 4) {
+        return {
+          error: { status: 422, message: 'You can attach max 4 screenshot' },
+        };
+      }
+      const allimages = images.map((l) => l.destination + '/' + l.filename);
       const ticketDetails = await this.prismaService.userissues.findUnique({
         where: { id: commentInput.issueId },
       });
@@ -128,6 +135,7 @@ export class UserIssuesServices {
       const data = await this.prismaService.issuescomments.create({
         data: {
           comment: commentInput.comment,
+          screenshots: allimages,
           User: { connect: { id: userId } },
           UserIssue: { connect: { id: commentInput.issueId } },
           created: Date.now(),

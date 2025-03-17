@@ -11,7 +11,7 @@ import {
   UpdateCompanionProfileBodyDto,
 } from 'src/dto/user.dto';
 import { PrismaService } from 'src/Services/prisma.service';
-import { getdefaultexpirydate, subDays } from 'src/utils/common.utils';
+import { getdefaultexpirydate, getUniqueValue, subDays } from 'src/utils/common.utils';
 import { encrypt } from 'src/utils/crypt.utils';
 import {
   validatepreviousImages,
@@ -396,19 +396,14 @@ export class CompanionService {
       const value = {
         ...data[0],
         last24hoursbookings: data[0].last24hoursbookings
-          ? Array.from(
-              new Map(
-                data[0].last24hoursbookings.map((item) => [item.id, item]),
-              ).values(),
-            )
+          ? getUniqueValue(data[0].last24hoursbookings)
           : data[0].last24hoursbookings,
         last7daysbookings: data[0].last7daysbookings
-          ? Array.from(
-              new Map(
-                data[0].last7daysbookings.map((item) => [item.id, item]),
-              ).values(),
-            )
+          ? getUniqueValue(data[0].last7daysbookings)
           : data[0].last7daysbookings,
+          last30daysbookings: data[0].last30daysbookings
+          ? getUniqueValue(data[0].last30daysbookings)
+          : data[0].last30daysbookings,
       };
       return { data: value };
     } catch (error) {

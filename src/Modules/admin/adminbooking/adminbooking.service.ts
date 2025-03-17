@@ -48,13 +48,32 @@ export class AdminBookingService {
       const data = await this.prismaService.booking.findUnique({
         where: { id: bookingId },
         select: {
-          Meetinglocation: { select: { lat: true, lng: true, city: true } },
+          Meetinglocation: {
+            select: {
+              lat: true,
+              lng: true,
+              city: true,
+              googleformattedadress: true,
+              googleloc: true,
+            },
+          },
           User: {
             select: {
               firstname: true,
               lastname: true,
               age: true,
               Images: true,
+              gender: true,
+              isCompanion: true,
+            },
+          },
+          cancellationDetails: {
+            select: {
+              firstname: true,
+              lastname: true,
+              age: true,
+              Images: true,
+              gender: true,
               isCompanion: true,
             },
           },
@@ -72,6 +91,12 @@ export class AdminBookingService {
               amount: true,
               txnid: true,
               transactionTime: true,
+            },
+          },
+          rating: {
+            select: {
+              rater: { select: { firstname: true, isCompanion: true } },
+              ratee: { select: { firstname: true, isCompanion: true } },
             },
           },
         },

@@ -15,7 +15,6 @@ export const subDays = (days: number): any => {
   date.setDate(date.getDate() - days);
   date.setHours(0);
   date.setMinutes(0);
-  console.log(date.toString());
   return date.valueOf();
 };
 
@@ -104,4 +103,16 @@ export function addHours(hour: number, hourorminute?: dayjs.ManipulateType) {
 
 export function convertToDateTime(date: bigint) {
   return dayjs(Number(date)).format('DD/MM/YYYY HH:mm');
+}
+
+export function getUniqueValue(arr: any[]) {
+  const keysexists = {};
+  const results = [];
+  for (let i = 0; i < arr.length; i += 1) {
+    if (!keysexists[arr[i].id]) {
+      keysexists[arr[i].id] = 1;
+      results.push(arr[i]);
+    }
+  }
+  return results;
 }

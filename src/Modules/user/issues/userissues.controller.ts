@@ -109,8 +109,17 @@ export class UserIssuesController {
 
   @UseGuards(AuthGuard)
   @Post(UserIssuesInnerRoutes.addcommentonIssueRoute)
+  @UseInterceptors(
+    FilesInterceptor(
+      'images',
+      USERISSUEIMAGESMAXCOUNT,
+      UserIssuesImageMulterConfig,
+    ),
+  )
   async addCommentonIssueController(
     @Body() commentIput: addCommentonIssueInputDto,
+    @UploadedFiles(new FileSizeValidationPipe())
+    images: Express.Multer.File[],
     @Req() req: Request,
   ) {
     const { decodeExpressRequest } = await import(
@@ -122,6 +131,7 @@ export class UserIssuesController {
         await this.userissuesservices.addCommentonIssue(
           commentIput,
           data.userId,
+          images
         );
       if (success) {
         return {

@@ -80,11 +80,11 @@ ORDER BY ps."rateeId"`;
 
 export const getCompanionDetailsQueryforupdateRate = (companionId: string) => {
   return `
-    SELECT
+     SELECT
   	c.id,
     c."Images",
-	  c."firstname",
-	  c."lastname",
+    c."firstname",
+    c."lastname",
     c."gender",
     c."age",
     l."city",
@@ -97,7 +97,7 @@ export const getCompanionDetailsQueryforupdateRate = (companionId: string) => {
       -- Last 24 Hours Bookings
       JSON_AGG(
         JSON_BUILD_OBJECT(
-          'id', b."id",
+        'id', b."id",
           'bookingstart', b."bookingstart",
           'bookingend', b."bookingend"
         )
@@ -105,11 +105,18 @@ export const getCompanionDetailsQueryforupdateRate = (companionId: string) => {
       -- Last 7 Days Bookings
       JSON_AGG(
         JSON_BUILD_OBJECT(
-          'id', b."id",
+        'id', b."id",
           'bookingstart', b."bookingstart",
           'bookingend', b."bookingend"
         )
-      ) FILTER (WHERE TO_TIMESTAMP(b."bookingstart" / 1000) >= NOW() - INTERVAL '7 days') AS last7DaysBookings
+      ) FILTER (WHERE TO_TIMESTAMP(b."bookingstart" / 1000) >= NOW() - INTERVAL '7 days') AS last7DaysBookings,
+    JSON_AGG(
+        JSON_BUILD_OBJECT(
+        'id', b."id",
+          'bookingstart', b."bookingstart",
+          'bookingend', b."bookingend"
+        )
+      ) FILTER (WHERE TO_TIMESTAMP(b."bookingstart" / 1000) >= NOW() - INTERVAL '30 days') AS last30DaysBookings
     FROM "User" c
     LEFT JOIN "_BookingToUser" cb ON c."id" = cb."B"
     LEFT JOIN "Booking" b ON cb."A" = b."id"
