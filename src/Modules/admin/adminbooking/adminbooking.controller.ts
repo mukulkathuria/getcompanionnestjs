@@ -89,4 +89,18 @@ export class AdminBookingController {
       throw new HttpException(error.message, error.status);
     }
   }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminBookingInnerRoutes.getcancelledbookinglistofuserroute)
+  async getCancellationRequesListofUserController() {
+    const { data, error } =
+      await this.adminbookingservice.getCancellationRequesListofUser();
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }

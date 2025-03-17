@@ -11,12 +11,12 @@ export const addDays = (days: number, date?: Date): Date => {
 };
 
 export const subDays = (days: number): any => {
-  const date = dayjs();
-  date.subtract(days, 'days');
-  date.set('hour', 0);
-  date.set('minute', 0);
-  date.set('second', 0);
-  return dayjs(date).format();
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  date.setHours(0);
+  date.setMinutes(0);
+  console.log(date.toString());
+  return date.valueOf();
 };
 
 function toRad(Value: number) {

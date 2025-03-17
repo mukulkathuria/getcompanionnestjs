@@ -156,6 +156,25 @@ export class AdminBookingService {
     }
   }
 
+  async getCancellationRequesListofUser() {
+    try {
+      const data = await this.prismaService.booking.findMany({
+        where: {
+          User: { every: { isCompanion: { equals: false } } },
+          bookingstatus: 'CANCELLED',
+          Transactions: { none: { status: 'REFUNDED' } },
+        },
+        select: { User: { select: { firstname: true } } },
+      });
+      return { data };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
   async getExtensionRequest() {
     try {
       const data = await this.prismaService.booking.findMany({

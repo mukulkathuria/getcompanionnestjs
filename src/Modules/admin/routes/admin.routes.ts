@@ -15,6 +15,7 @@ export const AdminBookingInnerRoutes = {
     getallbookinglistroute: 'getallbookinglist',
     getcancelledbookinglistroute: 'getcancelledbookinglist',
     getunderextensionbookinglistroute: 'getunderextensionbookinglist',
+    getcancelledbookinglistofuserroute: 'getcancelledbookinglistofuser'
 }
 
 export const AdminIssuesInnerRoutes = {
@@ -35,6 +36,9 @@ export const AdminCompanionInnerRoutes = {
     getcompanionupdaterequestlistroute: 'getcompanionupdaterequestlist',
     updatecompaniondetailsroute: 'updatecompaniondetails/:id',
     updateCompanionRequestStatusRoute: 'updatecompanionrequeststatus',
+    getlompanionlistbylocationRoute: 'getcompanionlistbylocation',
+    getcompaniondetailsforupdaterateRoute: 'getcompaniondetailsforupdaterate',
+    getnewcompanionrequestlistRoute: 'getnewcompanionrequestlist', 
 }
 
 export const AdminAcceptanceInnerRoute = {

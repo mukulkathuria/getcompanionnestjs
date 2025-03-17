@@ -11,7 +11,7 @@ import {
   UpdateCompanionProfileBodyDto,
 } from 'src/dto/user.dto';
 import { PrismaService } from 'src/Services/prisma.service';
-import { getdefaultexpirydate } from 'src/utils/common.utils';
+import { getdefaultexpirydate, subDays } from 'src/utils/common.utils';
 import { encrypt } from 'src/utils/crypt.utils';
 import {
   validatepreviousImages,
@@ -339,6 +339,102 @@ export class CompanionService {
     } catch (error) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
+    }
+  }
+
+  async getCompanionListByLocation() {
+    try {
+      const data = await this.prismaService.user.findMany({
+        where: {
+          isCompanion: true,
+          Companion: {
+            every: {
+              baselocation: { every: { city: 'Mumbai', state: 'Maharashtra' } },
+            },
+          },
+        },
+        select: {
+          id: true,
+          firstname: true,
+          gender: true,
+          Images: true,
+          Companion: { select: { bookingrate: true } },
+          age: true,
+          Booking: {
+            where: {
+              bookingstart: { gt: subDays(7) },
+              bookingstatus: { in: ['ACCEPTED', 'COMPLETED'] },
+            },
+            select: { bookingduration: true },
+          },
+          ratingsReceived: { select: { ratings: true } },
+        },
+      });
+      const values = data.map((l) => ({
+        ...l,
+        Companion: l.Companion[0].bookingrate,
+        Booking: l.Booking.reduce((a, b) => a + b.bookingduration, 0),
+        ratingsReceived: l.ratingsReceived.reduce((a, b) => a + b.ratings, 0),
+        totalRatings: l.ratingsReceived.length,
+      }));
+      return { data: values };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
+  async getCompanionDetailsforupdateRate(id: string) {
+    try {
+      const { getCompanionDetailsQueryforupdateRate } = await import(
+        '../../../utils/booking.utils'
+      );
+      const query = getCompanionDetailsQueryforupdateRate(id);
+      const data = (await this.prismaService.$queryRawUnsafe(query)) as any;
+      const value = {
+        ...data[0],
+        last24hoursbookings: data[0].last24hoursbookings
+          ? Array.from(
+              new Map(
+                data[0].last24hoursbookings.map((item) => [item.id, item]),
+              ).values(),
+            )
+          : data[0].last24hoursbookings,
+        last7daysbookings: data[0].last7daysbookings
+          ? Array.from(
+              new Map(
+                data[0].last7daysbookings.map((item) => [item.id, item]),
+              ).values(),
+            )
+          : data[0].last7daysbookings,
+      };
+      return { data: value };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
+  async getnewCompanionRequestlist() {
+    try {
+      const data = await this.prismaService.companionrequests.findMany({
+        where: { status: 'ACTIVE' },
+      });
+      const values = data.map((l) => ({
+        ...l,
+        phoneNo: String(l.phoneNo),
+        createdAt: String(l.createdAt),
+      }));
+      return { data: values };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
     }
   }
 }

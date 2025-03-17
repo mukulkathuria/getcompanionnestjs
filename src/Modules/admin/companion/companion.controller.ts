@@ -30,6 +30,7 @@ import {
 } from '../routes/admin.routes';
 import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
 import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
+import { companionDetailsQuery } from 'src/dto/companionfind.dto';
 
 @Controller(AdminUserProfileRoute)
 export class CompanionController {
@@ -164,6 +165,58 @@ export class CompanionController {
       return {
         success,
         message: 'Companion Updated successfully.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminCompanionInnerRoutes.getlompanionlistbylocationRoute)
+  async getCompanionListByLocationController() {
+    const { data, error } =
+      await this.companionservice.getCompanionListByLocation();
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminCompanionInnerRoutes.getcompaniondetailsforupdaterateRoute)
+  async getCompanionDetailsforupdateRateController(
+    @Query() queryparams: companionDetailsQuery,
+  ) {
+    if (
+      !queryparams.companionId ||
+      typeof queryparams.companionId !== 'string'
+    ) {
+      throw new HttpException('Invalid Companion', 422);
+    }
+    const { data, error } =
+      await this.companionservice.getCompanionDetailsforupdateRate(
+        queryparams.companionId,
+      );
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminCompanionInnerRoutes.getnewcompanionrequestlistRoute)
+  async getnewCompanionRequestlistController() {
+    const { data, error } =
+      await this.companionservice.getnewCompanionRequestlist();
+    if (data) {
+      return {
+        data,
       };
     } else {
       throw new HttpException(error.message, error.status);
