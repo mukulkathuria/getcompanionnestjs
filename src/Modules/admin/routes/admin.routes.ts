@@ -38,7 +38,9 @@ export const AdminCompanionInnerRoutes = {
     updateCompanionRequestStatusRoute: 'updatecompanionrequeststatus',
     getlompanionlistbylocationRoute: 'getcompanionlistbylocation',
     getcompaniondetailsforupdaterateRoute: 'getcompaniondetailsforupdaterate',
-    getnewcompanionrequestlistRoute: 'getnewcompanionrequestlist', 
+    getnewcompanionrequestlistRoute: 'getnewcompanionrequestlist',
+    getnewcompanionrequestdetailsRoute: 'getnewcompanionrequestdetails',
+    updatecompanionbasepriceRoute: 'updatecompanionbaseprice/:id' 
 }
 
 export const AdminAcceptanceInnerRoute = {

@@ -74,6 +74,7 @@ export class UserBookingsService {
                   gender: true,
                 },
               },
+              Sessions: { select: { sessionStartTime: true } },
             },
           },
         },
@@ -248,10 +249,17 @@ export class UserBookingsService {
       }
       const bookingDetails = await this.prismaService.booking.findUnique({
         where: { id: input.bookingid },
-        include: { User: true },
+        include: { User: true, Sessions: true },
       });
       if (!bookingDetails || bookingDetails.bookingstart <= Date.now()) {
         return { error: { status: 404, message: 'No Bookings found' } };
+      } else if (bookingDetails.Sessions.length) {
+        return {
+          error: {
+            status: 404,
+            message: 'Session already in progress state now you cant cancel',
+          },
+        };
       }
       const cancelledByCompanion = bookingDetails.User.find(
         (l) => l.id === userId,
@@ -515,6 +523,7 @@ export class UserBookingsService {
               Meetinglocation: {
                 select: { googleloc: true, googleformattedadress: true },
               },
+              Sessions: { select: { sessionStartTime: true } },
             },
           },
         },
@@ -565,6 +574,7 @@ export class UserBookingsService {
                   gender: true,
                 },
               },
+              Sessions: { select: { sessionStartTime: true } },
             },
           },
         },
@@ -626,7 +636,10 @@ export class UserBookingsService {
                   isCompanion: true,
                 },
               },
-              Meetinglocation: { select: { city: true, state: true } },
+              Meetinglocation: {
+                select: { googleloc: true, googleformattedadress: true },
+              },
+              Sessions: { select: { sessionStartTime: true } },
             },
           },
         },

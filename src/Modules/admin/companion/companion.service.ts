@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
+import {
+  statusUpdateInputDto,
+  updateCompanionPriceInputDto,
+} from 'src/dto/admin.module.dto';
 import {
   AccountEnum,
   previousImagesDto,
@@ -11,7 +14,11 @@ import {
   UpdateCompanionProfileBodyDto,
 } from 'src/dto/user.dto';
 import { PrismaService } from 'src/Services/prisma.service';
-import { getdefaultexpirydate, getUniqueValue, subDays } from 'src/utils/common.utils';
+import {
+  getdefaultexpirydate,
+  getUniqueValue,
+  subDays,
+} from 'src/utils/common.utils';
 import { encrypt } from 'src/utils/crypt.utils';
 import {
   validatepreviousImages,
@@ -401,7 +408,7 @@ export class CompanionService {
         last7daysbookings: data[0].last7daysbookings
           ? getUniqueValue(data[0].last7daysbookings)
           : data[0].last7daysbookings,
-          last30daysbookings: data[0].last30daysbookings
+        last30daysbookings: data[0].last30daysbookings
           ? getUniqueValue(data[0].last30daysbookings)
           : data[0].last30daysbookings,
       };
@@ -420,11 +427,67 @@ export class CompanionService {
         where: { status: 'ACTIVE' },
       });
       const values = data.map((l) => ({
-        ...l,
-        phoneNo: String(l.phoneNo),
-        createdAt: String(l.createdAt),
+        id: l.id,
+        firstname: l.firstname,
+        email: l.email,
+        age: l.age,
+        images: l.photos,
+        gender: l.gender,
       }));
       return { data: values };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
+  async getnewCompanionRequestDetails(id: number) {
+    try {
+      const data = await this.prismaService.companionrequests.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          firstname: true,
+          lastname: true,
+          email: true,
+          phoneNo: true,
+          photos: true,
+          age: true,
+        },
+      });
+      if (!data) {
+        return { error: { status: 404, message: 'Companion not found' } };
+      }
+      const values = { ...data, phoneNo: String(data.phoneNo) };
+      return { data: values };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
+  async updateCompanionBasePrice(
+    inputs: updateCompanionPriceInputDto,
+    id: string,
+  ): Promise<successErrorDto> {
+    try {
+      if (!id || !id.trim().length) {
+        return { error: { status: 422, message: 'Companion Id is required' } };
+      } else if (
+        !inputs.updatedprice ||
+        typeof inputs.updatedprice !== 'number'
+      ) {
+        return { error: { status: 422, message: 'Invalid updated price' } };
+      }
+      await this.prismaService.companion.update({
+        where: { userid: id },
+        data: { bookingrate: inputs.updatedprice },
+      });
+      return { success: true };
     } catch (error) {
       this.logger.error(error?.message || error);
       return {

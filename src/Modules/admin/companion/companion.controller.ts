@@ -29,7 +29,7 @@ import {
   AdminUserProfileRoute,
 } from '../routes/admin.routes';
 import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
-import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
+import { statusUpdateInputDto, updateCompanionPriceInputDto } from 'src/dto/admin.module.dto';
 import { companionDetailsQuery } from 'src/dto/companionfind.dto';
 
 @Controller(AdminUserProfileRoute)
@@ -217,6 +217,55 @@ export class CompanionController {
     if (data) {
       return {
         data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminCompanionInnerRoutes.getnewcompanionrequestdetailsRoute)
+  async getnewCompanionRequestDetailsController(
+    @Query() queryparams: companionDetailsQuery,
+  ) {
+    if (
+      !queryparams.companionId ||
+      typeof queryparams.companionId !== 'string'
+    ) {
+      throw new HttpException('Invalid Companion', 422);
+    }
+    const { data, error } =
+      await this.companionservice.getnewCompanionRequestDetails(
+        Number(queryparams.companionId),
+      );
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Post(AdminCompanionInnerRoutes.updatecompanionbasepriceRoute)
+  @HttpCode(200)
+  async updatecompanionBasePriceController(
+    @Param() id: UserProfileParamsDto,
+    @Body() inputs: updateCompanionPriceInputDto,
+  ): Promise<controllerReturnDto> {
+    if (!id.id || typeof id.id !== 'string') {
+      throw new HttpException('Invalid User', 422);
+    }
+    const { success, error } =
+      await this.companionservice.updateCompanionBasePrice(
+        inputs,
+        id.id,
+      );
+    if (success) {
+      return {
+        success,
+        message: 'Companion Updated successfully.',
       };
     } else {
       throw new HttpException(error.message, error.status);
