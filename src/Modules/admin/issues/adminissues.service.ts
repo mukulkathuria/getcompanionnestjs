@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
 import { successErrorReturnDto } from 'src/dto/common.dto';
 import {
   addCommentonIssueInputDto,
@@ -7,6 +8,7 @@ import {
 } from 'src/dto/userissues.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import { getTxnId } from 'src/utils/uuid.utils';
+import { validateRequestInput } from 'src/validations/companionrequest.validation';
 import {
   validateAddCommentonIssueInput,
   validateCreateIssueInput,
@@ -145,6 +147,29 @@ export class AdminIssuesServices {
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async updateIssueStatus(issueId: statusUpdateInputDto) {
+    try {
+      const id = issueId.id;
+      if (!id || !id.trim().length) {
+        return { error: { status: 422, message: 'Invalid Issue search' } };
+      }
+      const { error } = validateRequestInput(issueId, 'Issue');
+      if (error) {
+        return { error };
+      }
+      await this.prismaService.userissues.update({
+        where: { id },
+        data: {
+          status: issueId.approve ? 'RESOLVED' : 'REJECTED',
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return { error: { status: 500, message: 'Something went wrong' } };
     }
   }
 }

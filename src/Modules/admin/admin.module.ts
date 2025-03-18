@@ -5,6 +5,7 @@ import { AdminBookingModule } from './adminbooking/adminbooking.module';
 import { S3Service } from 'src/Services/s3.service';
 import { AdminIssuesModule } from './issues/adminissues.module';
 import { AdminNotificationModule } from './notifications/adminnotification.module';
+import { AdminAccountsModule } from './accounts/adminaccounts.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { AdminNotificationModule } from './notifications/adminnotification.modul
     AcceptanceModule,
     AdminBookingModule,
     AdminIssuesModule,
-    AdminNotificationModule
+    AdminNotificationModule,
+    AdminAccountsModule
   ],
   providers: [S3Service],
 })

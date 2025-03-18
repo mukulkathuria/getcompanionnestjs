@@ -28,6 +28,7 @@ import {
   UserIssuesImageMulterConfig,
 } from 'src/config/multer.config';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
 
 @Controller(AdminIssuesRoute)
 export class AdminIssuesController {
@@ -60,17 +61,17 @@ export class AdminIssuesController {
     @Body() issueinfo: createIssueInputDto,
     @UploadedFiles(new FileSizeValidationPipe())
     images: Express.Multer.File[],
-    @Req() req: Request
+    @Req() req: Request,
   ) {
     const { decodeExpressRequest } = await import(
       '../../../guards/strategies/jwt.strategy'
     );
     const { data, error: TokenError } = decodeExpressRequest(req);
-    if(data){
+    if (data) {
       const { success, error } = await this.adminissuesservices.createUserIssue(
         issueinfo,
         images,
-        data.userId
+        data.userId,
       );
       if (success) {
         return {
@@ -79,7 +80,7 @@ export class AdminIssuesController {
       } else {
         throw new HttpException(error.message, error.status);
       }
-    }else {
+    } else {
       throw new HttpException(TokenError || 'Server Error', 403);
     }
   }
@@ -124,7 +125,7 @@ export class AdminIssuesController {
         await this.adminissuesservices.addCommentonIssue(
           commentIput,
           data.userId,
-          images
+          images,
         );
       if (success) {
         return {
@@ -135,6 +136,24 @@ export class AdminIssuesController {
       }
     } else {
       throw new HttpException(TokenError || 'Server Error', 403);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Post(AdminIssuesInnerRoutes.updateissuestatusRoute)
+  @HttpCode(200)
+  async updateCompanionRequestStatusController(
+    @Body() requestInput: statusUpdateInputDto,
+  ) {
+    const { success, error } =
+      await this.adminissuesservices.updateIssueStatus(requestInput);
+    if (success) {
+      return {
+        success,
+        message: 'Status updated Successfully.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
     }
   }
 }

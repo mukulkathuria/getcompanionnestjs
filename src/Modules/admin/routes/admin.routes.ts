@@ -8,6 +8,7 @@ export const AdminUserChatRoomRoute = '/userchatrooms';
 export const AdminAcceptanceRoute = AdminRoute + '/accept'
 export const AdminIssuesRoute = AdminRoute + '/issues';
 export const AdminNotificaionRoute = AdminRoute + '/notification';
+export const AdminAccountsRoute = AdminRoute + '/accounts';
 
 export const AdminBookingInnerRoutes = {
     bookingrequestroute: 'bookingrequest',
@@ -22,7 +23,8 @@ export const AdminIssuesInnerRoutes = {
     getAllActiveIssuesRoute: 'getallactiveissues',
     createNewIssueRoute: 'createnewissue',
     getIssueDetailsRoute: 'getissuedetails',
-    addcommentonIssueRoute: 'addcommentonissue'
+    addcommentonIssueRoute: 'addcommentonissue',
+    updateissuestatusRoute: 'updateissuestatus'
 }
 
 export const AdminNotificaionInnerRoute = {
@@ -45,4 +47,8 @@ export const AdminCompanionInnerRoutes = {
 
 export const AdminAcceptanceInnerRoute = {
     updatecancellationstatusroute: 'updatecancellationstatus',
+}
+
+export const AdminAccountsInnerRoute = {
+    getaccountstatementRoute: 'getaccountstatement' 
 }
