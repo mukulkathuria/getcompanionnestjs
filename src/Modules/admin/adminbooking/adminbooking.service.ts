@@ -131,7 +131,7 @@ export class AdminBookingService {
           User: {
             select: { Images: true, firstname: true, isCompanion: true },
           },
-          Meetinglocation: { select: { city: true, state: true } },
+          Meetinglocation: { select: { googleloc: true, city: true } },
           bookingpurpose: true,
           bookingstart: true,
           bookingstatus: true,
@@ -213,7 +213,9 @@ export class AdminBookingService {
               gender: true,
             },
           },
+          Meetinglocation: { select: { googleloc: true, city: true } },
           bookingstart: true,
+          updatedAt: true,
           id: true,
         },
       });

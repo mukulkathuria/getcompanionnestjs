@@ -544,6 +544,9 @@ export class UserBookingsService {
           address: l.Meetinglocation[0].googleformattedadress,
           name: l.Meetinglocation[0].googleloc,
         },
+        sessions: l.Sessions.map((l) => ({
+          sessionstart: String(l.sessionStartTime),
+        })),
       }));
       return { data: filtervalues };
     } catch (error) {
@@ -591,6 +594,9 @@ export class UserBookingsService {
         users: l.User,
         id: l.id,
         purpose: l.bookingpurpose,
+        sessions: l.Sessions.map((l) => ({
+          sessionstart: String(l.sessionStartTime),
+        })),
       }));
       return { data: filtervalues };
     } catch (error) {
