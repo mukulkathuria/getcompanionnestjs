@@ -9,7 +9,9 @@ export class AdminNotificationServices {
   async getAllNotifications() {
     try {
       const data = await this.prismaService.notification.findMany({
-        where: { contentforadmin: { not: null }, expiry: { gt: Date.now() } },
+        where: { contentforadmin: { not: null } },
+        take: 10,
+        orderBy: { createdAt: 'desc' },
       });
       const values = data.map((l) => ({ ...l, expiry: String(l.expiry) }));
       return { data: values };

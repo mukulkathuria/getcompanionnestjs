@@ -372,7 +372,7 @@ export class CompanionService {
               bookingstart: { gt: subDays(7) },
               bookingstatus: { in: ['ACCEPTED', 'COMPLETED'] },
             },
-            select: { bookingduration: true },
+            select: { bookingstart: true, bookingend: true },
           },
           ratingsReceived: { select: { ratings: true } },
         },
@@ -380,7 +380,12 @@ export class CompanionService {
       const values = data.map((l) => ({
         ...l,
         Companion: l.Companion[0].bookingrate,
-        Booking: l.Booking.reduce((a, b) => a + b.bookingduration, 0),
+        Booking: l.Booking.reduce(
+          (a, b) =>
+            a +
+            (Number(b.bookingend) - Number(b.bookingstart)) / (1000 * 60 * 60),
+          0,
+        ),
         ratingsReceived: l.ratingsReceived.reduce((a, b) => a + b.ratings, 0),
         totalRatings: l.ratingsReceived.length,
       }));
@@ -493,6 +498,29 @@ export class CompanionService {
       return {
         error: { status: 500, message: 'Server error' },
       };
+    }
+  }
+
+  async updatenewCompanionRequestStatus(bookingInput: statusUpdateInputDto) {
+    try {
+      const id = Number(bookingInput.id);
+      if (!id || typeof id !== 'number') {
+        return { error: { status: 422, message: 'Invalid companion search' } };
+      }
+      const { error } = validateRequestInput(bookingInput, 'Companion');
+      if (error) {
+        return { error };
+      }
+      await this.prismaService.companionrequests.update({
+        where: { id },
+        data: {
+          status: bookingInput.approve ? 'RESOLVED' : 'REJECTED',
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return { error: { status: 500, message: 'Something went wrong' } };
     }
   }
 }

@@ -130,4 +130,69 @@ export class AcceptanceService {
       return { error: { status: 500, message: 'Something went wrong' } };
     }
   }
+
+  async rejectBooking(bookingId: number): Promise<controllerReturnDto> {
+    try {
+      const bookingDetails = await this.prismaService.booking.findUnique({
+        where: { id: bookingId },
+        include: {
+          User: {
+            select: {
+              firstname: true,
+              email: true,
+              isCompanion: true,
+              id: true,
+            },
+          },
+        },
+      });
+      if (!bookingDetails) {
+        return { error: { status: 404, message: 'Bookings not found' } };
+      } else if (
+        bookingDetails &&
+        bookingDetails?.bookingstatus !== 'UNDERREVIEW'
+      ) {
+        return { error: { status: 404, message: 'Bookings Already Accepted' } };
+      }
+      await this.prismaService.booking.update({
+        where: { id: bookingId },
+        data: { bookingstatus: 'REJECTED' },
+      });
+      const userdata = bookingDetails.User.find((l) => !l.isCompanion);
+      const companiondata = bookingDetails.User.find((l) => l.isCompanion);
+
+      await this.prismaService.notification.create({
+        data: {
+          fromModule: NotificationFromModuleEnum.USER,
+          expiry: addHours(Notificationhours.getrating),
+          content: notificationTemplate({
+            companion_name: companiondata.firstname,
+          }).cancellationbyadmin,
+          User: { connect: { id: userdata.id } },
+        },
+      });
+      const {
+        rejectionBooking: { subject, body },
+      } = emailTemplate({
+        username: userdata.firstname,
+        refundamount: String(
+          bookingDetails.finalRate - bookingDetails.finalRate * 0.18,
+        ),
+      });
+      const { error: mailerror } = await this.nodemailerService.sendMail({
+        to: userdata.email,
+        html: body,
+        subject,
+      });
+      if (mailerror) {
+        console.log('Error on send email to user');
+      }
+      return { success: true };
+    } catch (error) {
+      this.logger.error(error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
 }

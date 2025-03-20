@@ -289,7 +289,7 @@ export class UserBookingsService {
               date_time: convertToDateTime(bookingDetails.bookingstart),
             }).cancelationrequestbycompanion,
             contentforadmin: `${companiondata.firstname} has requested for cancellation see more details here.`,
-            User: { connect: { id: userdata.id } },
+            User: { connect: { id: companiondata.id } },
           },
         });
         return { success: 'Its under consideration. please contact admin' };
@@ -309,7 +309,8 @@ export class UserBookingsService {
           cancelledAt: Date.now(),
         },
       });
-      const totalrefundamount = bookingDetails.finalRate * 0.7;
+      const GSTamount = bookingDetails.finalRate * 0.18
+      const totalrefundamount = (bookingDetails.finalRate - GSTamount) * 0.7;
       await this.prismaService.notification.create({
         data: {
           fromModule: NotificationFromModuleEnum.BOOKING,

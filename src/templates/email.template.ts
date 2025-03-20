@@ -287,6 +287,64 @@ export default function (params: emailTemplateDto) {
         </html>
         `,
     },
+    rejectionBooking: {
+        subject: 'Your Refund is Being Wrapped Up With Care 🎁',
+        body: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Refund Confirmation</title>
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      color: #333;
+                      background-color: #f9f9f9;
+                      padding: 20px;
+                  }
+                  .container {
+                      max-width: 600px;
+                      margin: 0 auto;
+                      background-color: #ffffff;
+                      padding: 20px;
+                      border-radius: 8px;
+                      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                  }
+                  .content {
+                      font-size: 16px;
+                      line-height: 1.5;
+                  }
+                  .footer {
+                      margin-top: 20px;
+                      font-size: 14px;
+                      text-align: center;
+                      color: #777;
+                  }
+                  .signature {
+                      font-weight: bold;
+                      color: #333;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <div class="content">
+                      <p>Hi <b>${params.username}</b>,</p>
+                      <p>We are really Sorry that your booking has been rejected and we’ve expedited your refund of ₹${params.refundamount}. It will reach you within the next 3-5 business days.</p>
+  
+                      <p>Thank you for your patience and understanding. We hope to welcome you back soon for a spectacular experience that exceeds your expectations.</p>
+                      
+                      <br />
+                      <p>With appreciation,</p>
+                      <br />
+                      <p class="signature">Zestful Amigos Team</p>
+                  </div>
+              </div>
+          </body>
+          </html>
+          `,
+      },
   };
 }
 

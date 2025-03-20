@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { updateextensionbokingInputDto } from 'src/dto/bookings.dto';
+import {
+  BookingStatusEnum,
+  updateextensionbokingInputDto,
+} from 'src/dto/bookings.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import { validateUpdateExtensionBooking } from 'src/validations/usersession.validation';
 
@@ -18,20 +21,27 @@ export class BookingExtentionService {
         include: {
           User: { select: { firstname: true, phoneno: true, email: true } },
           Meetinglocation: {
-            select: { lat: true, lng: true, state: true, city: true },
+            select: {
+              lat: true,
+              lng: true,
+              state: true,
+              city: true,
+              googleformattedadress: true,
+              googleloc: true,
+            },
           },
         },
       });
       if (!data || data?.bookingstatus !== 'UNDEREXTENSION') {
         return { error: { status: 422, message: 'Booking not available' } };
       }
-      const amount = data.finalRate * (data.extendedhours || 1)
+      const amount = data.finalRate * (data.extendedhours || 1);
       const values = {
         id: data.id,
         bookingstart: String(data.bookingstart),
         bookingend: String(data.bookingend),
         bookingrate: amount,
-        updatedrate: amount + (amount * 0.18),
+        updatedrate: amount + amount * 0.18,
         bookingpurpose: data.bookingpurpose,
         extendedhours: data.extendedhours,
         meetinglocation: data.Meetinglocation[0],
@@ -123,15 +133,33 @@ export class BookingExtentionService {
       if (!data || data.bookingstatus !== 'UNDEREXTENSION') {
         return { error: { status: 422, message: 'Booking not available' } };
       }
+      let bookingdata = {
+        extendedhours: bookingdetails.extendedhours,
+        extentedfinalrate: bookingdetails.extentedfinalrate,
+        bookingstatus: BookingStatusEnum.ACCEPTED,
+        updatedLocation: bookingdetails.updatedLocation ? 'Yes' : null,
+        updatedPurpose: bookingdetails.updatedPurpose,
+      };
+      if (bookingdetails.updatedLocation) {
+        bookingdata['Meetinglocation'] = {
+          create: {
+            city: bookingdetails.updatedLocation.city,
+            state: bookingdetails.updatedLocation.state,
+            googleformattedadress:
+              bookingdetails.updatedLocation.formattedaddress,
+            googleloc: bookingdetails.updatedLocation.name,
+            userinput: bookingdetails.updatedLocation.userInput,
+            lat: bookingdetails.updatedLocation.lat,
+            lng: bookingdetails.updatedLocation.lng,
+            googleplaceextra: bookingdetails.updatedLocation.googleextra,
+            islocationupdated: true,
+            basefrom: 'BOOKING',
+          },
+        };
+      }
       await this.prismaService.booking.update({
         where: { id: bookingdetails.bookingid },
-        data: {
-          extendedhours: bookingdetails.extendedhours,
-          extentedfinalrate: bookingdetails.extentedfinalrate,
-          bookingstatus: 'ACCEPTED',
-          updatedLocation: bookingdetails.updatedLocation ? 'Yes' : null,
-          updatedPurpose: bookingdetails.updatedPurpose,
-        },
+        data: bookingdata,
       });
       return { success: true };
     } catch (error) {

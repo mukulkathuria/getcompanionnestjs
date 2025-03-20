@@ -82,7 +82,7 @@ export interface updateextensionbokingInputDto {
   bookingid: number;
   extendedhours: number;
   extentedfinalrate: number;
-  updatedLocation?: string;
+  updatedLocation?: BookingMeetingLocationDto;
   updatedPurpose?: string;
 }
 

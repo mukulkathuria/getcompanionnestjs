@@ -93,10 +93,28 @@ export function validateUpdateExtensionBooking(
   }
 
   // Optional fields check (if provided, they must not be empty)
-  if (input.updatedLocation && input.updatedLocation.trim() === '') {
+  else if (input.updatedLocation && !input.updatedLocation.name.trim().length) {
+    return { error: { status: 422, message: 'Booking place is required' } };
+  } else if (
+    input.updatedLocation &&
+    !input.updatedLocation.formattedaddress.trim().length
+  ) {
+    return { error: { status: 422, message: 'Booking address is required' } };
+  } else if (
+    input.updatedLocation &&
+    (!input?.updatedLocation?.city?.trim().length ||
+      !input.updatedLocation?.lat ||
+      !input.updatedLocation?.lng)
+  ) {
     return {
-      error: { status: 422, message: 'updatedLocation cannot be empty' },
+      error: { status: 422, message: 'Booking Location is required' },
     };
+  } else if (
+    input.updatedLocation &&
+    input.updatedLocation.googleextra &&
+    typeof input.updatedLocation.googleextra !== 'object'
+  ) {
+    return { error: { status: 422, message: 'Google parameter is not valid' } };
   }
 
   if (input.updatedPurpose && input.updatedPurpose.trim() === '') {
