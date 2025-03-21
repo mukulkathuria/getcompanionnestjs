@@ -29,7 +29,10 @@ import {
   AdminUserProfileRoute,
 } from '../routes/admin.routes';
 import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
-import { statusUpdateInputDto, updateCompanionPriceInputDto } from 'src/dto/admin.module.dto';
+import {
+  statusUpdateInputDto,
+  updateCompanionPriceInputDto,
+} from 'src/dto/admin.module.dto';
 import { companionDetailsQuery } from 'src/dto/companionfind.dto';
 
 @Controller(AdminUserProfileRoute)
@@ -258,14 +261,29 @@ export class CompanionController {
       throw new HttpException('Invalid User', 422);
     }
     const { success, error } =
-      await this.companionservice.updateCompanionBasePrice(
-        inputs,
-        id.id,
-      );
+      await this.companionservice.updateCompanionBasePrice(inputs, id.id);
     if (success) {
       return {
         success,
         message: 'Companion Updated successfully.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Post(AdminCompanionInnerRoutes.updatebecompanionrequeststatusRoute)
+  @HttpCode(200)
+  async updatebeCompanionRequestStatusController(
+    @Body() requestInput: statusUpdateInputDto,
+  ) {
+    const { success, error } =
+      await this.companionservice.updatebeCompanionRequestStatus(requestInput);
+    if (success) {
+      return {
+        success,
+        message: 'Companion status Updated successfully.',
       };
     } else {
       throw new HttpException(error.message, error.status);

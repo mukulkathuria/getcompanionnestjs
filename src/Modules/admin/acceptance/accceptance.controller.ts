@@ -55,4 +55,24 @@ export class AcceptanceController {
         throw new HttpException(error.message, error.status);
       }
     }
+
+    @UseGuards(AdminGuard)
+    @Get(AdminAcceptanceInnerRoute.rejectbookingsroute)
+    async rejectBookingController(@Query() bookingdetails: bookingIdDto) {
+      if (!bookingdetails.bookingid) {
+        throw new HttpException('Booking id is required', 422);
+      }
+  
+      const { success, error } = await this.acceptanceservice.rejectBooking(
+        Number(bookingdetails.bookingid),
+      );
+      if (success) {
+        return {
+          success,
+          message: 'Request Accepted successfully',
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
+    }
 }

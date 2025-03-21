@@ -501,7 +501,7 @@ export class CompanionService {
     }
   }
 
-  async updatenewCompanionRequestStatus(bookingInput: statusUpdateInputDto) {
+  async updatebeCompanionRequestStatus(bookingInput: statusUpdateInputDto) {
     try {
       const id = Number(bookingInput.id);
       if (!id || typeof id !== 'number') {

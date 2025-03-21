@@ -42,11 +42,13 @@ export const AdminCompanionInnerRoutes = {
     getcompaniondetailsforupdaterateRoute: 'getcompaniondetailsforupdaterate',
     getnewcompanionrequestlistRoute: 'getnewcompanionrequestlist',
     getnewcompanionrequestdetailsRoute: 'getnewcompanionrequestdetails',
-    updatecompanionbasepriceRoute: 'updatecompanionbaseprice/:id' 
+    updatecompanionbasepriceRoute: 'updatecompanionbaseprice/:id',
+    updatebecompanionrequeststatusRoute: 'updatebecompanionrequeststatus'  
 }
 
 export const AdminAcceptanceInnerRoute = {
     updatecancellationstatusroute: 'updatecancellationstatus',
+    rejectbookingsroute: 'rejectbookings'
 }
 
 export const AdminAccountsInnerRoute = {
