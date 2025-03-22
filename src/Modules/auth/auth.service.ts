@@ -56,7 +56,7 @@ export class AuthService {
       name: user?.firstname + ' ' + user?.lastname,
       userId: user?.id,
       isCompanion: Boolean(user?.isCompanion),
-      Images: user.Images
+      Images: user.Images,
     };
     const id = uuid();
     const refresh_token = sign(
@@ -124,7 +124,7 @@ export class AuthService {
               content: notificationTemplate({
                 username: user.firstname,
               }).welcomeuser,
-              reminders: []
+              reminders: [],
             },
           },
         },
@@ -218,7 +218,7 @@ export class AuthService {
       userId: refreshToken?.userId,
       name: refreshToken.name,
       isCompanion: Boolean(refreshToken?.isCompanion),
-      Images: refreshToken.Images
+      Images: refreshToken.Images,
     };
     return {
       access_token: sign(
@@ -307,9 +307,9 @@ export class AuthService {
     try {
       const { data: collectedData, error: googleerror } =
         await this.googleservice.verifyGoogleToken(tokenInput);
-      if(googleerror){
-        this.logger.error(googleerror)
-        return { error: { status: 422, message: 'Invalid Token' } }
+      if (googleerror) {
+        this.logger.error(googleerror);
+        return { error: { status: 422, message: 'Invalid Token' } };
       }
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: collectedData.email },
@@ -317,6 +317,13 @@ export class AuthService {
       const { error } = basicuservalidationforuserExists(isUserExists);
       if (error) {
         return { error };
+      } else if (!isUserExists.isGoogle) {
+        return {
+          error: {
+            status: 422,
+            message: 'The Authentication method is not same as sign up!',
+          },
+        };
       }
       const { access_token, refresh_token } =
         await this.getUserToken(isUserExists);
@@ -364,7 +371,7 @@ export class AuthService {
         .then(() => {
           this.logger.log(`Email sent to: ${collectedData.email}`);
         });
-        const { access_token, refresh_token } =
+      const { access_token, refresh_token } =
         await this.getUserToken(userDetails);
       return {
         access_token,

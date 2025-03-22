@@ -42,6 +42,7 @@ enum BookingStatus {
   CANCELLED
   TRANSACTIONPENDING
   UNDEREXTENSION
+  CANCELLEDREFUNDPENDING
 }
 
 enum TransactionStatus {

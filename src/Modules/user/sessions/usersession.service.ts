@@ -48,7 +48,7 @@ export class UserSessionService {
         data: {
           bookingid: sessionDetails.bookingid,
           sessionStartTime: new Date().getTime(),
-          sessionEndTime: checkBookingandOTP.bookingend,
+          sessionEndTime: addHours(24),
           isExtended: false,
         },
       });

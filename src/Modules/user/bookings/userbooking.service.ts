@@ -296,7 +296,7 @@ export class UserBookingsService {
       }
       const timeofcancellation =
         Number(bookingDetails.bookingstart) - Date.now() / (1000 * 60 * 60);
-      if (timeofcancellation < 0) {
+      if (timeofcancellation <= 0) {
         return {
           error: { status: 422, message: "You can't cancel past booking" },
         };
@@ -304,12 +304,15 @@ export class UserBookingsService {
       await this.prismaService.booking.update({
         where: { id: input.bookingid },
         data: {
-          bookingstatus: BookingStatusEnum.CANCELLED,
+          bookingstatus:
+            timeofcancellation > 24
+              ? BookingStatusEnum.CANCELLEDREFUNDPENDING
+              : BookingStatusEnum.CANCELLED,
           cancellationDetails: { connect: { id: userId } },
           cancelledAt: Date.now(),
         },
       });
-      const GSTamount = bookingDetails.finalRate * 0.18
+      const GSTamount = bookingDetails.finalRate * 0.18;
       const totalrefundamount = (bookingDetails.finalRate - GSTamount) * 0.7;
       await this.prismaService.notification.create({
         data: {
@@ -566,8 +569,8 @@ export class UserBookingsService {
         include: {
           Booking: {
             where: { bookingstart: { gt: Date.now() } },
-            orderBy: { bookingend: 'desc' },
-            take: 5,
+            orderBy: { bookingstart: 'asc' },
+            take: 10,
             include: {
               User: {
                 select: {

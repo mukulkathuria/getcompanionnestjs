@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/Services/prisma.service';
+import { timeAgo } from 'src/utils/formatDate.utils';
 
 @Injectable()
 export class AdminBookingService {
@@ -185,13 +186,28 @@ export class AdminBookingService {
     try {
       const data = await this.prismaService.booking.findMany({
         where: {
-          User: { every: { isCompanion: { equals: false } } },
-          bookingstatus: 'CANCELLED',
+          bookingstatus: 'CANCELLEDREFUNDPENDING',
           Transactions: { none: { status: 'REFUNDED' } },
         },
-        select: { User: { select: { firstname: true } } },
+        select: {
+          User: {
+            select: {
+              firstname: true,
+              lastname: true,
+              isCompanion: true,
+              gender: true,
+            },
+          },
+          Meetinglocation: { select: { googleloc: true, city: true } },
+          bookingstart: true,
+          id: true,
+        },
       });
-      return { data };
+      const values = data.map((l) => ({
+        ...l,
+        bookingstart: String(l.bookingstart),
+      }));
+      return { data: values };
     } catch (error) {
       this.logger.error(error?.message || error);
       return {
@@ -222,6 +238,7 @@ export class AdminBookingService {
       const values = data.map((l) => ({
         ...l,
         bookingstart: String(l.bookingstart),
+        updatedAt: timeAgo(l.updatedAt.toISOString())
       }));
       return { data: values };
     } catch (error) {
