@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { pageNoQueryDto, updateBookingStatusInputDto } from 'src/dto/bookings.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import { timeAgo } from 'src/utils/formatDate.utils';
+import { validateBookingStatusInput } from 'src/validations/booking.validation';
 
 @Injectable()
 export class AdminBookingService {
@@ -123,27 +125,45 @@ export class AdminBookingService {
     }
   }
 
-  async getBookingList() {
+  async getBookingList(params: pageNoQueryDto) {
     try {
-      const data = await this.prismaService.booking.findMany({
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-        select: {
-          User: {
-            select: { Images: true, firstname: true, isCompanion: true },
+      const pageNo = Number(params.pageNo) || 1;
+      const limit = 10;
+      const [items, aggregateResult] = await this.prismaService.$transaction([
+        this.prismaService.booking.findMany({
+          orderBy: { createdAt: 'desc' },
+          skip: (pageNo - 1) * limit,
+          take: limit,
+          select: {
+            User: {
+              select: { Images: true, firstname: true, isCompanion: true },
+            },
+            Meetinglocation: { select: { googleloc: true, city: true } },
+            bookingpurpose: true,
+            bookingstart: true,
+            bookingstatus: true,
+            id: true,
           },
-          Meetinglocation: { select: { googleloc: true, city: true } },
-          bookingpurpose: true,
-          bookingstart: true,
-          bookingstatus: true,
-          id: true,
-        },
-      });
-      const values = data.map((l) => ({
+        }),
+        this.prismaService.booking.aggregate({
+          _count: {
+            id: true,
+          },
+        }),
+      ]);
+      const totalCount = aggregateResult._count.id;
+      const totalPages = Math.ceil(totalCount / limit);
+      const values = items.map((l) => ({
         ...l,
         bookingstart: String(l.bookingstart),
       }));
-      return { data: values };
+      const finalvalue = {
+        totalPages,
+        limit,
+        currentPage: pageNo,
+        bookings: values,
+      };
+      return { data: finalvalue };
     } catch (error) {
       this.logger.error(error?.message || error);
       return {
@@ -238,9 +258,30 @@ export class AdminBookingService {
       const values = data.map((l) => ({
         ...l,
         bookingstart: String(l.bookingstart),
-        updatedAt: timeAgo(l.updatedAt.toISOString())
+        updatedAt: timeAgo(l.updatedAt.toISOString()),
       }));
       return { data: values };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
+  async updateBookingStatus(input: updateBookingStatusInputDto) {
+    try {
+      const { error } = validateBookingStatusInput(input);
+      if (error) {
+        return { error };
+      }
+      await this.prismaService.booking.update({
+        where: { id: input.bookingid },
+        data: {
+          bookingstatus: input.status,
+        },
+      });
+      return { success: true };
     } catch (error) {
       this.logger.error(error?.message || error);
       return {

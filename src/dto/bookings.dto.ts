@@ -24,7 +24,7 @@ export enum BookingStatusEnum {
   CANCELLED = 'CANCELLED',
   TRANSACTIONPENDING = 'TRANSACTIONPENDING',
   UNDEREXTENSION = 'UNDEREXTENSION',
-  CANCELLEDREFUNDPENDING = 'CANCELLEDREFUNDPENDING'
+  CANCELLEDREFUNDPENDING = 'CANCELLEDREFUNDPENDING',
 }
 export interface UserBookingReturnDto extends errorDto {
   data?: Booking[];
@@ -89,4 +89,8 @@ export interface updateextensionbokingInputDto {
 
 export interface pageNoQueryDto {
   pageNo: string;
+}
+
+export interface updateBookingStatusInputDto extends bookingIdDto {
+  status: BookingStatusEnum;
 }

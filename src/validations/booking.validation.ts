@@ -2,8 +2,10 @@ import * as dayjs from 'dayjs';
 import * as customParseFormat from 'dayjs/plugin/customParseFormat';
 import {
   BookingDurationUnitEnum,
+  BookingStatusEnum,
   cancelBookingInputDto,
   ratingInputDto,
+  updateBookingStatusInputDto,
   userBookingBodyDto,
   userBookingReturnDto,
 } from 'src/dto/bookings.dto';
@@ -88,6 +90,19 @@ export function checkvalidrating(
     return { error: { status: 422, message: 'Ratings are required' } };
   } else if (inputs.rating < 0 || inputs.rating > 5) {
     return { error: { status: 422, message: 'Rating must be in 0 to 5 only' } };
+  }
+  return { success: true };
+}
+
+export function validateBookingStatusInput(
+  input: updateBookingStatusInputDto,
+): successErrorReturnDto {
+  if (!input.bookingid || typeof input.bookingid !== 'number') {
+    return { error: { status: 422, message: 'Booking id is required' } };
+  } else if (!input.status) {
+    return { error: { status: 422, message: 'Booking status is required' } };
+  } else if (!BookingStatusEnum[input.status]) {
+    return { error: { status: 422, message: 'Booking status is not valid' } };
   }
   return { success: true };
 }

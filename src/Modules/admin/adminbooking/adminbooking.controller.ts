@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpException,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -13,7 +14,7 @@ import {
 } from '../routes/admin.routes';
 import { AdminBookingService } from './adminbooking.service';
 import { AdminGuard } from 'src/guards/admin.guard';
-import { bookingIdDto } from 'src/dto/bookings.dto';
+import { bookingIdDto, pageNoQueryDto, updateBookingStatusInputDto } from 'src/dto/bookings.dto';
 
 @Controller(AdminUserBookingsRoute)
 export class AdminBookingController {
@@ -51,8 +52,8 @@ export class AdminBookingController {
 
   @UseGuards(AdminGuard)
   @Get(AdminBookingInnerRoutes.getallbookinglistroute)
-  async getAllBookingList() {
-    const { data, error } = await this.adminbookingservice.getBookingList();
+  async getAllBookingList(@Query() queryparms: pageNoQueryDto) {
+    const { data, error } = await this.adminbookingservice.getBookingList(queryparms);
     if (data) {
       return {
         data,
@@ -98,6 +99,22 @@ export class AdminBookingController {
     if (data) {
       return {
         data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Post(AdminBookingInnerRoutes.updatebookingstatusRoute)
+  @HttpCode(200)
+  async updateBookingStatusController(@Body() params: updateBookingStatusInputDto) {
+    const { success, error } =
+      await this.adminbookingservice.updateBookingStatus(params);
+    if (success) {
+      return {
+        success,
+        message: 'Booking Status Updated Successfully'
       };
     } else {
       throw new HttpException(error.message, error.status);
