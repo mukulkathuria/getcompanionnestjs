@@ -288,8 +288,8 @@ export default function (params: emailTemplateDto) {
         `,
     },
     rejectionBooking: {
-        subject: 'Your Refund is Being Wrapped Up With Care 🎁',
-        body: `
+      subject: 'Your Refund is Being Wrapped Up With Care 🎁',
+      body: `
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -344,6 +344,120 @@ export default function (params: emailTemplateDto) {
           </body>
           </html>
           `,
+    },
+    forgotPassword: {
+        subject: 'Reset Your Password with Zestful Amigos🎁',
+        body: `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Reset Your Password</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        color: #333;
+                        background-color: #f9f9f9;
+                        padding: 20px;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background-color: #ffffff;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    }
+                    .content {
+                        font-size: 16px;
+                        line-height: 1.5;
+                    }
+                    .footer {
+                        margin-top: 20px;
+                        font-size: 14px;
+                        text-align: center;
+                        color: #777;
+                    }
+                    .signature {
+                        font-weight: bold;
+                        color: #333;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="content">
+                        <p>Hi <b>${params.username}</b>,</p>
+                        <p>We are sorry to hear that you forgot your password Here is your OTP: <strong>${params.otp}</strong></p>
+                        <br />
+                        <p>Your OTP is valid only 10 mins. Request you please do not share the OTP with anyone</p>
+                        <br />
+                        <p>With appreciation,</p>
+                        <br />
+                        <p class="signature">Zestful Amigos Team</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            `,
+      },
+      emailVerification: {
+        subject: 'Email Verification with Zestful Amigos 🎁',
+        body: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Verify your Email</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                    background-color: #f9f9f9;
+                    padding: 20px;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                }
+                .content {
+                    font-size: 16px;
+                    line-height: 1.5;
+                }
+                .footer {
+                    margin-top: 20px;
+                    font-size: 14px;
+                    text-align: center;
+                    color: #777;
+                }
+                .signature {
+                    font-weight: bold;
+                    color: #333;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="content">
+                    <p>Hi <b>${params.username}</b>,</p>
+                    <p>Welcome to Zestful amigos team! Please Verify your Email Here is your OTP: <strong>${params.otp}</strong></p>
+                    <br />
+                    <p>Your OTP is valid only 10 mins. Request you please do not share the OTP with anyone</p>
+                    <br />
+                    <p>With appreciation,</p>
+                    <br />
+                    <p class="signature">Zestful Amigos Team</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        `,
       },
   };
 }

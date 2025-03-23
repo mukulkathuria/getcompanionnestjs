@@ -116,3 +116,8 @@ export function getUniqueValue(arr: any[]) {
   }
   return results;
 }
+
+
+export const getErrorMessage = (status: number, message: string) => {
+  return { error: { status, message } }
+}

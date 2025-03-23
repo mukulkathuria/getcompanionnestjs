@@ -228,6 +228,7 @@ model User {
   lastlogin                BigInt
   anybookingdone           Boolean                    @default(false)
   isDeleted                Boolean                    @default(false)
+  isEmailVerified          Boolean                    @default(false)
   expiryDate               BigInt
   Booking                  Booking[]
   Transactions             Transactions[]

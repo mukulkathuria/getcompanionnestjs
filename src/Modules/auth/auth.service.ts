@@ -28,8 +28,10 @@ import { uuid } from 'src/utils/uuid.utils';
 import {
   basicuservalidationforuserExists,
   refreshTokenValidate,
+  validateEmailVerificationInputs,
   validateLoginUser,
   validateregisterUser,
+  validateresetPasswordInputs,
 } from 'src/validations/auth.validation';
 import { addHours, getdefaultexpirydate } from 'src/utils/common.utils';
 import { NodeMailerService } from 'src/Services/nodemailer.service';
@@ -141,6 +143,7 @@ export class AuthService {
         .then(() => {
           this.logger.log(`Email sent to: ${user.email}`);
         });
+      await this.forgotPassword({ email: user.email })
       return {
         success: true,
       };
@@ -186,6 +189,8 @@ export class AuthService {
       return {
         access_token,
         refresh_token,
+        isEmailEverified: isUserExists.isEmailVerified,
+        anybookingdone: isUserExists.anybookingdone,
       };
     } catch (error) {
       this.logger.warn(error);
@@ -229,7 +234,10 @@ export class AuthService {
     };
   }
 
-  async forgotPassword(dto: forgotPasswordInitDto) {
+  async forgotPassword(
+    dto: forgotPasswordInitDto,
+    isEmailVerification?: boolean,
+  ) {
     try {
       const { EmailRegex } = await import('../../constants/regex.constants');
       const { createOTP } = await import('../../utils/common.utils');
@@ -248,12 +256,18 @@ export class AuthService {
       }
       const OTP = createOTP();
       OTPData.set(user.email, { otp: String(OTP) });
-      const subject = 'Reset Password Email';
-      const message = 'YOU forgot your password here is your OTP: ' + OTP;
+      const { forgotPassword, emailVerification } = emailTemplate({
+        username: user.firstname,
+        otp: String(OTP),
+      });
       const mailOptions = {
         to: dto.email,
-        subject: subject,
-        html: message,
+        subject: isEmailVerification
+          ? emailVerification.subject
+          : forgotPassword.subject,
+        html: isEmailVerification
+          ? emailVerification.body
+          : forgotPassword.body,
       };
       const { success, error: sendmailerror } =
         await this.nodemailerService.sendMail(mailOptions);
@@ -276,6 +290,10 @@ export class AuthService {
 
   async resetPassword(dto: forgotPasswordDto) {
     try {
+      const { error: validatateerror } = validateresetPasswordInputs(dto);
+      if (validatateerror) {
+        return { error: validatateerror };
+      }
       const { OTPData } = await import('../../Cache/OTP');
       const { error } = OTPData.checkValidOTP(dto.email, dto.OTP);
       if (error) {
@@ -355,6 +373,7 @@ export class AuthService {
           email: collectedData.email,
           password: encrypt('Test@123'),
           isGoogle: true,
+          isEmailVerified: true,
           lastlogin: Date.now(),
           expiryDate: getdefaultexpirydate(),
         },
@@ -380,6 +399,39 @@ export class AuthService {
     } catch (error) {
       this.logger.warn(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async validateEmailOTP(dto: forgotPasswordDto) {
+    try {
+      const { error: validatateerror } = validateEmailVerificationInputs(dto);
+      if (validatateerror) {
+        return { error: validatateerror };
+      }
+      const { OTPData } = await import('../../Cache/OTP');
+      const { error } = OTPData.checkValidOTP(dto.email, dto.OTP);
+      if (error) {
+        return { error: { status: 422, message: 'Invalid token' } };
+      }
+      const updateuser = await this.prismaService.user.update({
+        where: {
+          email: dto.email,
+        },
+        data: {
+          isEmailVerified: true,
+        },
+      });
+      if (updateuser) {
+        return { success: true };
+      }
+      // eslint-disable-next-line
+    } catch (error) {
+      return {
+        error: {
+          status: 422,
+          message: ' The token has expired. Please try again.',
+        },
+      };
     }
   }
   // async verifyCaptcha(token: any) {

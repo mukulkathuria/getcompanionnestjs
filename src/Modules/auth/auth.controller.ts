@@ -163,7 +163,7 @@ export class AuthController {
     }
   }
 
-  @Post('reset-password')
+  @Post(UserAuthInnerRoute.resetpassword)
   @HttpCode(200)
   async resetPassword(@Body() dto: forgotPasswordDto) {
     const { error, success } = await this.authService.resetPassword(dto);
@@ -171,6 +171,20 @@ export class AuthController {
       return {
         success: true,
         message: 'Password changed successfully.',
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Post(UserAuthInnerRoute.validateemailotp)
+  @HttpCode(200)
+  async validateEmailOTPController(@Body() dto: forgotPasswordDto) {
+    const { error, success } = await this.authService.validateEmailOTP(dto);
+    if (success) {
+      return {
+        success: true,
+        message: 'Email has been verified successfully.',
       };
     } else {
       throw new HttpException(error.message, error.status);

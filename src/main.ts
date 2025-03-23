@@ -8,8 +8,8 @@ ClusterService.clusterize(async () => {
   const app = await NestFactory.create(AppModule, {
     cors: true,
     httpsOptions:{
-      key: fs.readFileSync('src/certificates/localhost-key.pem'),
-      cert: fs.readFileSync('src/certificates/localhost.pem')
+      key: fs.readFileSync('certificates/localhost-key.pem'),
+      cert: fs.readFileSync('certificates/localhost.pem')
     }
   });
   app.use(

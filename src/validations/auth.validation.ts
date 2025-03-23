@@ -11,6 +11,7 @@ import {
   returnRegisterUserDto,
   refreshTokenParamsDto,
   registerCompanionBodyDto,
+  forgotPasswordDto,
 } from 'src/dto/auth.module.dto';
 import { decryptRefreshToken } from 'src/utils/crypt.utils';
 import { decodeRefreshToken } from 'src/guards/strategies/jwt.strategy';
@@ -25,6 +26,8 @@ import {
   MaleCompanionBodyTypeEnum,
 } from 'src/dto/user.dto';
 import { User } from '@prisma/client';
+import { successErrorReturnDto } from 'src/dto/common.dto';
+import { getErrorMessage } from 'src/utils/common.utils';
 
 export const validateregisterUser = (
   userinfo: registerBodyDto,
@@ -289,4 +292,34 @@ export const validatepreviousImages = (images) => {
   } catch (error) {
     return { error: { status: 422, message: 'Previous images are not valid' } };
   }
+};
+
+export const validateresetPasswordInputs = (
+  inputs: forgotPasswordDto,
+): successErrorReturnDto => {
+  if (!inputs.email || !inputs.email.trim()) {
+    return getErrorMessage(422, 'Email is required');
+  } else if (!EmailRegex.test(inputs.email)) {
+    return getErrorMessage(422, 'Email is not valid');
+  } else if (!inputs.OTP || !inputs.OTP.trim()) {
+    return getErrorMessage(422, 'OTP is required');
+  } else if (!inputs.password || !inputs.password.trim()) {
+    return getErrorMessage(422, 'password is required');
+  }else if(!PasswordRegex.test(inputs.password)){
+    return getErrorMessage(422, 'password is not valid')
+  }
+  return { success: true };
+};
+
+export const validateEmailVerificationInputs = (
+  inputs: forgotPasswordDto,
+): successErrorReturnDto => {
+  if (!inputs.email || !inputs.email.trim()) {
+    return getErrorMessage(422, 'Email is required');
+  } else if (!EmailRegex.test(inputs.email)) {
+    return getErrorMessage(422, 'Email is not valid');
+  } else if (!inputs.OTP || !inputs.OTP.trim()) {
+    return getErrorMessage(422, 'OTP is required');
+  }
+  return { success: true };
 };

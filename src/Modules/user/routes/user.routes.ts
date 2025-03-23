@@ -22,6 +22,8 @@ export const UserAuthInnerRoute = {
   forgotpassword: 'forgot-password',
   googlelogin: 'google-login',
   googleregister: 'google-register',
+  resetpassword: 'reset-password',
+  validateemailotp: 'validateemailotp'
 };
 
 export const UserprofileInnerRoute = {
