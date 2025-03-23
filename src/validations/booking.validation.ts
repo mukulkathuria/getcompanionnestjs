@@ -2,6 +2,7 @@ import * as dayjs from 'dayjs';
 import * as customParseFormat from 'dayjs/plugin/customParseFormat';
 import {
   BookingDurationUnitEnum,
+  BookingMeetingLocationDto,
   BookingStatusEnum,
   cancelBookingInputDto,
   ratingInputDto,
@@ -10,6 +11,7 @@ import {
   userBookingReturnDto,
 } from 'src/dto/bookings.dto';
 import { successErrorDto, successErrorReturnDto } from 'src/dto/common.dto';
+import { getErrorMessage } from 'src/utils/common.utils';
 
 export function isUserBookingValid(
   userinfo: userBookingBodyDto,
@@ -106,3 +108,22 @@ export function validateBookingStatusInput(
   }
   return { success: true };
 }
+
+export const bookingLocationValidation = (
+  input: BookingMeetingLocationDto,
+): successErrorReturnDto => {
+  if (!input.city || input.city.trim()) {
+    return getErrorMessage(422, 'City is required');
+  } else if (!input.state || input.state.trim()) {
+    return getErrorMessage(422, 'State is required');
+  } else if (!input.name || input.name.trim()) {
+    return getErrorMessage(422, 'Name of place is required');
+  } else if (!input.formattedaddress || input.formattedaddress.trim()) {
+    return getErrorMessage(422, 'Address is required');
+  } else if (typeof input.lat !== 'number') {
+    return getErrorMessage(422, 'Latitude is required');
+  } else if (typeof input.lng !== 'number') {
+    return getErrorMessage(422, 'Longitude is required');
+  }
+  return { success: true };
+};

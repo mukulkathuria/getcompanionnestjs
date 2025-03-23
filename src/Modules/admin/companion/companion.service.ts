@@ -58,13 +58,17 @@ export class CompanionService {
           error: { status: 422, message: 'Images more than 4 is not allowed' },
         };
       }
-      const location = {
-        city: user?.city,
-        state: user?.state,
-        zipcode: Number(user?.zipcode) || null,
-        lat: Number(user?.lat) || null,
-        lng: Number(user?.lng) || null,
-      };
+      const location = userinfo.locations.map((l) => ({
+        city: l.city,
+        state: l.state,
+        googleformattedadress: l.formattedaddress,
+        googleloc: l.name,
+        userinput: l.userInput,
+        lat: l.lat,
+        lng: l.lng,
+        googleplaceextra: l.googleextra,
+        basefrom: 'BOOKING' as 'BOOKING',
+      }));
       const userdata = {
         firstname: user.firstname,
         lastname: user.lastname,
@@ -89,10 +93,15 @@ export class CompanionService {
         drinkinghabits: user.drinkinghabits,
         smokinghabits: user.smokinghabits,
         account: AccountEnum.ACCEPTED,
-        baselocation: { create: location },
+        baselocation: { createMany: { data: location } },
       };
       await this.prismaService.user.create({
-        data: { ...userdata, Companion: { create: companion } },
+        data: {
+          ...userdata,
+          Companion: {
+            create: companion,
+          },
+        },
       });
       return {
         success: true,
@@ -273,13 +282,17 @@ export class CompanionService {
         user['Images'] = previousImages;
       }
       delete userinfo.previousImages;
-      const location = {
-        city: user?.city,
-        state: user?.state,
-        zipcode: Number(user?.zipcode) || null,
-        lat: Number(user?.lat) || null,
-        lng: Number(user?.lng) || null,
-      };
+      const location = userinfo.locations.map((l) => ({
+        city: l.city,
+        state: l.state,
+        googleformattedadress: l.formattedaddress,
+        googleloc: l.name,
+        userinput: l.userInput,
+        lat: l.lat,
+        lng: l.lng,
+        googleplaceextra: l.googleextra,
+        basefrom: 'BOOKING' as 'BOOKING',
+      }));
       const userdata = {
         firstname: user.firstname,
         lastname: user.lastname,
@@ -311,10 +324,7 @@ export class CompanionService {
               data: {
                 ...companion,
                 baselocation: {
-                  update: {
-                    where: { id: isUserExists.Companion[0].baselocation[0].id },
-                    data: location,
-                  },
+                  updateMany: { where: { userid: id }, data: location },
                 },
               },
             },

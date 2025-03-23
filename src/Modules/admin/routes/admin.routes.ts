@@ -9,6 +9,7 @@ export const AdminAcceptanceRoute = AdminRoute + '/accept'
 export const AdminIssuesRoute = AdminRoute + '/issues';
 export const AdminNotificaionRoute = AdminRoute + '/notification';
 export const AdminAccountsRoute = AdminRoute + '/accounts';
+export const AdminTransactionRoute = AdminRoute + '/transactions';
 
 export const AdminBookingInnerRoutes = {
     bookingrequestroute: 'bookingrequest',
@@ -54,4 +55,8 @@ export const AdminAcceptanceInnerRoute = {
 
 export const AdminAccountsInnerRoute = {
     getaccountstatementRoute: 'getaccountstatement' 
+}
+
+export const AdminTransactionInnerRoutes = {
+    onsuccessfullrefundamount: 'onsuccessfullrefundamount'
 }

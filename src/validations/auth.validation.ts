@@ -28,6 +28,7 @@ import {
 import { User } from '@prisma/client';
 import { successErrorReturnDto } from 'src/dto/common.dto';
 import { getErrorMessage } from 'src/utils/common.utils';
+import { bookingLocationValidation } from './booking.validation';
 
 export const validateregisterUser = (
   userinfo: registerBodyDto,
@@ -66,14 +67,16 @@ export function validateregisterCompanion(
   userinfo: registerCompanionBodyDto,
   isPasswordskip: boolean = false,
 ) {
-  const { firstname, lastname, email, password, gender, age, phoneno } =
-    userinfo;
-  const location = {
-    city: userinfo?.city && userinfo.city.trim(),
-    state: userinfo?.state && userinfo.state.trim(),
-    lat: userinfo?.lat && userinfo.lat.trim(),
-    lng: userinfo?.lng && userinfo.lng.trim(),
-  };
+  const {
+    firstname,
+    lastname,
+    email,
+    password,
+    gender,
+    age,
+    phoneno,
+    locations,
+  } = userinfo;
   try {
     if (userinfo.description) {
       const tempdesc = JSON.parse(userinfo.description as any);
@@ -121,8 +124,6 @@ export function validateregisterCompanion(
     return { error: { status: 422, message: 'Below 18 is not allowed' } };
   } else if (!GenderEnum[gender]) {
     return { error: { status: 422, message: 'Gender is not valid' } };
-  } else if (!Object.values(location).every((l) => l)) {
-    return { error: { status: 422, message: 'Location is required' } };
   } else if (!companion.Skintone) {
     return {
       error: { status: 422, message: 'Companion skintone is required' },
@@ -200,6 +201,12 @@ export function validateregisterCompanion(
       error: { status: 422, message: 'Companion height is required' },
     };
   }
+  locations.forEach((l) => {
+    const { error } = bookingLocationValidation(l);
+    if (error) {
+      return { error };
+    }
+  });
   return { user: userinfo };
 }
 
@@ -305,8 +312,8 @@ export const validateresetPasswordInputs = (
     return getErrorMessage(422, 'OTP is required');
   } else if (!inputs.password || !inputs.password.trim()) {
     return getErrorMessage(422, 'password is required');
-  }else if(!PasswordRegex.test(inputs.password)){
-    return getErrorMessage(422, 'password is not valid')
+  } else if (!PasswordRegex.test(inputs.password)) {
+    return getErrorMessage(422, 'password is not valid');
   }
   return { success: true };
 };

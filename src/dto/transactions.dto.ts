@@ -147,7 +147,7 @@ export enum NetBankingNamesEnum {
 export interface payUTransactionDetailsDto {
   PG_TYPE?: string;
   addedon?: string;
-  amount?: string;
+  amount: string;
   bank_ref_num?: string;
   bankcode?: string;
   cardCategory?: string;

@@ -1,3 +1,4 @@
+import { BookingMeetingLocationDto } from './bookings.dto';
 import { errorDto, successErrorDto } from './common.dto';
 import {
   CompanionDescriptionEnum,
@@ -32,17 +33,13 @@ export type registerCompanionBodyDto = {
   phoneno: string;
   description: CompanionDescriptionEnum[];
   skintone: CompanionSkinToneEnum;
-  city: string;
-  state: string;
-  zipcode?: string;
-  lat: string;
-  lng: string;
   bookingrate: string;
   height: string;
   bodytype: MaleCompanionBodyTypeEnum | FemaleCompanionBodyTypeEnum;
   eatinghabits: CompanionEatingHabitsEnum;
   drinkinghabits: CompanionDrinkingHabitEnum;
   smokinghabits: CompanionSmokingHabitEnum;
+  locations: BookingMeetingLocationDto[]
 };
 
 export interface previousImagesDto {

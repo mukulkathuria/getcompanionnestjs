@@ -431,16 +431,11 @@ model companionupdaterequest {
   phoneno          String
   description      CompanionDescriptionEnum[]
   skintone         CompanionSkinToneEnum
-  city             String
-  state            String
-  zipcode          String?
-  lat              String
-  lng              String
-  height           String
   bodytype         CompanionBodyTypeEnum
   eatinghabits     CompanionEatingHabitsEnum
   drinkinghabits   CompanionDrinkingHabitEnum
   smokinghabits    CompanionSmokingHabitEnum
+  baselocations    requestlocation[]
   companiondetails Companion                  @relation(fields: [companionid], references: [id])
   status           AccountEnum                @default(REVIEWED)
   createdAt        DateTime                   @default(now())
@@ -454,4 +449,23 @@ model profilevisited {
   userid         String
   uservisited    User      @relation(fields: [userid], references: [id])
   createdAt      DateTime  @default(now())
+}
+
+model requestlocation {
+  id                    Int                     @id @default(autoincrement())
+  companionrequestid    Int?
+  companionrequests     companionupdaterequest? @relation(fields: [companionrequestid], references: [id])
+  city                  String?
+  zipcode               Int?
+  state                 String?
+  lat                   Float?
+  lng                   Float?
+  userinput             String?
+  googleloc             String?
+  googleplaceextra      Json?
+  googleformattedadress String?
+  islocationupdated     Boolean                 @default(false)
+  basefrom              LocationBaseFromEnum    @default(USER)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
 }
