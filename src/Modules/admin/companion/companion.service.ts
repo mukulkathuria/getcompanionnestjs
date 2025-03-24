@@ -217,6 +217,16 @@ export class CompanionService {
               account: true,
             },
           },
+          baselocations: {
+            select: {
+              city: true,
+              lat: true,
+              lng: true,
+              state: true,
+              googleformattedadress: true,
+              googleloc: true,
+            },
+          },
         },
       });
       if (!data) {

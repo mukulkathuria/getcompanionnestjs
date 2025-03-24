@@ -12,6 +12,8 @@ import {
   MaleCompanionBodyTypeEnum,
   registercompanionInputDto,
 } from 'src/dto/user.dto';
+import { bookingLocationValidation } from './booking.validation';
+import { bookinglocationPrismaDto } from 'src/dto/bookings.dto';
 
 export function validateCompanionRequestInput(
   userinfo: registercompanionInputDto,
@@ -43,13 +45,7 @@ export function validateCompanionRequestInput(
 export function validatecompanionupdaterequest(
   userinfo: CompanionUpdateRequestInputDto,
 ) {
-  const { firstname, lastname, age, phoneno } = userinfo;
-  const location = {
-    city: userinfo?.city && userinfo.city.trim(),
-    state: userinfo?.state && userinfo.state.trim(),
-    lat: userinfo?.lat && userinfo.lat.trim(),
-    lng: userinfo?.lng && userinfo.lng.trim(),
-  };
+  const { firstname, lastname, age, phoneno, baselocations } = userinfo;
   try {
     if (userinfo.description) {
       const tempdesc = JSON.parse(userinfo.description as any);
@@ -161,6 +157,13 @@ export function validatecompanionupdaterequest(
       error: { status: 422, message: 'Previous images should be an array' },
     };
   }
+  userinfo.baselocations.forEach((l) => {
+    const { error } = bookingLocationValidation(l);
+    if (error)
+      return {
+        error,
+      };
+  });
   const values = [
     'firstname',
     'lastname',
@@ -170,10 +173,6 @@ export function validatecompanionupdaterequest(
     'phoneno',
     'description',
     'skintone',
-    'city',
-    'state',
-    'lat',
-    'lng',
     'height',
     'bodytype',
     'eatinghabits',
@@ -182,15 +181,30 @@ export function validatecompanionupdaterequest(
   ];
   const keyvalues = {};
   for (const key of values) {
-   if (userinfo[key]) {
+    if (userinfo[key]) {
       keyvalues[key] = userinfo[key];
     }
   }
-  return { user: keyvalues as CompanionUpdateRequestInputDto };
+  keyvalues['baselocations'] = baselocations.map((l) => ({
+    city: l.city,
+    state: l.state,
+    googleformattedadress: l.formattedaddress,
+    googleloc: l.name,
+    userinput: l.userInput,
+    lat: l.lat,
+    lng: l.lng,
+    googleplaceextra: l.googleextra,
+  }))
+  type newRequest = Omit<CompanionUpdateRequestInputDto, 'baselocations'> & {
+    baselocations: bookinglocationPrismaDto[];
+  };
+  return { user: keyvalues as newRequest };
 }
 
-
-export function validateRequestInput(requestInput: statusUpdateInputDto, idString: string) {
+export function validateRequestInput(
+  requestInput: statusUpdateInputDto,
+  idString: string,
+) {
   const { id, approve, reject } = requestInput;
   if (!id || !id.trim().length) {
     return { error: { status: 422, message: `${idString} Id is required` } };

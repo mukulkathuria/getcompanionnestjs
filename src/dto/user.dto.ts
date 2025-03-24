@@ -1,3 +1,5 @@
+import { BookingMeetingLocationDto } from "./bookings.dto";
+
 export enum GenderEnum {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
@@ -154,11 +156,7 @@ export interface CompanionUpdateRequestInputDto {
   phoneno: string;
   description: CompanionDescriptionEnum[];
   skintone: CompanionSkinToneEnum;
-  city: string;
-  state: string;
-  zipcode?: string;
-  lat: string;
-  lng: string;
+  baselocations: BookingMeetingLocationDto[];
   height: string;
   bodytype: MaleCompanionBodyTypeEnum | FemaleCompanionBodyTypeEnum;
   eatinghabits: CompanionEatingHabitsEnum;

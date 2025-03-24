@@ -124,6 +124,8 @@ export const bookingLocationValidation = (
     return getErrorMessage(422, 'Latitude is required');
   } else if (typeof input.lng !== 'number') {
     return getErrorMessage(422, 'Longitude is required');
+  } else if(input.googleextra && typeof input.googleextra !== 'object'){
+    return getErrorMessage(422, 'Extra parameter is not valid');
   }
   return { success: true };
 };

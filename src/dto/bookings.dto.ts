@@ -94,3 +94,15 @@ export interface pageNoQueryDto {
 export interface updateBookingStatusInputDto extends bookingIdDto {
   status: BookingStatusEnum;
 }
+
+export interface bookinglocationPrismaDto {
+  city?: string;
+  zipcode?: number;
+  state: string;
+  lat: number;
+  lng: number;
+  userinput?: string;
+  googleloc: string;
+  googleplaceextra?: { [key: string]: string };
+  googleformattedadress: string;
+}
