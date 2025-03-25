@@ -66,6 +66,7 @@ export interface userTokenDto {
 
 export interface forgotPasswordInitDto {
   email: string;
+  emailverification?: boolean; 
 }
 
 export interface forgotPasswordDto {
@@ -75,7 +76,7 @@ export interface forgotPasswordDto {
 }
 
 export interface loginUserDto extends successErrorDto, userTokenDto {
-  isEmailEverified?: boolean;
+  isEmailverified?: boolean;
   anybookingdone?: boolean
 }
 

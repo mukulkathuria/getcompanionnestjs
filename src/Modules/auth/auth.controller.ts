@@ -65,13 +65,15 @@ export class AuthController {
   async loginController(
     @Body() loginInfo: loginBodyDto,
   ): Promise<loginUserDto> {
-    const { error, access_token, refresh_token } =
+    const { error, access_token, refresh_token, isEmailverified, anybookingdone } =
       await this.authService.getLogin(loginInfo);
     if (access_token && refresh_token) {
       return {
         success: true,
         access_token,
         refresh_token,
+        isEmailverified,
+        anybookingdone
       };
     } else {
       throw new HttpException(error.message, error.status);
@@ -119,7 +121,7 @@ export class AuthController {
   @Post(UserAuthInnerRoute.forgotpassword)
   @HttpCode(200)
   async forgotPassword(@Body() dto: forgotPasswordInitDto) {
-    const { error, success } = await this.authService.forgotPassword(dto);
+    const { error, success } = await this.authService.forgotPassword(dto, dto.emailverification);
     if (success) {
       return {
         success: true,

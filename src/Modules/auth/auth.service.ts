@@ -189,7 +189,7 @@ export class AuthService {
       return {
         access_token,
         refresh_token,
-        isEmailEverified: isUserExists.isEmailVerified,
+        isEmailverified: isUserExists.isEmailVerified,
         anybookingdone: isUserExists.anybookingdone,
       };
     } catch (error) {
