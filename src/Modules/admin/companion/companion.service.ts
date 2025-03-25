@@ -47,7 +47,7 @@ export class CompanionService {
       if (isUserExists) {
         return { error: { status: 422, message: 'User already exists' } };
       }
-      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
       if (allimages.length < 2) {
         return {
           error: { status: 422, message: 'Atleast 2 images are required' },
@@ -129,7 +129,7 @@ export class CompanionService {
       }
       const { userdata, locationdata, companiondata } =
         isvalidComanioninputs(userinputs);
-      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      const allimages = images.map((l) =>  process.env.DEFAULT_URL + l.destination + '/' + l.filename);
       if (allimages.length > 4) {
         return {
           error: { status: 422, message: 'Images more than 4 is not allowed' },
@@ -266,7 +266,7 @@ export class CompanionService {
       if (!isUserExists) {
         return { error: { status: 422, message: 'User not Exists' } };
       }
-      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
       const { images: previousImages, error: imagesError } =
         validatepreviousImages(userinfo.previousImages);
       if (imagesError) {

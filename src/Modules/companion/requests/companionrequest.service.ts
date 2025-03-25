@@ -33,7 +33,7 @@ export class CompanionRequestService {
           error: { status: 422, message: 'Maximum 2 images are allowed' },
         };
       }
-      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
       const userdata = {
         firstname: userinfo.firstname,
         lastname: userinfo.lastname,

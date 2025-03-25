@@ -103,7 +103,7 @@ export class AuthService {
       if (error) {
         return { error };
       }
-      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
       const userdata = {
         firstname: user.firstname,
         lastname: user.lastname,

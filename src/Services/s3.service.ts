@@ -8,7 +8,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class S3Service {
-  private readonly s3client:S3Client;
+  private readonly s3client: S3Client;
   constructor() {
     this.s3client = new S3Client({
       credentials: {
@@ -37,15 +37,23 @@ export class S3Service {
     }
   }
 
-  async uploadFileins3(bucketname: string, pathfilename: string) {
+  async uploadFileins3(
+    pathfilename: string,
+    buffer: Buffer,
+    contenttype: string,
+  ) {
     try {
       const input = {
-        Bucket: bucketname,
+        Bucket: process.env.S3_BUCKET_NAME,
         Key: pathfilename,
+        Body: buffer,
+        ContentType: contenttype,
       };
       const command = new PutObjectCommand(input);
-      const response = await this.s3client.send(command);
-      return { data: response };
+      await this.s3client.send(command);
+      return {
+        data: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${pathfilename}`,
+      };
     } catch (error) {
       return {
         error: {

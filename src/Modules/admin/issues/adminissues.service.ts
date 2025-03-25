@@ -94,7 +94,7 @@ export class AdminIssuesServices {
       if (error) {
         return { error };
       }
-      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
       const data = await this.prismaService.userissues.create({
         data: {
           screenshots: allimages,
@@ -127,7 +127,7 @@ export class AdminIssuesServices {
           error: { status: 422, message: 'You can attach max 4 screenshot' },
         };
       }
-      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
       const ticketDetails = await this.prismaService.userissues.findUnique({
         where: { id: commentInput.issueId },
       });

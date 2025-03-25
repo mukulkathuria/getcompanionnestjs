@@ -23,6 +23,5 @@ import { BookingExtensionModule } from './extension/bookingextension.module';
     UserIssuesModule,
     BookingExtensionModule
   ],
-  providers: [S3Service],
 })
 export class UserModule {}

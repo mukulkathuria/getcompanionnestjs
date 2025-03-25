@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/Services/prisma.service';
+import { S3Service } from 'src/Services/s3.service';
 import { successErrorReturnDto } from 'src/dto/common.dto';
 // import { AccountEnum } from '@prisma/client';
 import {
@@ -13,8 +14,11 @@ import { isvalidUserinputs } from 'src/validations/user.validations';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) {}
-  private readonly logger = new Logger(PrismaService.name);
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly awsservice: S3Service,
+  ) {}
+  private readonly logger = new Logger(UsersService.name);
 
   async deleteUser(userId: string): Promise<successErrorReturnDto> {
     try {
@@ -43,7 +47,20 @@ export class UsersService {
         return { error: { status: 422, message: 'User not Exists' } };
       }
       const { userdata } = isvalidUserinputs(userinputs);
-      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      // const allimages = [];
+      // for (let i = 0; i < images.length; i += 1) {
+      //   const filepath = 'userphotos/' + isUserExists.email + Date.now();
+      //   const { data } = await this.awsservice.uploadFileins3(
+      //     filepath,
+      //     images[i].buffer,
+      //     images[i].mimetype,
+      //   );
+      //   if (data) {
+      //     allimages.push(data);
+      //   }
+      // }
+      // console.log(allimages);
       if (allimages.length > 1) {
         return {
           error: { status: 422, message: 'Images more than 1 is not allowed' },
@@ -182,7 +199,7 @@ export class UsersService {
       if (error) {
         return { error };
       }
-      const allimages = images.map((l) => l.destination + '/' + l.filename);
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
       if (!userinfo.previousImages && allimages.length < 2) {
         return {
           error: { status: 422, message: 'Images is required' },
@@ -206,7 +223,7 @@ export class UsersService {
       await this.prismaService.companionupdaterequest.create({
         data: {
           ...user,
-          baselocations:{ createMany: { data: user.baselocations} },
+          baselocations: { createMany: { data: user.baselocations } },
           companiondetails: { connect: { id: userId } },
         },
       });

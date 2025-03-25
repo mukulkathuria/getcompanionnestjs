@@ -1,5 +1,5 @@
 import { MulterModuleOptions } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { memoryStorage, diskStorage } from 'multer';
 
 export const USERIMAGESMAXCOUNT = 1;
 export const COMPANIONIMAGESMAXCOUNT = 4;
