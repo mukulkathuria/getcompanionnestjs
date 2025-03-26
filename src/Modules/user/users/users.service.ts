@@ -6,11 +6,13 @@ import { successErrorReturnDto } from 'src/dto/common.dto';
 import {
   CompanionUpdateRequestInputDto,
   UpdateUserProfileBodyDto,
+  UserlocationProfileDto,
 } from 'src/dto/user.dto';
 import { getdeletedUserexpirydate } from 'src/utils/common.utils';
 import { filterCompanionDetailsbyuser } from 'src/utils/user.utils';
 import { validatecompanionupdaterequest } from 'src/validations/companionrequest.validation';
 import { isvalidUserinputs } from 'src/validations/user.validations';
+import { Request } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -47,7 +49,9 @@ export class UsersService {
         return { error: { status: 422, message: 'User not Exists' } };
       }
       const { userdata } = isvalidUserinputs(userinputs);
-      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      const allimages = images.map(
+        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      );
       // const allimages = [];
       // for (let i = 0; i < images.length; i += 1) {
       //   const filepath = 'userphotos/' + isUserExists.email + Date.now();
@@ -199,7 +203,9 @@ export class UsersService {
       if (error) {
         return { error };
       }
-      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      const allimages = images.map(
+        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      );
       if (!userinfo.previousImages && allimages.length < 2) {
         return {
           error: { status: 422, message: 'Images is required' },
@@ -227,6 +233,71 @@ export class UsersService {
           companiondetails: { connect: { id: userId } },
         },
       });
+      return { success: true };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getUserOtherDetails(
+    req: Request,
+    bodyParams: UserlocationProfileDto,
+    userId: string,
+  ): Promise<successErrorReturnDto> {
+    try {
+      const { getUserAgentDetails } = await import(
+        '../../../utils/userAgent.utils'
+      );
+      const userdata = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        include: {
+          companionsearchlocations: {
+            orderBy: { createdAt: 'desc' },
+            select: {
+              lat: true,
+              lng: true,
+              state: true,
+              city: true,
+              userAgent: true,
+            },
+          },
+        },
+      });
+      if (!userdata) {
+        return { error: { status: 422, message: 'No User is exists' } };
+      }
+      const userAgent = getUserAgentDetails(
+        req.headers['user-agent'],
+      ) as unknown as { [key: string]: string };
+      let isNewAgent = false;
+      for (let i = 0; i < userdata.companionsearchlocations.length; i += 1) {
+        const values = userdata.companionsearchlocations[i];
+        if (
+          values.city !== bodyParams.city ||
+          values.state !== bodyParams.state ||
+          values.lat !== bodyParams.lat ||
+          values.lng !== bodyParams.lng ||
+          values.userAgent !== userAgent
+        ) {
+          isNewAgent = true;
+        }
+      }
+      if (isNewAgent) {
+        await this.prismaService.companionsearchlocations.create({
+          data: {
+            ...bodyParams,
+            userAgent,
+            User: { connect: { id: userId } },
+          },
+        });
+      }
+      console.log('Headers');
+      console.log(
+        'Other Details',
+        req.socket.remoteAddress,
+        req.socket.localAddress,
+      );
       return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);

@@ -33,6 +33,7 @@ export const UserprofileInnerRoute = {
   userProfileDetails: 'userprofiledetails',
   getcompanionfulldetails: 'getcompanionfulldetails',
   updatecompanionrequest: 'updatecompanionrequest/:id',
+  getuserotherdetailsroute: 'getuserotherdetails'
 };
 
 export const UserBookingInnerRoute = {

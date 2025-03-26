@@ -27,6 +27,9 @@ export const getUserAgentDetails = (userAgent: string) => {
     userAgentDetails.version = userAgent.includes('MSIE')
       ? userAgent.split('MSIE ')[1].split(';')[0]
       : userAgent.split('rv:')[1].split(')')[0];
+  } else if (userAgent.includes('Postman')) {
+    userAgentDetails.browser = 'Postman';
+    userAgentDetails.version = userAgent.split('PostmanRuntime/')[1];
   } else {
     userAgentDetails.browser = 'Unknown';
   }
@@ -49,6 +52,8 @@ export const getUserAgentDetails = (userAgent: string) => {
 
   if (userAgent.includes('Mobile')) {
     userAgentDetails.device = 'Mobile';
+  } else if (userAgent.includes('Postman')) {
+    userAgentDetails.device = 'Postman';
   } else {
     userAgentDetails.device = 'Desktop';
   }

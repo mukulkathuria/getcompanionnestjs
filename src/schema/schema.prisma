@@ -199,17 +199,18 @@ model livelocation {
 }
 
 model companionsearchlocations {
-  id        Int      @id @default(autoincrement())
-  userid    String
-  User      User     @relation(fields: [userid], references: [id])
-  city      String?
-  zipcode   Int?
-  state     String?
-  lat       Float?
-  lng       Float?
-  userAgent Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  userid        String
+  User          User     @relation(fields: [userid], references: [id])
+  city          String?
+  zipcode       Int?
+  state         String?
+  lat           Float?
+  lng           Float?
+  userAgent     Json?
+  remoteAddress String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model User {
@@ -246,7 +247,7 @@ model User {
   cancelledBookings        Booking[]                  @relation("cancellationDetails")
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
-  profilevisited           profilevisited[]
+  profilevisited           Companion[]                @relation("uservisited")
 }
 
 model Companion {
@@ -266,7 +267,7 @@ model Companion {
   rejectedreason         String?
   baselocation           location[]
   companionupdaterequest companionupdaterequest[]
-  usersvisited           profilevisited[]
+  usersvisited           User[]                     @relation("uservisited")
 }
 
 model Booking {
@@ -287,6 +288,7 @@ model Booking {
   cancelledReason     String?
   cancelledBy         String?
   cancelledAt         BigInt?
+  refundamount        Int                     @default(0)
   cancellationDetails User?                   @relation("cancellationDetails", fields: [cancelledBy], references: [id])
   extentedfinalrate   Float                   @default(0)
   extendedendtime     BigInt                  @default(0)
@@ -440,15 +442,6 @@ model companionupdaterequest {
   status           AccountEnum                @default(REVIEWED)
   createdAt        DateTime                   @default(now())
   updatedAt        DateTime                   @updatedAt
-}
-
-model profilevisited {
-  id             Int       @id @default(autoincrement())
-  companionid    String
-  VisitedProfile Companion @relation(fields: [companionid], references: [id])
-  userid         String
-  uservisited    User      @relation(fields: [userid], references: [id])
-  createdAt      DateTime  @default(now())
 }
 
 model requestlocation {

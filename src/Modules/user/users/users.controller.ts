@@ -26,10 +26,12 @@ import { controllerReturnDto } from 'src/dto/common.dto';
 import {
   CompanionUpdateRequestInputDto,
   UpdateUserProfileBodyDto,
+  UserlocationProfileDto,
   UserProfileParamsDto,
 } from 'src/dto/user.dto';
 import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
 import { companionDetailsQuery } from 'src/dto/companionfind.dto';
+import { Request as ExpressRquest } from 'express';
 
 @Controller(UserProfileRoute)
 export class DeleteUsersController {
@@ -168,6 +170,37 @@ export class DeleteUsersController {
       };
     } else {
       throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(UserprofileInnerRoute.getuserotherdetailsroute)
+  async getUserOtherDeialsController(
+    @Req() req: ExpressRquest,
+    @Body() bodyparams: UserlocationProfileDto,
+  ) {
+    const { decodeExpressRequest } = await import(
+      '../../../guards/strategies/jwt.strategy'
+    );
+    const { data: Tokendata, error: TokenError } = decodeExpressRequest(
+      req as unknown as Request,
+    );
+    if (Tokendata) {
+      const { success, error } = await this.userservice.getUserOtherDetails(
+        req,
+        bodyparams,
+        Tokendata.userId,
+      );
+      if (success) {
+        return {
+          success,
+          message: 'Successfully updated details',
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
+    } else {
+      throw new HttpException(TokenError, 403);
     }
   }
 }

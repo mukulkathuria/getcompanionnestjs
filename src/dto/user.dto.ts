@@ -108,6 +108,7 @@ export interface UpdateCompanionProfileBodyDto {
 
 export interface UserlocationProfileDto {
   city?: string;
+  state? : string;
   zipcode?: number;
   lat?: number;
   lng?: number;
