@@ -7,6 +7,7 @@ import { AdminIssuesModule } from './issues/adminissues.module';
 import { AdminNotificationModule } from './notifications/adminnotification.module';
 import { AdminAccountsModule } from './accounts/adminaccounts.module';
 import { AdminTransactionModule } from './transactions/admintransaction.module';
+import { DevelopmentModule } from './development/development.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { AdminTransactionModule } from './transactions/admintransaction.module';
     AdminIssuesModule,
     AdminNotificationModule,
     AdminAccountsModule,
-    AdminTransactionModule
+    AdminTransactionModule,
+    DevelopmentModule
   ],
   providers: [S3Service],
 })

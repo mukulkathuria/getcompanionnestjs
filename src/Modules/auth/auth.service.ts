@@ -59,6 +59,7 @@ export class AuthService {
       userId: user?.id,
       isCompanion: Boolean(user?.isCompanion),
       Images: user.Images,
+      isEmailVerified: user.isEmailVerified
     };
     const id = uuid();
     const refresh_token = sign(
@@ -189,7 +190,6 @@ export class AuthService {
       return {
         access_token,
         refresh_token,
-        isEmailverified: isUserExists.isEmailVerified,
         anybookingdone: isUserExists.anybookingdone,
       };
     } catch (error) {
@@ -224,6 +224,7 @@ export class AuthService {
       name: refreshToken.name,
       isCompanion: Boolean(refreshToken?.isCompanion),
       Images: refreshToken.Images,
+      isEmailVerified: refreshToken.isEmailVerified
     };
     return {
       access_token: sign(

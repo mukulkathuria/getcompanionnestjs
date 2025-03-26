@@ -10,6 +10,7 @@ export const AdminIssuesRoute = AdminRoute + '/issues';
 export const AdminNotificaionRoute = AdminRoute + '/notification';
 export const AdminAccountsRoute = AdminRoute + '/accounts';
 export const AdminTransactionRoute = AdminRoute + '/transactions';
+export const AdminDeveloperRoute = AdminRoute + '/developer'
 
 export const AdminBookingInnerRoutes = {
     bookingrequestroute: 'bookingrequest',
@@ -59,4 +60,8 @@ export const AdminAccountsInnerRoute = {
 
 export const AdminTransactionInnerRoutes = {
     onsuccessfullrefundamount: 'onsuccessfullrefundamount'
+}
+
+export const AdminDeveloperInnerRoute = {
+    getotplist: 'getotplist'
 }

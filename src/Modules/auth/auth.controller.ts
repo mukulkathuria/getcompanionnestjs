@@ -65,14 +65,13 @@ export class AuthController {
   async loginController(
     @Body() loginInfo: loginBodyDto,
   ): Promise<loginUserDto> {
-    const { error, access_token, refresh_token, isEmailverified, anybookingdone } =
+    const { error, access_token, refresh_token, anybookingdone } =
       await this.authService.getLogin(loginInfo);
     if (access_token && refresh_token) {
       return {
         success: true,
         access_token,
         refresh_token,
-        isEmailverified,
         anybookingdone
       };
     } else {

@@ -4,6 +4,7 @@ export type tokenDto = {
   Images: string[];
   name: string;
   email: string;
+  isEmailVerified: boolean;
   role: string;
   iat: number;
   exp: number;
@@ -29,6 +30,7 @@ export type authTokenDto = {
   firstname: string;
   lastname: string;
   Images: string[];
+  isEmailVerified: boolean;
 };
 
 export interface requestTokenDto {
