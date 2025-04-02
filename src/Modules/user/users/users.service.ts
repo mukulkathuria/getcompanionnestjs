@@ -176,6 +176,10 @@ export class UsersService {
                   state: true,
                   lat: true,
                   lng: true,
+                  googleformattedadress: true,
+                  userinput: true,
+                  googleplaceextra: true,
+                  googleloc: true,
                 },
               },
             },
@@ -185,7 +189,23 @@ export class UsersService {
       if (!data) {
         return { error: { status: 422, message: 'Invalid companion search' } };
       }
-      const values = { ...data, phoneno: String(data.phoneno) };
+      const values = {
+        ...data,
+        phoneno: String(data.phoneno),
+        Companion: data.Companion.map((l) => ({
+          ...l,
+          baselocation: l.baselocation.map((p) => ({
+            city: p.city,
+            state: p.state,
+            formattedaddress: p.googleformattedadress,
+            name: p.googleloc,
+            userInput: p.userinput,
+            lat: p.lat,
+            lng: p.lng,
+            googleextra: p.googleplaceextra,
+          })),
+        })),
+      };
       return { data: values };
     } catch (error) {
       this.logger.debug(error?.message || error);
