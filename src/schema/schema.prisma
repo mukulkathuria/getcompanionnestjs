@@ -431,6 +431,7 @@ model companionupdaterequest {
   Images           String[]
   age              String
   phoneno          String
+  height           String
   description      CompanionDescriptionEnum[]
   skintone         CompanionSkinToneEnum
   bodytype         CompanionBodyTypeEnum

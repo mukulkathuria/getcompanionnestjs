@@ -39,7 +39,7 @@ export type registerCompanionBodyDto = {
   eatinghabits: CompanionEatingHabitsEnum;
   drinkinghabits: CompanionDrinkingHabitEnum;
   smokinghabits: CompanionSmokingHabitEnum;
-  locations: BookingMeetingLocationDto[]
+  baselocations: BookingMeetingLocationDto[]
 };
 
 export interface previousImagesDto {

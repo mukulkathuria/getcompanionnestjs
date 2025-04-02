@@ -45,13 +45,15 @@ export function validateCompanionRequestInput(
 export function validatecompanionupdaterequest(
   userinfo: CompanionUpdateRequestInputDto,
 ) {
-  const { firstname, lastname, age, phoneno, baselocations } = userinfo;
+  const { firstname, lastname, age, phoneno } = userinfo;
   try {
     if (userinfo.description) {
       const tempdesc = JSON.parse(userinfo.description as any);
       const temppreviousImges = userinfo.previousImages
         ? JSON.parse(userinfo.previousImages as any)
         : [];
+      const tempbaseloc = JSON.parse(userinfo.baselocations as any);
+      userinfo.baselocations = tempbaseloc;
       userinfo.previousImages = temppreviousImges;
       userinfo['description'] = Array.isArray(tempdesc)
         ? tempdesc.map((l) => l.trim())
@@ -84,8 +86,6 @@ export function validatecompanionupdaterequest(
     return { error: { status: 422, message: 'Age is required' } };
   } else if (age && Number(age) < 18) {
     return { error: { status: 422, message: 'Below 18 is not allowed' } };
-  } else if (!Object.values(location).every((l) => l)) {
-    return { error: { status: 422, message: 'Location is required' } };
   } else if (!companion.Skintone) {
     return {
       error: { status: 422, message: 'Companion skintone is required' },
@@ -156,6 +156,10 @@ export function validatecompanionupdaterequest(
     return {
       error: { status: 422, message: 'Previous images should be an array' },
     };
+  } else if (userinfo.baselocations?.length < 4) {
+    return {
+      error: { status: 422, message: 'Atleast 4 baselocation is required' },
+    };
   }
   userinfo.baselocations.forEach((l) => {
     const { error } = bookingLocationValidation(l);
@@ -185,7 +189,7 @@ export function validatecompanionupdaterequest(
       keyvalues[key] = userinfo[key];
     }
   }
-  keyvalues['baselocations'] = baselocations.map((l) => ({
+  keyvalues['baselocations'] = userinfo.baselocations.map((l) => ({
     city: l.city,
     state: l.state,
     googleformattedadress: l.formattedaddress,
@@ -194,7 +198,7 @@ export function validatecompanionupdaterequest(
     lat: l.lat,
     lng: l.lng,
     googleplaceextra: l.googleextra,
-  }))
+  }));
   type newRequest = Omit<CompanionUpdateRequestInputDto, 'baselocations'> & {
     baselocations: bookinglocationPrismaDto[];
   };

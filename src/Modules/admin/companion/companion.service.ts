@@ -58,7 +58,7 @@ export class CompanionService {
           error: { status: 422, message: 'Images more than 4 is not allowed' },
         };
       }
-      const location = userinfo.locations.map((l) => ({
+      const location = userinfo.baselocations.map((l) => ({
         city: l.city,
         state: l.state,
         googleformattedadress: l.formattedaddress,
@@ -292,7 +292,7 @@ export class CompanionService {
         user['Images'] = previousImages;
       }
       delete userinfo.previousImages;
-      const location = userinfo.locations.map((l) => ({
+      const location = userinfo.baselocations.map((l) => ({
         city: l.city,
         state: l.state,
         googleformattedadress: l.formattedaddress,

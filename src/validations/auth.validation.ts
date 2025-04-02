@@ -75,11 +75,12 @@ export function validateregisterCompanion(
     gender,
     age,
     phoneno,
-    locations,
   } = userinfo;
   try {
     if (userinfo.description) {
       const tempdesc = JSON.parse(userinfo.description as any);
+      const tempbaseloc = JSON.parse(userinfo.baselocations as any);
+      userinfo.baselocations = tempbaseloc;
       userinfo['description'] = Array.isArray(tempdesc)
         ? tempdesc.map((l) => l.trim())
         : [];
@@ -201,7 +202,7 @@ export function validateregisterCompanion(
       error: { status: 422, message: 'Companion height is required' },
     };
   }
-  locations.forEach((l) => {
+  userinfo.baselocations.forEach((l) => {
     const { error } = bookingLocationValidation(l);
     if (error) {
       return { error };
