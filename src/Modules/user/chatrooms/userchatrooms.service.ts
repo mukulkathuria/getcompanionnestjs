@@ -28,6 +28,7 @@ export class UserChatRoomsService {
               isCompanion: true,
               id: true,
               Images: true,
+              Companion: { select:{ baselocation: true } }
             },
           },
           Bookings: {
