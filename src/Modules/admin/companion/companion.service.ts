@@ -215,6 +215,17 @@ export class CompanionService {
               drinkinghabits: true,
               smokinghabits: true,
               account: true,
+              baselocation: {
+                select: {
+                  city: true,
+                  lat: true,
+                  lng: true,
+                  state: true,
+                  googleformattedadress: true,
+                  googleloc: true,
+                  googleplaceextra: true
+                },
+              },
             },
           },
           baselocations: {
@@ -225,6 +236,7 @@ export class CompanionService {
               state: true,
               googleformattedadress: true,
               googleloc: true,
+              googleplaceextra: true
             },
           },
         },

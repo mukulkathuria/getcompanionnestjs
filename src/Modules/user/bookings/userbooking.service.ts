@@ -80,8 +80,8 @@ export class UserBookingsService {
         },
       });
 
-      if (!data || !data.Booking.length) {
-        return { error: { status: 404, message: 'No Bookings are available' } };
+      if (!data) {
+        data['Booking'] = [];
       }
       const filtervalues = data.Booking.map((l) => ({
         bookingstart: String(l.bookingstart),
@@ -534,7 +534,7 @@ export class UserBookingsService {
       });
 
       if (!data) {
-        return { error: { status: 404, message: 'No Bookings are available' } };
+        data['Booking'] = []
       }
       const filtervalues = data.Booking.map((l) => ({
         bookingstart: String(l.bookingstart),
@@ -588,7 +588,7 @@ export class UserBookingsService {
       });
 
       if (!data) {
-        return { error: { status: 404, message: 'No Bookings are available' } };
+        data['Booking'] = []
       }
       const filtervalues = data.Booking.map((l) => ({
         bookingstart: String(l.bookingstart),
@@ -655,8 +655,8 @@ export class UserBookingsService {
         },
       });
 
-      if (!data || !data.Booking.length) {
-        return { error: { status: 404, message: 'No Bookings are available' } };
+      if (!data) {
+        data['Booking'] = []
       }
       const filtervalues = data.Booking.map((l) => ({
         bookingstart: String(l.bookingstart),
