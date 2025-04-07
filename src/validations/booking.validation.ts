@@ -112,13 +112,13 @@ export function validateBookingStatusInput(
 export const bookingLocationValidation = (
   input: BookingMeetingLocationDto,
 ): successErrorReturnDto => {
-  if (!input.city || input.city.trim()) {
+  if (!input.city || !input.city.trim().length) {
     return getErrorMessage(422, 'City is required');
-  } else if (!input.state || input.state.trim()) {
+  } else if (!input.state || !input.state.trim()) {
     return getErrorMessage(422, 'State is required');
-  } else if (!input.name || input.name.trim()) {
+  } else if (!input.name || !input.name.trim()) {
     return getErrorMessage(422, 'Name of place is required');
-  } else if (!input.formattedaddress || input.formattedaddress.trim()) {
+  } else if (!input.formattedaddress || !input.formattedaddress.trim()) {
     return getErrorMessage(422, 'Address is required');
   } else if (typeof input.lat !== 'number') {
     return getErrorMessage(422, 'Latitude is required');

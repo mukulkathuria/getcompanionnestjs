@@ -47,7 +47,9 @@ export class CompanionService {
       if (isUserExists) {
         return { error: { status: 422, message: 'User already exists' } };
       }
-      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      const allimages = images.map(
+        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      );
       if (allimages.length < 2) {
         return {
           error: { status: 422, message: 'Atleast 2 images are required' },
@@ -67,7 +69,6 @@ export class CompanionService {
         lat: l.lat,
         lng: l.lng,
         googleplaceextra: l.googleextra,
-        basefrom: 'BOOKING' as 'BOOKING',
       }));
       const userdata = {
         firstname: user.firstname,
@@ -129,7 +130,9 @@ export class CompanionService {
       }
       const { userdata, locationdata, companiondata } =
         isvalidComanioninputs(userinputs);
-      const allimages = images.map((l) =>  process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      const allimages = images.map(
+        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      );
       if (allimages.length > 4) {
         return {
           error: { status: 422, message: 'Images more than 4 is not allowed' },
@@ -222,8 +225,9 @@ export class CompanionService {
                   lng: true,
                   state: true,
                   googleformattedadress: true,
+                  userinput: true,
                   googleloc: true,
-                  googleplaceextra: true
+                  googleplaceextra: true,
                 },
               },
             },
@@ -234,9 +238,10 @@ export class CompanionService {
               lat: true,
               lng: true,
               state: true,
+              userinput: true,
               googleformattedadress: true,
               googleloc: true,
-              googleplaceextra: true
+              googleplaceextra: true,
             },
           },
         },
@@ -246,8 +251,28 @@ export class CompanionService {
       }
       const values = {
         ...data,
+        baselocations: data.baselocations.map((l) => ({
+          lat: l.lat,
+          lng: l.lng,
+          city: l.city,
+          state: l.state,
+          userInput: l.userinput,
+          name: l.googleloc,
+          formattedaddress: l.googleformattedadress,
+          googleextra: l.googleplaceextra,
+        })),
         companiondetails: {
           ...data.companiondetails,
+          baselocation: data.companiondetails.baselocation.map((l) => ({
+            lat: l.lat,
+            lng: l.lng,
+            city: l.city,
+            userInput: l.userinput,
+            state: l.state,
+            name: l.googleloc,
+            formattedaddress: l.googleformattedadress,
+            googleextra: l.googleplaceextra,
+          })),
           User: {
             ...data.companiondetails.User,
             phoneno: String(data.companiondetails.User.phoneno),
@@ -278,7 +303,9 @@ export class CompanionService {
       if (!isUserExists) {
         return { error: { status: 422, message: 'User not Exists' } };
       }
-      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      const allimages = images.map(
+        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      );
       const { images: previousImages, error: imagesError } =
         validatepreviousImages(userinfo.previousImages);
       if (imagesError) {
@@ -304,55 +331,17 @@ export class CompanionService {
         user['Images'] = previousImages;
       }
       delete userinfo.previousImages;
-      const location = userinfo.baselocations.map((l) => ({
-        city: l.city,
-        state: l.state,
-        googleformattedadress: l.formattedaddress,
-        googleloc: l.name,
-        userinput: l.userInput,
-        lat: l.lat,
-        lng: l.lng,
-        googleplaceextra: l.googleextra,
-        basefrom: 'BOOKING' as 'BOOKING',
-      }));
-      const userdata = {
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        gender: user.gender,
-        age: Number(user.age),
-        // isCompanion: true,
-        Images: user.Images,
-        phoneno: Number(user.phoneno),
-      };
-      const companion = {
-        bookingrate: Number(user?.bookingrate) || null,
-        bookingrateunit: CompanionBookingUnitEnum.PERHOUR,
-        description: user.description,
-        Skintone: user.skintone,
-        height: Number(user.height),
-        bodytype: user.bodytype,
-        eatinghabits: user.eatinghabits,
-        drinkinghabits: user.drinkinghabits,
-        smokinghabits: user.smokinghabits,
-      };
-      await this.prismaService.user.update({
-        where: { email: user.email },
-        data: {
-          ...userdata,
-          Companion: {
-            update: {
-              where: { userid: id },
-              data: {
-                ...companion,
-                baselocation: {
-                  updateMany: { where: { userid: id }, data: location },
-                },
-              },
-            },
-          },
-        },
-      });
+      const baseids = isUserExists.Companion[0].baselocation.map((l) => l.id);
+      const { getupdateCompanionDetailrawQuey } = await import(
+        '../../../utils/admin.companion.utils'
+      );
+      const { updateUserQuery, updateCompanionQuery, updateLocationquery } =
+        getupdateCompanionDetailrawQuey(userinfo, user, baseids);
+      await this.prismaService.$transaction([
+        this.prismaService.$queryRawUnsafe(updateUserQuery),
+        this.prismaService.$queryRawUnsafe(updateCompanionQuery),
+        this.prismaService.$queryRawUnsafe(updateLocationquery),
+      ]);
       return { success: true };
     } catch (error) {
       this.logger.error(error?.message || error);

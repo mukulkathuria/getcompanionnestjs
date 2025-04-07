@@ -67,15 +67,8 @@ export function validateregisterCompanion(
   userinfo: registerCompanionBodyDto,
   isPasswordskip: boolean = false,
 ) {
-  const {
-    firstname,
-    lastname,
-    email,
-    password,
-    gender,
-    age,
-    phoneno,
-  } = userinfo;
+  const { firstname, lastname, email, password, gender, age, phoneno } =
+    userinfo;
   try {
     if (userinfo.description) {
       const tempdesc = JSON.parse(userinfo.description as any);
@@ -202,12 +195,12 @@ export function validateregisterCompanion(
       error: { status: 422, message: 'Companion height is required' },
     };
   }
-  userinfo.baselocations.forEach((l) => {
-    const { error } = bookingLocationValidation(l);
+  for (let i = 0; i < userinfo.baselocations.length; i += 1) {
+    const { error } = bookingLocationValidation(userinfo.baselocations[i]);
     if (error) {
       return { error };
     }
-  });
+  }
   return { user: userinfo };
 }
 
