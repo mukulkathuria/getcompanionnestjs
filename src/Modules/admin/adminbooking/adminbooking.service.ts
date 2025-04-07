@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { pageNoQueryDto, updateBookingStatusInputDto } from 'src/dto/bookings.dto';
+import {
+  pageNoQueryDto,
+  updateBookingStatusInputDto,
+} from 'src/dto/bookings.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import { timeAgo } from 'src/utils/formatDate.utils';
 import { validateBookingStatusInput } from 'src/validations/booking.validation';
@@ -282,6 +285,49 @@ export class AdminBookingService {
         },
       });
       return { success: true };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
+  async getPendingRefundBookingList() {
+    try {
+      const data = await this.prismaService.booking.findMany({
+        where: {
+          OR: [
+            {
+              bookingstatus: {
+                in: [
+                  'CANCELLEDREFUNDPENDING',
+                  'CANCELLATIONAPPROVED',
+                  'REJECTED',
+                ],
+              },
+            },
+            {
+              refundamount: { not: 0 },
+            },
+          ],
+          Transactions: { none: { status: 'REFUNDED' } },
+        },
+        select: {
+          id: true,
+          User: { select: { email: true, isCompanion: true } },
+          refundamount: true,
+          cancellationDetails: { select: { isCompanion: true } },
+          bookingstatus: true,
+          finalRate: true,
+          bookingstart: true,
+        },
+      });
+      const values = data.map((l) => ({
+        ...l,
+        bookingstart: String(l.bookingstart),
+      }));
+      return { data: values };
     } catch (error) {
       this.logger.error(error?.message || error);
       return {

@@ -120,4 +120,18 @@ export class AdminBookingController {
       throw new HttpException(error.message, error.status);
     }
   }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminBookingInnerRoutes.getpendingrefundbookinglistRoute)
+  async getFefundPendingBookinglistController() {
+    const { data, error } =
+      await this.adminbookingservice.getPendingRefundBookingList();
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }
