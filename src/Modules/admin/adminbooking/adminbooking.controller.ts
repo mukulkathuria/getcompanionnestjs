@@ -14,7 +14,11 @@ import {
 } from '../routes/admin.routes';
 import { AdminBookingService } from './adminbooking.service';
 import { AdminGuard } from 'src/guards/admin.guard';
-import { bookingIdDto, pageNoQueryDto, updateBookingStatusInputDto } from 'src/dto/bookings.dto';
+import {
+  bookingIdDto,
+  pageNoQueryDto,
+  updateBookingStatusInputDto,
+} from 'src/dto/bookings.dto';
 
 @Controller(AdminUserBookingsRoute)
 export class AdminBookingController {
@@ -53,7 +57,8 @@ export class AdminBookingController {
   @UseGuards(AdminGuard)
   @Get(AdminBookingInnerRoutes.getallbookinglistroute)
   async getAllBookingList(@Query() queryparms: pageNoQueryDto) {
-    const { data, error } = await this.adminbookingservice.getBookingList(queryparms);
+    const { data, error } =
+      await this.adminbookingservice.getBookingList(queryparms);
     if (data) {
       return {
         data,
@@ -108,13 +113,15 @@ export class AdminBookingController {
   @UseGuards(AdminGuard)
   @Post(AdminBookingInnerRoutes.updatebookingstatusRoute)
   @HttpCode(200)
-  async updateBookingStatusController(@Body() params: updateBookingStatusInputDto) {
+  async updateBookingStatusController(
+    @Body() params: updateBookingStatusInputDto,
+  ) {
     const { success, error } =
       await this.adminbookingservice.updateBookingStatus(params);
     if (success) {
       return {
         success,
-        message: 'Booking Status Updated Successfully'
+        message: 'Booking Status Updated Successfully',
       };
     } else {
       throw new HttpException(error.message, error.status);
@@ -126,6 +133,22 @@ export class AdminBookingController {
   async getFefundPendingBookinglistController() {
     const { data, error } =
       await this.adminbookingservice.getPendingRefundBookingList();
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminBookingInnerRoutes.getcompletedrefundbookinglistRoute)
+  async getFefundCompletedBookinglistController(
+    @Query() pageparams: pageNoQueryDto,
+  ) {
+    const { data, error } =
+      await this.adminbookingservice.getCompletedRefundBookingList(pageparams);
     if (data) {
       return {
         data,

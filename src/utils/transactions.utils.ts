@@ -21,10 +21,11 @@ export const makePaymentdetailsjson = (
     PaymentmethodEnum[userInput?.mode as keyof typeof PaymentmethodEnum];
   const cardDetails = {};
   switch (true) {
-    case paymentMethod === PaymentmethodEnum.DC || paymentMethod === PaymentmethodEnum.CC:
+    case paymentMethod === PaymentmethodEnum.DC ||
+      paymentMethod === PaymentmethodEnum.CC:
       cardDetails['cardType'] =
         CardTypeEnum[userInput.bankcode as keyof typeof CardTypeEnum];
-      cardDetails['cardNumber'] = userInput.cardnum
+      cardDetails['cardNumber'] = userInput.cardnum;
       break;
     case paymentMethod === PaymentmethodEnum.WALLET:
       cardDetails['walletBank'] =
@@ -32,9 +33,13 @@ export const makePaymentdetailsjson = (
       break;
     case paymentMethod === PaymentmethodEnum.UPI: {
       cardDetails['UPIid'] = userInput.vpa;
-      const upibankKeys = Object.values(UPIBanksData);
+      const upibankKeys = Object.keys(UPIBanksData);
       for (let i = 0; i < upibankKeys.length; i++) {
-        if (upibankKeys[i].includes(userInput?.vpa)) {
+        if (
+          UPIBanksData[upibankKeys[i]]
+            .split(',')
+            .some((l) => userInput.vpa.includes(l.trim()))
+        ) {
           cardDetails['UPIBank'] = upibankKeys[i];
           break;
         }
@@ -46,7 +51,8 @@ export const makePaymentdetailsjson = (
         NetBankingNamesEnum[
           userInput.bankcode as keyof typeof NetBankingNamesEnum
         ];
-        cardDetails['netBanking'] = NetBankingNamesEnum[
+      cardDetails['netBanking'] =
+        NetBankingNamesEnum[
           userInput.bankcode as keyof typeof NetBankingNamesEnum
         ];
       break;
@@ -58,7 +64,7 @@ export const makePaymentdetailsjson = (
     paymentMethod:
       PaymentmethodEnum[userInput.mode as keyof typeof PaymentmethodEnum],
     mappedstatus: userInput.unmappedstatus,
-      ...cardDetails
+    ...cardDetails,
   };
   if (userInput.cardCategory) {
     data['cardCategory'] = userInput.cardCategory;

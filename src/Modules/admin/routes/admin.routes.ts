@@ -20,7 +20,8 @@ export const AdminBookingInnerRoutes = {
     getunderextensionbookinglistroute: 'getunderextensionbookinglist',
     getcancelledbookinglistofuserroute: 'getcancelledbookinglistofuser',
     updatebookingstatusRoute: 'updatebookingstatus',
-    getpendingrefundbookinglistRoute: 'getpendingrefundbookinglist'
+    getpendingrefundbookinglistRoute: 'getpendingrefundbookinglist',
+     getcompletedrefundbookinglistRoute: 'getcompletedrefundbookinglist'
 }
 
 export const AdminIssuesInnerRoutes = {

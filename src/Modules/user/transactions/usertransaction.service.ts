@@ -123,6 +123,7 @@ export class UserTransactionService {
           status: TransactionStatusEnum.COMPLETED,
           payurefid: userInput.undefinedmihpayid,
           paymentdetails: data || {},
+          paymentmethod: data.paymentMethod,
           transactionTime: new Date(userInput.addedon).getTime(),
           Bookings: {
             update: { data: { bookingstatus: BookingStatusEnum.UNDERREVIEW } },
@@ -179,6 +180,7 @@ export class UserTransactionService {
           status: TransactionStatusEnum.COMPLETED,
           payurefid: userInput.undefinedmihpayid,
           paymentdetails: data || {},
+          paymentmethod: data.paymentMethod,
           transactionTime: new Date(userInput.addedon).getTime(),
           Bookings: {
             update: {

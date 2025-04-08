@@ -170,6 +170,9 @@ export class AdminTransactionService {
     try {
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
+      if (!userInput.bookingid || typeof userInput.bookingid !== 'number') {
+        return { error: { status: 422, message: 'Booking id required' } };
+      }
       const { data } = makePaymentdetailsjson(userInput);
       await this.prismaService.$transaction([
         this.prismaService.transactions.create({
@@ -178,7 +181,7 @@ export class AdminTransactionService {
             payurefid: userInput.undefinedmihpayid,
             paymentdetails: data || {},
             txnid: userInput.txnid,
-            paymentmethod: 'CASH',
+            paymentmethod: data.paymentMethod,
             amount: Number(userInput.amount),
             transactionTime: new Date(userInput.addedon).getTime(),
             User: { connect: { id: userId } },
@@ -186,7 +189,12 @@ export class AdminTransactionService {
           },
         }),
         this.prismaService.booking.update({
-          where: { id: userInput.bookingid },
+          where: {
+            id: userInput.bookingid,
+            bookingstatus: {
+              in: ['CANCELLATIONAPPROVED', 'CANCELLEDREFUNDPENDING'],
+            },
+          },
           data: { bookingstatus: 'CANCELLED' },
         }),
       ]);

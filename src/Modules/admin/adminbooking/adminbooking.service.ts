@@ -315,7 +315,14 @@ export class AdminBookingService {
         },
         select: {
           id: true,
-          User: { select: { email: true, isCompanion: true } },
+          User: {
+            select: {
+              email: true,
+              isCompanion: true,
+              firstname: true,
+              lastname: true,
+            },
+          },
           refundamount: true,
           cancellationDetails: { select: { isCompanion: true } },
           bookingstatus: true,
@@ -328,6 +335,57 @@ export class AdminBookingService {
         bookingstart: String(l.bookingstart),
       }));
       return { data: values };
+    } catch (error) {
+      this.logger.error(error?.message || error);
+      return {
+        error: { status: 500, message: 'Server error' },
+      };
+    }
+  }
+
+  async getCompletedRefundBookingList(params: pageNoQueryDto) {
+    try {
+      const pageNo = Number(params.pageNo) || 1;
+      const limit = 10;
+      const [items, aggregateResult] = await this.prismaService.$transaction([
+        this.prismaService.transactions.findMany({
+          where: { status: 'REFUNDED' },
+          orderBy: { createdAt: 'desc' },
+          skip: (pageNo - 1) * limit,
+          take: limit,
+          select: {
+            transactionTime: true,
+            amount: true,
+            txnid: true,
+            paymentmethod: true,
+            payurefid: true,
+            Bookings: {
+              select: {
+                User: {
+                  select: { email: true, isCompanion: true, firstname: true },
+                },
+              },
+            },
+          },
+        }),
+        this.prismaService.transactions.aggregate({
+          where: { status: 'REFUNDED' },
+          _count: { id: true },
+        }),
+      ]);
+      const totalCount = aggregateResult._count.id;
+      const totalPages = Math.ceil(totalCount / limit);
+      const values = items.map((l) => ({
+        ...l,
+        transactionTime: String(l.transactionTime),
+      }));
+      const finalvalue = {
+        totalPages,
+        limit,
+        currentPage: pageNo,
+        bookings: values,
+      };
+      return { data: finalvalue };
     } catch (error) {
       this.logger.error(error?.message || error);
       return {
