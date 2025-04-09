@@ -30,9 +30,6 @@ export class UserChatRoomController {
     );
     const { data: TokenData } = decodeExpressRequest(req);
     if (TokenData) {
-      if(!TokenData.isEmailVerified){
-        throw new HttpException('Email not verified', 416);
-      }
       const { data, error } = await this.companionfindservice.getAllChatRooms(
         TokenData.userId,
       );

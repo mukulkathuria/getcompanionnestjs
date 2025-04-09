@@ -28,7 +28,8 @@ export class UserChatRoomsService {
               isCompanion: true,
               id: true,
               Images: true,
-              Companion: { select:{ baselocation: true } }
+              isEmailVerified: true,
+              Companion: { select: { baselocation: true } },
             },
           },
           Bookings: {
@@ -41,6 +42,10 @@ export class UserChatRoomsService {
           },
         },
       });
+      const userDetails = data.length && data[0].User.find((l) => !l.isCompanion);
+      if (userDetails && !userDetails.isEmailVerified) {
+        return { error: { status: 423, message: 'Email not verified' } };
+      }
       const values = data.map((l) => ({
         ...l,
         Bookings: {

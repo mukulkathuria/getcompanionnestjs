@@ -301,6 +301,10 @@ export class UserBookingsService {
           error: { status: 422, message: "You can't cancel past booking" },
         };
       }
+      const GSTamount = bookingDetails.finalRate * 0.18;
+      const totalrefundamount = bookingDetails.extendedhours
+        ? bookingDetails.extentedfinalrate * 0.7
+        : bookingDetails.finalRate * 0.7;
       await this.prismaService.booking.update({
         where: { id: input.bookingid },
         data: {
@@ -308,12 +312,11 @@ export class UserBookingsService {
             timeofcancellation > 24
               ? BookingStatusEnum.CANCELLEDREFUNDPENDING
               : BookingStatusEnum.CANCELLED,
+          refundamount: totalrefundamount,
           cancellationDetails: { connect: { id: userId } },
           cancelledAt: Date.now(),
         },
       });
-      const GSTamount = bookingDetails.finalRate * 0.18;
-      const totalrefundamount = (bookingDetails.finalRate - GSTamount) * 0.7;
       await this.prismaService.notification.create({
         data: {
           fromModule: NotificationFromModuleEnum.BOOKING,
@@ -534,7 +537,7 @@ export class UserBookingsService {
       });
 
       if (!data) {
-        data['Booking'] = []
+        data['Booking'] = [];
       }
       const filtervalues = data.Booking.map((l) => ({
         bookingstart: String(l.bookingstart),
@@ -588,7 +591,7 @@ export class UserBookingsService {
       });
 
       if (!data) {
-        data['Booking'] = []
+        data['Booking'] = [];
       }
       const filtervalues = data.Booking.map((l) => ({
         bookingstart: String(l.bookingstart),
@@ -656,7 +659,7 @@ export class UserBookingsService {
       });
 
       if (!data) {
-        data['Booking'] = []
+        data['Booking'] = [];
       }
       const filtervalues = data.Booking.map((l) => ({
         bookingstart: String(l.bookingstart),

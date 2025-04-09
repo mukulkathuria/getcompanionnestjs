@@ -116,12 +116,19 @@ export class AcceptanceService {
       if (error) {
         return { error };
       }
+      const bookingDetails = await this.prismaService.booking.findUnique({
+        where: { id },
+      });
+      if (!bookingDetails) {
+        return { error: { status: 404, message: 'Bookings not found' } };
+      }
       await this.prismaService.booking.update({
         where: { id },
         data: {
           bookingstatus: bookingInput.approve
             ? 'CANCELLATIONAPPROVED'
             : 'ACCEPTED',
+          refundamount: bookingDetails.finalRate,
         },
       });
       return { success: true };
@@ -156,7 +163,10 @@ export class AcceptanceService {
       }
       await this.prismaService.booking.update({
         where: { id: bookingId },
-        data: { bookingstatus: 'REJECTED' },
+        data: {
+          bookingstatus: 'REJECTED',
+          refundamount: bookingDetails.finalRate,
+        },
       });
       const userdata = bookingDetails.User.find((l) => !l.isCompanion);
       const companiondata = bookingDetails.User.find((l) => l.isCompanion);

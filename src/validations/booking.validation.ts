@@ -11,6 +11,7 @@ import {
   userBookingReturnDto,
 } from 'src/dto/bookings.dto';
 import { successErrorDto, successErrorReturnDto } from 'src/dto/common.dto';
+import { UserlocationProfileDto } from 'src/dto/user.dto';
 import { getErrorMessage } from 'src/utils/common.utils';
 
 export function isUserBookingValid(
@@ -124,8 +125,23 @@ export const bookingLocationValidation = (
     return getErrorMessage(422, 'Latitude is required');
   } else if (typeof input.lng !== 'number') {
     return getErrorMessage(422, 'Longitude is required');
-  } else if(input.googleextra && typeof input.googleextra !== 'object'){
+  } else if (input.googleextra && typeof input.googleextra !== 'object') {
     return getErrorMessage(422, 'Extra parameter is not valid');
   }
+  return { success: true };
+};
+
+export const validateUserAgentlocation = (
+  input: UserlocationProfileDto,
+): successErrorReturnDto => {
+  if (!input.city || !input.city.trim().length) {
+    return getErrorMessage(422, 'City is required');
+  } else if (!input.state || !input.state.trim()) {
+    return getErrorMessage(422, 'State is required');
+  } else if (typeof input.lat !== 'number') {
+    return getErrorMessage(422, 'Latitude is required');
+  } else if (typeof input.lng !== 'number') {
+    return getErrorMessage(422, 'Longitude is required');
+  } 
   return { success: true };
 };

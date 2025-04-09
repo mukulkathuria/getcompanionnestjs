@@ -13,6 +13,7 @@ import { filterCompanionDetailsbyuser } from 'src/utils/user.utils';
 import { validatecompanionupdaterequest } from 'src/validations/companionrequest.validation';
 import { isvalidUserinputs } from 'src/validations/user.validations';
 import { Request } from 'express';
+import { validateUserAgentlocation } from 'src/validations/booking.validation';
 
 @Injectable()
 export class UsersService {
@@ -266,7 +267,11 @@ export class UsersService {
     userId: string,
   ): Promise<successErrorReturnDto> {
     try {
-      const { getUserAgentDetails } = await import(
+      const { error } = validateUserAgentlocation(bodyParams);
+      if (error) {
+        return { error };
+      }
+      const { getUserAgentDetails, isEqualObject } = await import(
         '../../../utils/userAgent.utils'
       );
       const userdata = await this.prismaService.user.findUnique({
@@ -290,7 +295,7 @@ export class UsersService {
       const userAgent = getUserAgentDetails(
         req.headers['user-agent'],
       ) as unknown as { [key: string]: string };
-      let isNewAgent = false;
+      let isNewAgent = !Boolean(userdata.companionsearchlocations.length);
       for (let i = 0; i < userdata.companionsearchlocations.length; i += 1) {
         const values = userdata.companionsearchlocations[i];
         if (
@@ -298,7 +303,7 @@ export class UsersService {
           values.state !== bodyParams.state ||
           values.lat !== bodyParams.lat ||
           values.lng !== bodyParams.lng ||
-          values.userAgent !== userAgent
+          !isEqualObject(values.userAgent as object, userAgent)
         ) {
           isNewAgent = true;
         }
@@ -308,16 +313,11 @@ export class UsersService {
           data: {
             ...bodyParams,
             userAgent,
+            remoteAddress: req.socket.remoteAddress,
             User: { connect: { id: userId } },
           },
         });
       }
-      console.log('Headers');
-      console.log(
-        'Other Details',
-        req.socket.remoteAddress,
-        req.socket.localAddress,
-      );
       return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);
