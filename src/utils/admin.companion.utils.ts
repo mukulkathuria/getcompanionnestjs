@@ -74,6 +74,14 @@ export const getupdateCompanionDetailrawQuey = (
         description += `'${user.description[i]}'`;
     }
   }
+  let images = '';
+  for (let i = 0; i < user.Images.length; i += 1) {
+    if (i < user.Images.length - 1) {
+      images += `'${user.Images[i]}',`;
+    }else{
+      images += `'${user.Images[i]}'`;
+    }
+  }
   // Prepare the raw SQL for locations using CASE WHEN for each column
   const setCityCase = location
     .map((l) => `WHEN id = ${l.id} THEN '${l.city}'`)
@@ -116,6 +124,7 @@ export const getupdateCompanionDetailrawQuey = (
           email = '${user.email}',
           phoneno = ${user.phoneno},
           gender = '${user.gender}',
+          "Images"=ARRAY[${images}],
           age = ${user.age}
         WHERE email = '${user.email}'`;
   const updateCompanionQuery = `
