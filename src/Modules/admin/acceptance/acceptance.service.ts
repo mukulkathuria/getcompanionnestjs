@@ -119,7 +119,14 @@ export class AcceptanceService {
       const bookingDetails = await this.prismaService.booking.findUnique({
         where: { id },
         include: {
-          User: { select: { email: true, firstname: true, isCompanion: true, id: true } },
+          User: {
+            select: {
+              email: true,
+              firstname: true,
+              isCompanion: true,
+              id: true,
+            },
+          },
         },
       });
       if (!bookingDetails) {
@@ -135,7 +142,7 @@ export class AcceptanceService {
         },
       });
       const user = bookingDetails.User.find((l) => !l.isCompanion);
-      const companion = bookingDetails.User.find((l) => l.isCompanion)
+      const companion = bookingDetails.User.find((l) => l.isCompanion);
       const {
         adminorcompanioncancellation: { subject, body },
       } = emailTemplate({
@@ -214,9 +221,7 @@ export class AcceptanceService {
         rejectionBooking: { subject, body },
       } = emailTemplate({
         username: userdata.firstname,
-        refundamount: String(
-          bookingDetails.finalRate - bookingDetails.finalRate * 0.18,
-        ),
+        refundamount: String(bookingDetails.finalRate),
       });
       const { error: mailerror } = await this.nodemailerService.sendMail({
         to: userdata.email,

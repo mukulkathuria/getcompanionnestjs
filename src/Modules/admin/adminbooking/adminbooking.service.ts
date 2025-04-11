@@ -313,6 +313,7 @@ export class AdminBookingService {
           ],
           Transactions: { none: { status: 'REFUNDED' } },
         },
+        orderBy: { bookingstart: 'desc' },
         select: {
           id: true,
           User: {

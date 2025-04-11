@@ -628,7 +628,6 @@ export class UserBookingsService {
         include: {
           Booking: {
             where: {
-              bookingend: { lt: Date.now() },
               OR: [
                 {
                   bookingstatus: {
@@ -640,6 +639,7 @@ export class UserBookingsService {
                       'REJECTED',
                     ],
                   },
+                  bookingend: { lt: Date.now() },
                 },
                 { bookingstatus: 'COMPLETED' },
               ],

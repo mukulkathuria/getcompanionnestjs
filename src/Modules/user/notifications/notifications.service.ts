@@ -13,6 +13,7 @@ export class UserNotificationServices {
           expiry: { gt: Date.now() },
           OR: [{ isGobal: true }, { foruser: userId }],
         },
+        orderBy: { createdAt: 'desc' },
         select: {
           id: true,
           content: true,
