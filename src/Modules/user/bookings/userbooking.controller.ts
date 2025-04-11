@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpException,
+  Param,
   Post,
   Query,
   Req,
@@ -25,6 +26,7 @@ import {
 import { controllerReturnDto } from 'src/dto/common.dto';
 import { decodeExpressRequest } from 'src/guards/strategies/jwt.strategy';
 import { companionDetailsQuery } from 'src/dto/companionfind.dto';
+import { UserlocationProfileDto, UserProfileParamsDto } from 'src/dto/user.dto';
 
 @Controller(UserBookingsRoute)
 export class UserBookingController {
@@ -272,6 +274,56 @@ export class UserBookingController {
     if (data) {
       return {
         data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(UserBookingInnerRoute.getlivelocationofbookingRoute)
+  async getlivelocationforbookingController(
+    @Query() bookingid: bookingIdDto,
+    @Req() req: Request,
+  ) {
+    const { data: tokendata, error: TokenError } = decodeExpressRequest(req);
+    if (TokenError) {
+      throw new HttpException('Invalid User', 403);
+    }
+    const { data, error } =
+      await this.userbookingservice.getLiveLocationforBooking(
+        Number(bookingid?.bookingid),
+        tokendata.userId
+      );
+    if (data) {
+      return {
+        data,
+      };
+    } else {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(UserBookingInnerRoute.updatelivelocationofbookingRoute)
+  async updatelivelocationforbookingController(
+    @Param() id: UserProfileParamsDto,
+    @Body() bodyparams: UserlocationProfileDto,
+    @Req() req: Request,
+  ) {
+    const { data: tokendata, error: TokenError } = decodeExpressRequest(req);
+    if (TokenError) {
+      throw new HttpException('Invalid User', 403);
+    }
+    const { success, error } =
+      await this.userbookingservice.updateLiveLocation(
+        Number(id.id),
+        bodyparams,
+        tokendata.userId
+      );
+    if (success) {
+      return {
+        success,
       };
     } else {
       throw new HttpException(error.message, error.status);

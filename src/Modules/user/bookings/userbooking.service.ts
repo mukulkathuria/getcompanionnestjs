@@ -12,6 +12,7 @@ import {
   userRatingDto,
 } from 'src/dto/bookings.dto';
 import { successErrorReturnDto } from 'src/dto/common.dto';
+import { UserlocationProfileDto } from 'src/dto/user.dto';
 import { NodeMailerService } from 'src/Services/nodemailer.service';
 import { PrismaService } from 'src/Services/prisma.service';
 import emailTemplate from 'src/templates/email.template';
@@ -22,6 +23,7 @@ import {
   checkValidCancelBookngInputs,
   checkvalidrating,
   isUserBookingValid,
+  validateUserAgentlocation,
 } from 'src/validations/booking.validation';
 
 @Injectable()
@@ -678,6 +680,93 @@ export class UserBookingsService {
         bookings: filtervalues.slice((pageNo - 1) * 5, pageNo * 5),
       };
       return { data: finalvalue };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getLiveLocationforBooking(bookingid: number, userid: string) {
+    try {
+      if (!bookingid || typeof bookingid !== 'number') {
+        return { error: { status: 422, message: 'Booking Id is required' } };
+      }
+      const [currentbooking, livebooking] =
+        await this.prismaService.$transaction([
+          this.prismaService.booking.findUnique({ where: { id: bookingid } }),
+          this.prismaService.livelocation.findMany({
+            where: { booking: bookingid },
+            orderBy: { createdAt: 'desc' },
+            select: {
+              lat: true,
+              lng: true,
+              userid: true,
+              Booking: {
+                select: {
+                  Meetinglocation: { select: { lat: true, lng: true } },
+                },
+              },
+            },
+          }),
+        ]);
+      if (!currentbooking) {
+        return { error: { status: 404, message: 'Booking not found' } };
+      }
+      const user = livebooking.find((l) => l.userid !== userid);
+      const currentuser = livebooking.find((l) => l.userid === userid);
+      const values = {
+        currentlocation: user ? { lat: user.lat, lng: user.lng } : null,
+        currentuser: currentuser ? { lat: currentuser.lat, lng: currentuser.lng } : null,
+        destination: livebooking.length
+          ? livebooking[0].Booking.Meetinglocation[0]
+          : null,
+      };
+      return { data: values };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async updateLiveLocation(
+    bookingid: number,
+    bodyParams: UserlocationProfileDto,
+    userid: string,
+  ) {
+    try {
+      if (!bookingid || typeof bookingid !== 'number') {
+        return { error: { status: 422, message: 'Booking Id is required' } };
+      }
+      const { error } = validateUserAgentlocation(bodyParams);
+      if (error) {
+        return { error };
+      }
+      const validbooking = await this.prismaService.livelocation.findMany({
+        where: { userid, booking: bookingid },
+      });
+      if (validbooking.length) {
+        await this.prismaService.livelocation.updateMany({
+          where: { booking: bookingid, userid },
+          data: {
+            city: bodyParams.city,
+            state: bodyParams.state,
+            lat: bodyParams.lat,
+            lng: bodyParams.lng,
+          },
+        });
+      } else {
+        await this.prismaService.livelocation.create({
+          data: {
+            city: bodyParams.city,
+            state: bodyParams.state,
+            lat: bodyParams.lat,
+            lng: bodyParams.lng,
+            User: { connect: { id: userid } },
+            Booking: { connect: { id: bookingid } },
+          },
+        });
+      }
+      return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
