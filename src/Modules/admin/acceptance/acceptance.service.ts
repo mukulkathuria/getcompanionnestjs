@@ -118,6 +118,9 @@ export class AcceptanceService {
       }
       const bookingDetails = await this.prismaService.booking.findUnique({
         where: { id },
+        include: {
+          User: { select: { email: true, firstname: true, isCompanion: true, id: true } },
+        },
       });
       if (!bookingDetails) {
         return { error: { status: 404, message: 'Bookings not found' } };
@@ -129,6 +132,32 @@ export class AcceptanceService {
             ? 'CANCELLATIONAPPROVED'
             : 'ACCEPTED',
           refundamount: bookingDetails.finalRate,
+        },
+      });
+      const user = bookingDetails.User.find((l) => !l.isCompanion);
+      const companion = bookingDetails.User.find((l) => l.isCompanion)
+      const {
+        adminorcompanioncancellation: { subject, body },
+      } = emailTemplate({
+        refundamount: String(bookingDetails.finalRate),
+        username: user.firstname,
+      });
+      const { error: mailerror } = await this.nodemailerService.sendMail({
+        to: user.email,
+        html: body,
+        subject,
+      });
+      if (mailerror) {
+        console.log('Error on send email to user');
+      }
+      await this.prismaService.notification.create({
+        data: {
+          fromModule: NotificationFromModuleEnum.USER,
+          expiry: addHours(Notificationhours.getrating),
+          content: notificationTemplate({
+            companion_name: companion.firstname,
+          }).cancellationbyadmin,
+          User: { connect: { id: user.id } },
         },
       });
       return { success: true };

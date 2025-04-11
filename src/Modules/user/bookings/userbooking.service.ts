@@ -629,15 +629,20 @@ export class UserBookingsService {
           Booking: {
             where: {
               bookingend: { lt: Date.now() },
-              bookingstatus: {
-                in: [
-                  'ACCEPTED',
-                  'CANCELLED',
-                  'CANCELLATIONAPPROVED',
-                  'COMPLETED',
-                  'REJECTED',
-                ],
-              },
+              OR: [
+                {
+                  bookingstatus: {
+                    in: [
+                      'ACCEPTED',
+                      'CANCELLED',
+                      'CANCELLATIONAPPROVED',
+                      'COMPLETED',
+                      'REJECTED',
+                    ],
+                  },
+                },
+                { bookingstatus: 'COMPLETED' },
+              ],
             },
             orderBy: { bookingend: 'desc' },
             include: {
@@ -716,7 +721,9 @@ export class UserBookingsService {
       const currentuser = livebooking.find((l) => l.userid === userid);
       const values = {
         currentlocation: user ? { lat: user.lat, lng: user.lng } : null,
-        currentuser: currentuser ? { lat: currentuser.lat, lng: currentuser.lng } : null,
+        currentuser: currentuser
+          ? { lat: currentuser.lat, lng: currentuser.lng }
+          : null,
         destination: livebooking.length
           ? livebooking[0].Booking.Meetinglocation[0]
           : null,

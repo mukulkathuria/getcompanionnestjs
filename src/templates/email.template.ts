@@ -346,8 +346,8 @@ export default function (params: emailTemplateDto) {
           `,
     },
     forgotPassword: {
-        subject: 'Reset Your Password with Zestful Amigos🎁',
-        body: `
+      subject: 'Reset Your Password with Zestful Amigos🎁',
+      body: `
             <!DOCTYPE html>
             <html lang="en">
             <head>
@@ -401,10 +401,10 @@ export default function (params: emailTemplateDto) {
             </body>
             </html>
             `,
-      },
-      emailVerification: {
-        subject: 'Email Verification with Zestful Amigos 🎁',
-        body: `
+    },
+    emailVerification: {
+      subject: 'Email Verification with Zestful Amigos 🎁',
+      body: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -458,7 +458,72 @@ export default function (params: emailTemplateDto) {
         </body>
         </html>
         `,
-      },
+    },
+    adminorcompanioncancellation:{
+        subject: 'Your Booking is been cancelled! Sorry to inform you 💔',
+        body: `
+         <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Booking Cancellation</title>
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      color: #333;
+                      background-color: #f9f9f9;
+                      padding: 20px;
+                  }
+                  .container {
+                      max-width: 600px;
+                      margin: 0 auto;
+                      background-color: #ffffff;
+                      padding: 20px;
+                      border-radius: 8px;
+                      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                  }
+                  .header {
+                      text-align: center;
+                      margin-bottom: 20px;
+                  }
+                  .content {
+                      font-size: 16px;
+                      line-height: 1.5;
+                  }
+                  .footer {
+                      margin-top: 20px;
+                      font-size: 14px;
+                      text-align: center;
+                      color: #777;
+                  }
+                  .signature {
+                      font-weight: bold;
+                      color: #333;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <div class="header">
+                      <h2>Booking Cancellation</h2>
+                  </div>
+                  <div class="content">
+                      <p>Dear ${params.username},</p>
+                      <p>Your booking has been cancelled by our team. Due to internal reason, We initiate a full refund of ${params.refundamount} to your original payment method</p>
+                      <p>You can expect it to reflect in your acccount within 3 to 5 Business days</p>
+                      <br/>
+                      <p>We truely appreciate your patience and understanding.</p>
+                      <p>Should you wish to reconnect, our doors are always open!</p>
+                  </div>
+                  <div class="footer">
+                      <p class="signature">Warmly, <br> Zestful Amigos Team</p>
+                  </div>
+              </div>
+          </body>
+          </html>
+          `,
+    }
   };
 }
 
