@@ -23,6 +23,7 @@ export class AdminAccountsService {
           transactionTime: true,
           payurefid: true,
           status: true,
+          paymentmethod: true,
           paymentdetails: true,
           amount: true,
           Bookings: {
@@ -36,9 +37,21 @@ export class AdminAccountsService {
         },
       });
       const values = data.map((l) => ({
-        ...l,
+        username: l.User.firstname,
+        useremail: l.User.email,
+        gender: l.User.gender,
+        userphoneno: String(l.User.phoneno),
+        amount: String(l.amount),
+        txid: l.txnid,
+        status: l.status,
+        paymentmethod: l.paymentmethod,
+        paymentdetails: l.paymentdetails,
+        GST: l.Bookings.finalRate * 0.18,
+        bookingrate: l.Bookings.bookingrate,
+        bookingfinalrate: l.Bookings.finalRate,
+        bookingextendedhours: l.Bookings.extendedhours,
+        bookingextendedrate: l.Bookings.extentedfinalrate,
         transactionTime: String(l.transactionTime),
-        User: { ...l.User, phoneno: String(l.User.phoneno) },
       }));
       return { data: values };
     } catch (error) {
