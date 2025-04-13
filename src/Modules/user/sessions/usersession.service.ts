@@ -256,10 +256,10 @@ export class UserSessionService {
           Booking: {
             where: {
               bookingstart: {
-                lt: bufferEnd,
+                gt: bookingStart,
               },
               bookingend: {
-                gt: bookingStart,
+                lt: bufferEnd,
               },
             },
           },
