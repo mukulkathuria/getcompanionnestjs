@@ -226,6 +226,7 @@ export class UserSessionService {
         select: {
           User: { select: { id: true, isCompanion: true } },
           Sessions: { select: { id: true } },
+          bookingstart: true,
           bookingend: true,
         },
       });
@@ -236,8 +237,14 @@ export class UserSessionService {
       }
       const endTime = new Date(Number(bookingDetails.bookingend)).setHours(
         new Date(Number(bookingDetails.bookingend)).getHours() +
-        sessionDetails.extentedhours,
-      )
+          sessionDetails.extentedhours,
+      );
+      const startBuffer = dayjs(Number(bookingDetails.bookingstart))
+        .subtract(1, 'hour')
+        .valueOf();
+      const endBuffer = dayjs(Number(bookingDetails.bookingend))
+        .add(sessionDetails.extentedhours, 'hour')
+        .valueOf();
       const companionuser = bookingDetails.User.find((l) => l.isCompanion);
       if (!new Date(endTime).getHours() || new Date(endTime).getHours() < 10) {
         return {
@@ -252,12 +259,8 @@ export class UserSessionService {
         include: {
           Booking: {
             where: {
-              bookingstart: {
-                gte: Number(bookingDetails.bookingend),
-              },
-              bookingend: {
-                lte: dayjs(endTime).add(1, 'hour').valueOf(),
-              },
+              bookingstart: { lte: endBuffer },
+              bookingend: { gte: startBuffer },
             },
           },
         },
