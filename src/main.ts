@@ -7,10 +7,12 @@ import { ClusterService } from './Services/cluster.service';
 ClusterService.clusterize(async () => {
   const app = await NestFactory.create(AppModule, {
     cors: true,
-    // httpsOptions:{
-    //   key: fs.readFileSync('certificates/localhost-key.pem'),
-    //   cert: fs.readFileSync('certificates/localhost.pem')
-    // }
+  });
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization',
+    credentials: true,
   });
   app.use(
     helmet({
