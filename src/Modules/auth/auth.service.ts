@@ -40,6 +40,7 @@ import emailTemplate from 'src/templates/email.template';
 import { NotificationFromModuleEnum } from 'src/dto/bookings.dto';
 import { Notificationhours } from 'src/constants/common.constants';
 import notificationTemplate from 'src/templates/notification.template';
+import { S3Service } from 'src/Services/s3.service';
 // import axios from 'axios';
 
 @Injectable()
@@ -48,6 +49,7 @@ export class AuthService {
     private readonly prismaService: PrismaService,
     private readonly nodemailerService: NodeMailerService,
     private readonly googleservice: GoogleService,
+    private readonly awsservice: S3Service,
   ) {}
   private readonly logger = new Logger(AuthService.name);
 
@@ -59,7 +61,7 @@ export class AuthService {
       userId: user?.id,
       isCompanion: Boolean(user?.isCompanion),
       Images: user.Images,
-      isEmailVerified: user.isEmailVerified
+      isEmailVerified: user.isEmailVerified,
     };
     const id = uuid();
     const refresh_token = sign(
@@ -104,7 +106,19 @@ export class AuthService {
       if (error) {
         return { error };
       }
-      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      // const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      const allimages = [];
+      for (let i = 0; i < images.length; i += 1) {
+        const filepath = 'userphotos/' + isUserExists.email + Date.now();
+        const { data } = await this.awsservice.uploadFileins3(
+          filepath,
+          images[i].buffer,
+          images[i].mimetype,
+        );
+        if (data) {
+          allimages.push(data);
+        }
+      }
       const userdata = {
         firstname: user.firstname,
         lastname: user.lastname,
@@ -144,7 +158,7 @@ export class AuthService {
         .then(() => {
           this.logger.log(`Email sent to: ${user.email}`);
         });
-      await this.forgotPassword({ email: user.email })
+      await this.forgotPassword({ email: user.email });
       return {
         success: true,
       };
@@ -224,7 +238,7 @@ export class AuthService {
       name: refreshToken.name,
       isCompanion: Boolean(refreshToken?.isCompanion),
       Images: refreshToken.Images,
-      isEmailVerified: refreshToken.isEmailVerified
+      isEmailVerified: refreshToken.isEmailVerified,
     };
     return {
       access_token: sign(

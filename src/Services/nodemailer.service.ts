@@ -25,7 +25,6 @@ export class NodeMailerService {
     try {
       const from = mailOptions.from || process.env['BREVO_SENDER_EMAIL'];
       const mailSent = await this.client.sendMail({ ...mailOptions, from });
-      console.log(mailSent);
       if (mailSent) {
         return {
           success: true,

@@ -75,7 +75,6 @@ export class PaymentService {
         body: formData,
       });
       if (response.status === 200) {
-        console.log('Transaction successful');
         console.log(response);
       }
       return { data: response };

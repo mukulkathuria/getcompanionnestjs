@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ServeStaticModule } from '@nestjs/serve-static';
+// import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './Modules/auth/auth.module';
 import { GlobalModule } from './Modules/global/global.module';
@@ -10,7 +10,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AdminModule } from './Modules/admin/admin.module';
 import { TaskModule } from './Modules/jobs/tasks.module';
 import { CompanionModule } from './Modules/companion/companion.module';
-import { join } from 'path';
+// import { join } from 'path';
 
 @Module({
   imports: [
@@ -22,13 +22,13 @@ import { join } from 'path';
     ]),
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
-    ServeStaticModule.forRoot({
-      rootPath:
-        process.env.NODE_ENV !== 'production'
-          ? join(__dirname, '..', 'Images')
-          : join(__dirname, 'Images'),
-      serveRoot: '/Images',
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath:
+    //     process.env.NODE_ENV !== 'production'
+    //       ? join(__dirname, '..', 'Images')
+    //       : join(__dirname, 'Images'),
+    //   serveRoot: '/Images',
+    // }),
     GlobalModule,
     AuthModule,
     UserModule,

@@ -141,6 +141,7 @@ export class UserBookingsService {
                   'TRANSACTIONPENDING',
                   'UNDERCANCELLATION',
                   'UNDEREXTENSION',
+                  'UNDERREVIEW'
                 ],
               },
             },
@@ -226,6 +227,7 @@ export class UserBookingsService {
                   'TRANSACTIONPENDING',
                   'UNDERCANCELLATION',
                   'UNDEREXTENSION',
+                  'UNDERREVIEW'
                 ],
               },
             },

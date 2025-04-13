@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
-import * as fs from 'fs';
+// import * as fs from 'fs';
 import { ClusterService } from './Services/cluster.service';
 
 ClusterService.clusterize(async () => {

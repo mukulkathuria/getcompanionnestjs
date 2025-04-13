@@ -252,10 +252,10 @@ export class UserSessionService {
           Booking: {
             where: {
               bookingstart: {
-                gt: Number(bookingDetails.bookingend),
+                gte: Number(bookingDetails.bookingend),
               },
               bookingend: {
-                lt: dayjs(endTime).add(1, 'hour').valueOf(),
+                lte: dayjs(endTime).add(1, 'hour').valueOf(),
               },
             },
           },
