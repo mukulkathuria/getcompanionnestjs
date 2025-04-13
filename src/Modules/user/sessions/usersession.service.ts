@@ -234,9 +234,10 @@ export class UserSessionService {
           return { error: { status: 422, message: 'Session not started yet' } };
         return { error: { status: 422, message: 'Booking not found' } };
       }
-      const endTime = dayjs(Number(bookingDetails.bookingend))
-        .add(sessionDetails.extentedhours, 'hour')
-        .valueOf();
+      const endTime = new Date(Number(bookingDetails.bookingend)).setHours(
+        new Date(Number(bookingDetails.bookingend)).getHours() +
+        sessionDetails.extentedhours,
+      )
       const companionuser = bookingDetails.User.find((l) => l.isCompanion);
       if (!new Date(endTime).getHours() || new Date(endTime).getHours() < 10) {
         return {
