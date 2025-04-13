@@ -238,10 +238,9 @@ export class UserSessionService {
         new Date(Number(bookingDetails.bookingend)).getHours() +
           sessionDetails.extentedhours,
       );
-      const bookingStart = dayjs(Number(bookingDetails.bookingend)).valueOf(); // 1 PM in ms
-      const bookingEnd = dayjs(Number(bookingDetails.bookingend)).add(sessionDetails.extentedhours, 'hour').valueOf();
-      const oneHourBeforeStart = dayjs(bookingStart).subtract(1, 'hour').valueOf();
-      const oneHourAfterEnd = dayjs(bookingEnd).add(1, 'hour').valueOf();
+      const bookingStart = dayjs(Number(bookingDetails.bookingend)).valueOf();
+      const bookingEnd = dayjs(endTime).add(sessionDetails.extentedhours, 'hour').valueOf();
+      const bufferEnd = dayjs(bookingEnd).add(1, 'hour').valueOf();
       const companionuser = bookingDetails.User.find((l) => l.isCompanion);
       if (!new Date(endTime).getHours() || new Date(endTime).getHours() < 10) {
         return {
@@ -256,20 +255,12 @@ export class UserSessionService {
         include: {
           Booking: {
             where: {
-              OR: [
-                {
-                  bookingstart: {
-                    lt: oneHourAfterEnd,
-                    gte: bookingEnd,
-                  },
-                },
-                {
-                  bookingend: {
-                    gt: oneHourBeforeStart,
-                    lte: bookingStart,
-                  },
-                },
-              ],
+              bookingstart: {
+                lt: bufferEnd,
+              },
+              bookingend: {
+                gt: bookingStart,
+              },
             },
           },
         },
