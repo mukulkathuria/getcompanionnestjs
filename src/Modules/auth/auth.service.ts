@@ -109,7 +109,7 @@ export class AuthService {
       // const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
       const allimages = [];
       for (let i = 0; i < images.length; i += 1) {
-        const filepath = 'userphotos/' + isUserExists.email + Date.now();
+        const filepath = 'userphotos/' + userinfo.email + Date.now();
         const { data } = await this.awsservice.uploadFileins3(
           filepath,
           images[i].buffer,
