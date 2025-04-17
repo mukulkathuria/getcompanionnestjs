@@ -42,7 +42,7 @@ export class UserChatRoomsService {
           },
         },
       });
-      const userDetails = data.length && data[0].User.find((l) => !l.isCompanion);
+      const userDetails = data.length && data[0].User.find((l) => l.id === userId);
       if (userDetails && !userDetails.isEmailVerified) {
         return { error: { status: 423, message: 'Email not verified' } };
       }
