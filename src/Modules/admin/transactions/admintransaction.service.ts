@@ -27,11 +27,11 @@ export class AdminTransactionService {
   private readonly logger = new Logger(AdminTransactionService.name);
 
   async getAllTransactionForBooking(
-    bookingid: number,
+    bookingId: number,
   ): Promise<BookingTransactionReturnDto> {
     try {
-      const transactions = await this.prismaService.transactions.findMany({
-        where: { bookingid },
+      const transactions = await this.prismaService.transactionLedger.findMany({
+        where: { bookingId },
       });
       return { data: transactions };
     } catch (error) {
@@ -44,9 +44,9 @@ export class AdminTransactionService {
     try {
       const userDetails = await this.prismaService.user.findUnique({
         where: { id: userId },
-        include: { Transactions: { take: 5, orderBy: { createdAt: 'desc' } } },
+        include: { transactionLedger: { take: 5, orderBy: { createdAt: 'desc' } } },
       });
-      return { data: userDetails.Transactions };
+      return { data: userDetails.transactionLedger };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

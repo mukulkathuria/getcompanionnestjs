@@ -5,13 +5,13 @@ import { AppModule } from './app.module';
 import { ClusterService } from './Services/cluster.service';
 
 ClusterService.clusterize(async () => {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors({
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Authorization',
-    credentials: true,
-  });
+  const app = await NestFactory.create(AppModule, { cors: true });
+  // app.enableCors({
+  //   origin: '*',
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  //   allowedHeaders: 'Content-Type, Authorization',
+  //   credentials: true,
+  // });
   app.use(
     helmet({
       crossOriginResourcePolicy: {

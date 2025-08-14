@@ -73,16 +73,16 @@ export class AdminBookingService {
               isCompanion: true,
             },
           },
-          cancellationDetails: {
-            select: {
-              firstname: true,
-              lastname: true,
-              age: true,
-              Images: true,
-              gender: true,
-              isCompanion: true,
-            },
-          },
+          // cancellationDetails: {
+          //   select: {
+          //     firstname: true,
+          //     lastname: true,
+          //     age: true,
+          //     Images: true,
+          //     gender: true,
+          //     isCompanion: true,
+          //   },
+          // },
           bookingstart: true,
           bookingrate: true,
           bookingend: true,
@@ -90,13 +90,13 @@ export class AdminBookingService {
           bookingpurpose: true,
           finalRate: true,
           bookingstatus: true,
-          cancelledReason: true,
-          Transactions: {
+          // cancelledReason: true,
+          transactionLedger: {
             select: {
               status: true,
-              amount: true,
-              txnid: true,
-              transactionTime: true,
+              netAmount: true,
+              txnId: true,
+              settledAt: true,
             },
           },
           rating: {
@@ -114,9 +114,9 @@ export class AdminBookingService {
         ...data,
         bookingstart: String(data.bookingstart),
         bookingend: String(data.bookingend),
-        Transactions: data.Transactions.map((l) => ({
+        Transactions: data.transactionLedger.map((l) => ({
           ...l,
-          transactionTime: String(l.transactionTime),
+          transactionTime: String(l.settledAt),
         })),
       };
       return { data: values };
@@ -307,11 +307,8 @@ export class AdminBookingService {
                 ],
               },
             },
-            {
-              refundamount: { not: 0 },
-            },
           ],
-          Transactions: { none: { status: 'REFUNDED' } },
+          transactionLedger: { none: { status: 'REFUNDED' } },
         },
         orderBy: { bookingstart: 'desc' },
         select: {
@@ -324,8 +321,6 @@ export class AdminBookingService {
               lastname: true,
             },
           },
-          refundamount: true,
-          cancellationDetails: { select: { isCompanion: true } },
           bookingstatus: true,
           finalRate: true,
           bookingstart: true,
@@ -349,18 +344,22 @@ export class AdminBookingService {
       const pageNo = Number(params.pageNo) || 1;
       const limit = 10;
       const [items, aggregateResult] = await this.prismaService.$transaction([
-        this.prismaService.transactions.findMany({
-          where: { status: 'REFUNDED' },
+        this.prismaService.transactionLedger.findMany({
+          where: {
+            status: 'REFUNDED',
+            transactionType: 'REFUND_TO_USER',
+            isSettled: true,
+          },
           orderBy: { createdAt: 'desc' },
           skip: (pageNo - 1) * limit,
           take: limit,
           select: {
-            transactionTime: true,
-            amount: true,
-            txnid: true,
-            paymentmethod: true,
-            payurefid: true,
-            Bookings: {
+            settledAt: true,
+            netAmount: true,
+            txnId: true,
+            metadata: true,
+            paymentGatewayTxnId: true,
+            Booking: {
               select: {
                 User: {
                   select: { email: true, isCompanion: true, firstname: true },
@@ -378,7 +377,7 @@ export class AdminBookingService {
       const totalPages = Math.ceil(totalCount / limit);
       const values = items.map((l) => ({
         ...l,
-        transactionTime: String(l.transactionTime),
+        transactionTime: String(l.settledAt),
       }));
       const finalvalue = {
         totalPages,

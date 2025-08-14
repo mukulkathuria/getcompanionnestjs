@@ -239,7 +239,9 @@ export class UserSessionService {
           sessionDetails.extentedhours,
       );
       const bookingStart = dayjs(Number(bookingDetails.bookingend)).valueOf();
-      const bookingEnd = dayjs(endTime).add(sessionDetails.extentedhours, 'hour').valueOf();
+      const bookingEnd = dayjs(endTime)
+        .add(sessionDetails.extentedhours, 'hour')
+        .valueOf();
       const bufferEnd = dayjs(bookingEnd).add(1, 'hour').valueOf();
       const companionuser = bookingDetails.User.find((l) => l.isCompanion);
       if (!new Date(endTime).getHours() || new Date(endTime).getHours() < 10) {
@@ -271,9 +273,18 @@ export class UserSessionService {
       await this.prismaService.booking.update({
         where: { id: sessionDetails.bookingid },
         data: {
-          extendedendtime: endTime,
-          extendedhours: sessionDetails.extentedhours,
           bookingstatus: BookingStatusEnum.UNDEREXTENSION,
+          statusHistory: {
+            create: {
+              extendedHours: sessionDetails.extentedhours,
+              actionType: 'EXTENDED',
+              previousStatus: 'ACCEPTED',
+              comment: '',
+              newStatus: 'UNDEREXTENSION',
+              actionPerformedBy: 'USER',
+              extendedendtime: endTime,
+            },
+          },
         },
       });
       return { success: true };

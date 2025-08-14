@@ -51,7 +51,17 @@ export class AcceptanceService {
       // eslint-disable-next-line
       const data = await this.prismaService.booking.update({
         where: { id: bookingId },
-        data: { bookingstatus: 'ACCEPTED' },
+        data: {
+          bookingstatus: 'ACCEPTED',
+          statusHistory: {
+            create: {
+              actionType: 'ACCEPTED',
+              previousStatus: 'ACCEPTED',
+              newStatus: 'ACCEPTED',
+              actionPerformedBy: 'ADMIN',
+            },
+          },
+        },
       });
       const userdata = bookingDetails.User.find((l) => !l.isCompanion);
       const companiondata = bookingDetails.User.find((l) => l.isCompanion);
@@ -138,7 +148,15 @@ export class AcceptanceService {
           bookingstatus: bookingInput.approve
             ? 'CANCELLATIONAPPROVED'
             : 'ACCEPTED',
-          refundamount: bookingDetails.finalRate,
+          statusHistory: {
+            create: {
+              actionType: 'CANCELLED',
+              previousStatus: 'CANCELLATIONAPPROVED',
+              newStatus: 'CANCELLATIONAPPROVED',
+              refundAmount: bookingDetails.finalRate,
+              actionPerformedBy: 'ADMIN',
+            },
+          },
         },
       });
       const user = bookingDetails.User.find((l) => !l.isCompanion);
@@ -201,7 +219,15 @@ export class AcceptanceService {
         where: { id: bookingId },
         data: {
           bookingstatus: 'REJECTED',
-          refundamount: bookingDetails.finalRate,
+          statusHistory:{
+            create: {
+              actionType: 'REJECTED',
+              previousStatus: 'UNDERREVIEW',
+              newStatus: 'REJECTED',
+              actionPerformedBy: 'ADMIN',
+              refundAmount: bookingDetails.finalRate
+            },
+          }
         },
       });
       const userdata = bookingDetails.User.find((l) => !l.isCompanion);

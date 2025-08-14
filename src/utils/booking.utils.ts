@@ -1,4 +1,4 @@
-import { Booking, Companion } from '@prisma/client';
+import { Booking, Companion } from 'src/schema/app/generated/prisma/client';
 import * as dayjs from 'dayjs';
 import {
   companionslotsavailabilityDto,

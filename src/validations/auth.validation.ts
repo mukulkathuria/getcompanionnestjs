@@ -25,7 +25,7 @@ import {
   GenderEnum,
   MaleCompanionBodyTypeEnum,
 } from 'src/dto/user.dto';
-import { User } from '@prisma/client';
+import { User } from 'src/schema/app/generated/prisma/client';
 import { successErrorReturnDto } from 'src/dto/common.dto';
 import { getErrorMessage } from 'src/utils/common.utils';
 import { bookingLocationValidation } from './booking.validation';

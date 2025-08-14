@@ -141,7 +141,7 @@ export class UserBookingsService {
                   'TRANSACTIONPENDING',
                   'UNDERCANCELLATION',
                   'UNDEREXTENSION',
-                  'UNDERREVIEW'
+                  'UNDERREVIEW',
                 ],
               },
             },
@@ -227,7 +227,7 @@ export class UserBookingsService {
                   'TRANSACTIONPENDING',
                   'UNDERCANCELLATION',
                   'UNDEREXTENSION',
-                  'UNDERREVIEW'
+                  'UNDERREVIEW',
                 ],
               },
             },
@@ -253,7 +253,7 @@ export class UserBookingsService {
       }
       const bookingDetails = await this.prismaService.booking.findUnique({
         where: { id: input.bookingid },
-        include: { User: true, Sessions: true },
+        include: { User: true, Sessions: true, statusHistory: true },
       });
       if (!bookingDetails || bookingDetails.bookingstart <= Date.now()) {
         return { error: { status: 404, message: 'No Bookings found' } };
@@ -278,9 +278,15 @@ export class UserBookingsService {
           where: { id: input.bookingid },
           data: {
             bookingstatus: BookingStatusEnum.UNDERCANCELLATION,
-            cancelledReason: input.reason,
-            cancellationDetails: { connect: { id: userId } },
-            cancelledAt: Date.now(),
+            statusHistory: {
+              create: {
+                actionType: 'CANCELLED',
+                previousStatus: 'CANCELLED',
+                comment: input.reason,
+                newStatus: 'CANCELLED',
+                actionPerformedBy: 'COMPANION',
+              },
+            },
           },
         });
         await this.prismaService.notification.create({
@@ -306,19 +312,27 @@ export class UserBookingsService {
         };
       }
       const GSTamount = bookingDetails.finalRate * 0.18;
-      const totalrefundamount = bookingDetails.extendedhours
-        ? bookingDetails.extentedfinalrate * 0.7
+      const extendedBooking = bookingDetails.statusHistory.find(
+        (l) => l.actionType === 'EXTENDED',
+      );
+      const totalrefundamount = extendedBooking.extendedHours
+        ? extendedBooking.newRate * 0.7
         : bookingDetails.finalRate * 0.7;
+      const cancelStatus = timeofcancellation > 24 ? BookingStatusEnum.CANCELLEDREFUNDPENDING
+              : BookingStatusEnum.CANCELLED
       await this.prismaService.booking.update({
         where: { id: input.bookingid },
         data: {
-          bookingstatus:
-            timeofcancellation > 24
-              ? BookingStatusEnum.CANCELLEDREFUNDPENDING
-              : BookingStatusEnum.CANCELLED,
-          refundamount: totalrefundamount,
-          cancellationDetails: { connect: { id: userId } },
-          cancelledAt: Date.now(),
+          bookingstatus: cancelStatus,
+          statusHistory: {
+            create: {
+              actionType: 'CANCELLED',
+              previousStatus: cancelStatus,
+              comment: input.reason,
+              newStatus: cancelStatus,
+              actionPerformedBy: 'USER',
+            },
+          },
         },
       });
       await this.prismaService.notification.create({

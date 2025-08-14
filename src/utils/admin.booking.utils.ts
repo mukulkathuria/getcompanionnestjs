@@ -1,4 +1,4 @@
-import { Booking } from '@prisma/client';
+import { Booking } from 'src/schema/app/generated/prisma/client';
 
 export const filterUnderreviewBooking = (bookingDetails: Booking[]) => {
   return bookingDetails.map((l) => ({

@@ -15,7 +15,7 @@ module.exports = {
     node: true,
     jest: true,
   },
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.js', '**/**/schema/app/'],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
@@ -23,4 +23,5 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     'prettier/prettier': 'off',
   },
+  globalIgnores: ['**/**/schema/app/']
 };

@@ -8,50 +8,47 @@ export class AdminAccountsService {
 
   async getAccountStatement() {
     try {
-      const data = await this.prismaService.transactions.findMany({
-        where: { status: { in: ['COMPLETED', 'REFUNDED'] } },
-        select: {
-          User: {
+      const data = await this.prismaService.transactionLedger.findMany({
+        where: { transactionType: { in: ['ADMIN_COMMISSION'] } },
+        select: {      
+          txnId: true,
+          paymentGatewayTxnId: true,
+          status: true,
+          paymentMethod: true,
+          metadata: true,
+          netAmount: true,
+          taxAmount: true,
+          settledAt: true,
+          FromUser:{
             select: {
               firstname: true,
-              gender: true,
               email: true,
               phoneno: true,
+              gender: true,
             },
           },
-          txnid: true,
-          transactionTime: true,
-          payurefid: true,
-          status: true,
-          paymentmethod: true,
-          paymentdetails: true,
-          amount: true,
-          Bookings: {
+          Booking: {
             select: {
               bookingrate: true,
               finalRate: true,
-              extendedhours: true,
-              extentedfinalrate: true,
             },
           },
         },
       });
       const values = data.map((l) => ({
-        username: l.User.firstname,
-        useremail: l.User.email,
-        gender: l.User.gender,
-        userphoneno: String(l.User.phoneno),
-        amount: String(l.amount),
-        txid: l.txnid,
+        username: l.FromUser.firstname,
+        useremail: l.FromUser.email,
+        gender: l.FromUser.gender,
+        userphoneno: String(l.FromUser.phoneno),
+        amount: String(l.netAmount),
+        txid: l.txnId,
         status: l.status,
-        paymentmethod: l.paymentmethod,
-        paymentdetails: l.paymentdetails,
-        GST: l.Bookings.finalRate * 0.18,
-        bookingrate: l.Bookings.bookingrate,
-        bookingfinalrate: l.Bookings.finalRate,
-        bookingextendedhours: l.Bookings.extendedhours,
-        bookingextendedrate: l.Bookings.extentedfinalrate,
-        transactionTime: String(l.transactionTime),
+        paymentmethod: l.paymentMethod,
+        paymentdetails: l.metadata,
+        GST: l.Booking.finalRate * 0.18,
+        bookingrate: l.Booking.bookingrate,
+        bookingfinalrate: l.Booking.finalRate,
+        transactionTime: String(l.settledAt),
       }));
       return { data: values };
     } catch (error) {

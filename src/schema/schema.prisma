@@ -5,6 +5,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  output   = "app/generated/prisma/client"
 }
 
 enum AccountEnum {
@@ -45,11 +46,48 @@ enum BookingStatus {
   CANCELLEDREFUNDPENDING
 }
 
+enum BookingActionTypeEnum {
+  CREATED
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  EXTENDED
+  COMPLETED
+  REFUND_INITIATED
+  REFUND_COMPLETED
+}
+
+enum ActionPerformedByEnum {
+  USER
+  COMPANION
+  ADMIN
+  SYSTEM
+}
+
 enum TransactionStatus {
   COMPLETED
   UNDERPROCESSED
   REFUNDED
   DECLINED
+  FAILED
+}
+
+enum TransactionTypeEnum {
+  BOOKING_PAYMENT
+  REFUND_TO_USER
+  PAYMENT_TO_COMPANION
+  ADMIN_COMMISSION
+  CANCELLATION_PENALTY
+  EXTENSION_PAYMENT
+  PLATFORM_FEE
+  TAX_DEDUCTION
+}
+
+enum TransactionPartyEnum {
+  USER
+  COMPANION
+  ADMIN
+  PLATFORM
 }
 
 enum BookingDurationUnitEnum {
@@ -147,6 +185,18 @@ enum CompanionDescriptionEnum {
   UNIQUE_REQUESTS
 }
 
+enum PaymentmethodEnum {
+  UPI
+  DEBITCARD
+  CREDITCARD
+  WALLET
+  NETBANKING
+  EMI
+  BNPL
+  NEFTRTGS
+  QR
+}
+
 model notification {
   id                 Int                        @id @default(autoincrement())
   expiry             BigInt
@@ -236,7 +286,7 @@ model User {
   Companion                Companion[]
   Chats                    ChatRoom[]
   message                  message[]
-  usercards                usercards[]
+  userpaymentmethods       userpaymentmethods[]
   livelocation             livelocation[]
   companionsearchlocations companionsearchlocations[]
   notifications            notification[]
@@ -244,10 +294,11 @@ model User {
   issuescomments           issuescomments[]
   ratingsGiven             rating[]                   @relation("Rater")
   ratingsReceived          rating[]                   @relation("Ratee")
-  cancelledBookings        Booking[]                  @relation("cancellationDetails")
+  profilevisited           Companion[]                @relation("uservisited")
+  bookingStatusHistory     BookingStatusHistory[]     @relation("ActionPerformedByUser")
+  transactionLedger        TransactionLedger[]        @relation("TransactionUser")
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
-  profilevisited           Companion[]                @relation("uservisited")
 }
 
 model Companion {
@@ -268,6 +319,7 @@ model Companion {
   baselocation           location[]
   companionupdaterequest companionupdaterequest[]
   usersvisited           User[]                     @relation("uservisited")
+  transactionLedger      TransactionLedger[]        @relation("TransactionCompanion")
 }
 
 model Booking {
@@ -282,16 +334,8 @@ model Booking {
   bookingpurpose      String?
   finalRate           Float
   OTP                 Int
-  extendedhours       Int                     @default(0)
   updatedLocation     String?
   updatedPurpose      String?
-  cancelledReason     String?
-  cancelledBy         String?
-  cancelledAt         BigInt?
-  refundamount        Int                     @default(0)
-  cancellationDetails User?                   @relation("cancellationDetails", fields: [cancelledBy], references: [id])
-  extentedfinalrate   Float                   @default(0)
-  extendedendtime     BigInt                  @default(0)
   Transactions        Transactions[]
   ChatRoom            ChatRoom[]
   Sessions            Sessions[]
@@ -300,6 +344,30 @@ model Booking {
   livelocation        livelocation[]
   Meetinglocation     location[]
   rating              rating[]
+  statusHistory       BookingStatusHistory[]
+  transactionLedger   TransactionLedger[]
+}
+
+model BookingStatusHistory {
+  id                  String                @id @default(uuid())
+  bookingId           Int
+  Booking             Booking               @relation(fields: [bookingId], references: [id])
+  actionType          BookingActionTypeEnum
+  previousStatus      BookingStatus?
+  newStatus           BookingStatus
+  actionPerformedBy   ActionPerformedByEnum
+  actionPerformedById String?
+  ActionUser          User?                 @relation("ActionPerformedByUser", fields: [actionPerformedById], references: [id])
+  comment             String?
+  previousRate        Float?
+  newRate             Float?
+  extendedHours       Int?                  @default(0)
+  refundAmount        Float?                @default(0)
+  penaltyAmount       Float?                @default(0)
+  extendedendtime     BigInt?
+  metadata            Json? // Store additional data like reasons, calculations, etc.
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
 }
 
 model Transactions {
@@ -312,13 +380,63 @@ model Transactions {
   Bookings        Booking           @relation(fields: [bookingid], references: [id])
   status          TransactionStatus @default(UNDERPROCESSED)
   amount          Float
-  isRefunded      Boolean           @default(false)
-  refundedamount  Int               @default(0)
   paymentmethod   String
   transactionTime BigInt
   paymentdetails  Json?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+}
+
+model TransactionLedger {
+  id                     String               @id @default(uuid())
+  txnId                  String               @unique
+  bookingId              Int
+  Booking                Booking              @relation(fields: [bookingId], references: [id])
+  transactionType        TransactionTypeEnum
+  fromParty              TransactionPartyEnum
+  toParty                TransactionPartyEnum
+  fromUserId             String?
+  FromUser               User?                @relation("TransactionUser", fields: [fromUserId], references: [id])
+  toCompanionId          String?
+  ToCompanion            Companion?           @relation("TransactionCompanion", fields: [toCompanionId], references: [id])
+  grossAmount            Float
+  platformFee            Float                @default(0)
+  taxAmount              Float                @default(0)
+  penaltyAmount          Float                @default(0)
+  netAmount              Float
+  status                 TransactionStatus    @default(UNDERPROCESSED)
+  paymentMethod          String?
+  paymentGatewayTxnId    String?
+  paymentGatewayResponse Json?
+  description            String?
+  metadata               Json?
+  referenceId            String?
+  isSettled              Boolean              @default(false)
+  settledAt              BigInt?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+}
+
+model AdminAccountBook {
+  id              String              @id @default(uuid())
+  bookingId       Int
+  transactionType TransactionTypeEnum
+  description     String
+  grossRevenue    Float               @default(0)
+  platformFee     Float               @default(0)
+  taxDeducted     Float               @default(0)
+  companionPayout Float               @default(0)
+  refundAmount    Float               @default(0)
+  penaltyReceived Float               @default(0)
+  netRevenue      Float               @default(0)
+  month           Int
+  year            Int
+  metadata        Json?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@index([month, year])
+  @@index([transactionType])
 }
 
 model rating {
@@ -358,24 +476,29 @@ model message {
   updatedAt  DateTime @updatedAt
 }
 
-model usercards {
-  id           String                   @id @default(uuid())
-  userid       String
-  User         User                     @relation(fields: [userid], references: [id])
-  upiId        String?
-  selectedcard UserSelectedCardUnitEnum @default(UPIID)
-  debidcard    Int?
-  creditcard   Int?
-  createdAt    DateTime                 @default(now())
-  updatedAt    DateTime                 @updatedAt
+model userpaymentmethods {
+  id             String            @id @default(uuid())
+  userid         String
+  User           User              @relation(fields: [userid], references: [id])
+  upiId          String?
+  paymentMethod  PaymentmethodEnum @default(UPI)
+  debidcard      String?
+  creditcard     String?
+  paymentDetails Json?
+  isDefault      Boolean           @default(false)
+  isActive       Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 }
 
 model Sessions {
   id               String   @id @default(uuid())
-  bookingid        Int      @unique
+  bookingid        Int      @unique()
   Bookings         Booking  @relation(fields: [bookingid], references: [id])
   sessionStartTime BigInt
   sessionEndTime   BigInt
+  sessionstartedAt BigInt?
+  sessionendedAt   BigInt?
   isExtended       Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

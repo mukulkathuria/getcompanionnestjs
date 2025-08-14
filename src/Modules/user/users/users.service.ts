@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/Services/prisma.service';
 import { S3Service } from 'src/Services/s3.service';
 import { successErrorReturnDto } from 'src/dto/common.dto';
-// import { AccountEnum } from '@prisma/client';
 import {
   CompanionUpdateRequestInputDto,
   UpdateUserProfileBodyDto,

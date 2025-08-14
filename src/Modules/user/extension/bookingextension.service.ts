@@ -30,12 +30,16 @@ export class BookingExtentionService {
               googleloc: true,
             },
           },
+          statusHistory: { select: { extendedHours: true, actionType: true } },
         },
       });
-      if (!data || data?.bookingstatus !== 'UNDEREXTENSION') {
+      const extensiondata = data.statusHistory.find(
+        (l) => l.actionType === 'EXTENDED',
+      );
+      if (!data || data?.bookingstatus !== 'UNDEREXTENSION' || !extensiondata) {
         return { error: { status: 422, message: 'Booking not available' } };
       }
-      const amount = data.bookingrate * (data.extendedhours || 1);
+      const amount = data.bookingrate * (extensiondata.extendedHours || 1);
       const values = {
         id: data.id,
         bookingstart: String(data.bookingstart),
@@ -43,7 +47,7 @@ export class BookingExtentionService {
         bookingrate: amount,
         updatedrate: amount + amount * 0.18,
         bookingpurpose: data.bookingpurpose,
-        extendedhours: data.extendedhours,
+        extendedhours: extensiondata.extendedHours,
         meetinglocation: data.Meetinglocation[0],
         userdetails: data.User.map((l) => ({
           ...l,
@@ -72,12 +76,9 @@ export class BookingExtentionService {
       await this.prismaService.booking.update({
         where: { id: bookingId },
         data: {
-          extendedhours: 0,
           bookingstatus: 'ACCEPTED',
-          extentedfinalrate: 0,
           updatedLocation: null,
           updatedPurpose: null,
-          extendedendtime: 0,
         },
       });
       return { success: true };
@@ -129,16 +130,28 @@ export class BookingExtentionService {
       }
       const data = await this.prismaService.booking.findUnique({
         where: { id: bookingdetails.bookingid },
+        include: { statusHistory: true },
       });
       if (!data || data.bookingstatus !== 'UNDEREXTENSION') {
         return { error: { status: 422, message: 'Booking not available' } };
       }
+      const extensionbooking = data.statusHistory.find(
+        (l) => l.actionType === 'EXTENDED',
+      );
       let bookingdata = {
-        extendedhours: bookingdetails.extendedhours,
-        extentedfinalrate: bookingdetails.extentedfinalrate,
-        bookingstatus: BookingStatusEnum.ACCEPTED,
-        updatedLocation: bookingdetails.updatedLocation ? 'Yes' : null,
-        updatedPurpose: bookingdetails.updatedPurpose,
+       statusHistory: {
+            update: {
+              where: { id: extensionbooking.id },
+              data: {
+                extendedHours: extensionbooking.extendedHours,
+                actionType: 'EXTENDED' as 'EXTENDED',
+                newRate: extensionbooking.newRate,
+              },
+            },
+          },
+          bookingstatus: BookingStatusEnum.ACCEPTED,
+          updatedLocation: bookingdetails.updatedLocation ? 'Yes' : null,
+          updatedPurpose: bookingdetails.updatedPurpose,
       };
       if (bookingdetails.updatedLocation) {
         bookingdata['Meetinglocation'] = {

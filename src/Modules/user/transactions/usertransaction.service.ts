@@ -26,11 +26,11 @@ export class UserTransactionService {
   private readonly logger = new Logger(UserTransactionService.name);
 
   async getAllTransactionForBooking(
-    bookingid: number,
+    bookingId: number,
   ): Promise<BookingTransactionReturnDto> {
     try {
-      const transactions = await this.prismaService.transactions.findMany({
-        where: { bookingid },
+      const transactions = await this.prismaService.transactionLedger.findMany({
+        where: { bookingId },
       });
       return { data: transactions };
     } catch (error) {
@@ -169,11 +169,23 @@ export class UserTransactionService {
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
       const previousbookings = await this.prismaService.transactions.findUnique(
-        { where: { txnid: userInput.txnid }, include: { Bookings: true } },
+        {
+          where: { txnid: userInput.txnid },
+          include: {
+            Bookings: { include: { Sessions: true, statusHistory: true } },
+          },
+        },
       );
       if (!previousbookings) {
         return { error: { status: 404, message: 'Transaction not found' } };
       }
+      const bookingendTime =
+        previousbookings.Bookings.Sessions[
+          previousbookings.Bookings.Sessions.length
+        ].sessionEndTime;
+      const extentedBooking = previousbookings.Bookings.statusHistory.find(
+        (l) => l.actionType === 'EXTENDED',
+      );
       await this.prismaService.transactions.update({
         where: { txnid: userInput.txnid },
         data: {
@@ -186,14 +198,26 @@ export class UserTransactionService {
             update: {
               data: {
                 bookingstatus: BookingStatusEnum.ACCEPTED,
-                bookingend: previousbookings.Bookings.extendedendtime,
-                finalRate: previousbookings.Bookings.finalRate + Number(userInput.amount),
+                bookingend: bookingendTime,
+                finalRate:
+                  previousbookings.Bookings.finalRate +
+                  Number(userInput.amount),
                 Sessions: {
+                  create: {
+                    isExtended: true,
+                    sessionStartTime: Date.now(),
+                    sessionEndTime: bookingendTime,
+                  },
+                },
+                statusHistory: {
                   update: {
-                    where: { bookingid: previousbookings.bookingid },
+                    where: { id: extentedBooking.id },
                     data: {
-                      isExtended: true,
-                      sessionEndTime: previousbookings.Bookings.extendedendtime,
+                      actionType: 'EXTENDED',
+                      previousStatus: 'ACCEPTED',
+                      comment: 'Extension payment successful',
+                      newStatus: 'ACCEPTED',
+                      actionPerformedBy: 'USER',
                     },
                   },
                 },

@@ -1,4 +1,4 @@
-import { Transactions } from '@prisma/client';
+import { TransactionLedger } from 'src/schema/app/generated/prisma/client';
 import { errorDto } from './common.dto';
 
 export enum TransactionStatusEnum {
@@ -186,7 +186,7 @@ export interface payUTransactionDetailsDto {
 }
 
 export interface BookingTransactionReturnDto extends errorDto {
-  data?: Transactions[];
+  data?: TransactionLedger[];
 }
 
 export interface getHashInputDto {
