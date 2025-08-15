@@ -43,9 +43,9 @@ export class UserTransactionService {
     try {
       const userDetails = await this.prismaService.user.findUnique({
         where: { id: userId },
-        include: { Transactions: { take: 5, orderBy: { createdAt: 'desc' } } },
+        include: { transactiontoParty: { take: 5, orderBy: { createdAt: 'desc' } } },
       });
-      return { data: userDetails.Transactions };
+      return { data: userDetails.transactiontoParty };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -81,15 +81,21 @@ export class UserTransactionService {
         const userDetails = await this.prismaService.user.findUnique({
           where: { email: userInput.email },
         });
-        await this.prismaService.transactions.create({
+        await this.prismaService.transactionLedger.create({
           data: {
-            txnid: values.txnid,
-            User: { connect: { id: userDetails.id } },
-            Bookings: { connect: { id: userInput.bookingId } },
-            amount: Number(userInput.amount),
-            payurefid: new Date().getTime().toString(),
-            paymentmethod: 'CASH',
-            transactionTime: new Date().getTime(),
+            txnId: values.txnid,
+            FromPartyUser: { connect: { id: userDetails.id } },
+            Booking: { connect: { id: userInput.bookingId } },
+            netAmount: Number(userInput.amount) * 0.05 + Number(userInput.amount),
+            grossAmount: Number(userInput.amount),
+            taxAmount: Number(userInput.amount) * 0.05,
+            status: TransactionStatusEnum.UNDERPROCESSED,
+            toParty: 'ADMIN',
+            fromParty: 'USER',
+            transactionType: 'BOOKING_PAYMENT',
+            paymentGatewayTxnId: new Date().getTime().toString(),
+            paymentMethod: 'CASH',
+            settledAt: new Date().getTime(),
           },
         });
         return { data };
@@ -106,26 +112,26 @@ export class UserTransactionService {
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
-      const previousbookings = await this.prismaService.transactions.findUnique(
-        { where: { txnid: userInput.txnid }, include: { Bookings: true } },
+      const previousbookings = await this.prismaService.transactionLedger.findUnique(
+        { where: { txnId: userInput.txnid }, include: { Booking: true } },
       );
       if (!previousbookings) {
         return { error: { status: 404, message: 'Transaction not found' } };
       } else if (
-        previousbookings.Bookings.bookingstatus !== 'TRANSACTIONPENDING' ||
+        previousbookings.Booking.bookingstatus !== 'TRANSACTIONPENDING' ||
         previousbookings.status !== 'UNDERPROCESSED'
       ) {
         return { error: { status: 422, message: 'Invalid transaction' } };
       }
-      await this.prismaService.transactions.update({
-        where: { txnid: userInput.txnid },
+      await this.prismaService.transactionLedger.update({
+        where: { txnId: userInput.txnid },
         data: {
           status: TransactionStatusEnum.COMPLETED,
-          payurefid: userInput.undefinedmihpayid,
-          paymentdetails: data || {},
-          paymentmethod: data.paymentMethod,
-          transactionTime: new Date(userInput.addedon).getTime(),
-          Bookings: {
+          paymentGatewayTxnId: userInput.undefinedmihpayid,
+          metadata: data || {},
+          paymentMethod: data.paymentMethod,
+          settledAt: new Date(userInput.addedon).getTime(),
+          Booking: {
             update: { data: { bookingstatus: BookingStatusEnum.UNDERREVIEW } },
           },
         },
@@ -142,14 +148,14 @@ export class UserTransactionService {
       const { error } = validateFailurePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
-      await this.prismaService.transactions.update({
-        where: { txnid: userInput.txnid },
+      await this.prismaService.transactionLedger.update({
+        where: { txnId: userInput.txnid },
         data: {
           status: TransactionStatusEnum.DECLINED,
-          payurefid: userInput.undefinedmihpayid,
-          transactionTime: new Date(userInput.addedon).getTime(),
-          paymentdetails: data ? { ...data, content: userInput.field9 } : {},
-          Bookings: {
+          paymentGatewayTxnId: userInput.undefinedmihpayid,
+          settledAt: new Date(userInput.addedon).getTime(),
+          metadata: data ? { ...data, content: userInput.field9 } : {},
+          Booking: {
             update: {
               data: { bookingstatus: BookingStatusEnum.TRANSACTIONPENDING },
             },
@@ -168,11 +174,11 @@ export class UserTransactionService {
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
-      const previousbookings = await this.prismaService.transactions.findUnique(
+      const previousbookings = await this.prismaService.transactionLedger.findUnique(
         {
-          where: { txnid: userInput.txnid },
+          where: { txnId: userInput.txnid },
           include: {
-            Bookings: { include: { Sessions: true, statusHistory: true } },
+            Booking: { include: { Sessions: true, statusHistory: true } },
           },
         },
       );
@@ -180,27 +186,27 @@ export class UserTransactionService {
         return { error: { status: 404, message: 'Transaction not found' } };
       }
       const bookingendTime =
-        previousbookings.Bookings.Sessions[
-          previousbookings.Bookings.Sessions.length
+        previousbookings.Booking.Sessions[
+          previousbookings.Booking.Sessions.length
         ].sessionEndTime;
-      const extentedBooking = previousbookings.Bookings.statusHistory.find(
+      const extentedBooking = previousbookings.Booking.statusHistory.find(
         (l) => l.actionType === 'EXTENDED',
       );
-      await this.prismaService.transactions.update({
-        where: { txnid: userInput.txnid },
+      await this.prismaService.transactionLedger.update({
+        where: { txnId: userInput.txnid },
         data: {
           status: TransactionStatusEnum.COMPLETED,
-          payurefid: userInput.undefinedmihpayid,
-          paymentdetails: data || {},
-          paymentmethod: data.paymentMethod,
-          transactionTime: new Date(userInput.addedon).getTime(),
-          Bookings: {
+          paymentGatewayTxnId: userInput.undefinedmihpayid,
+          metadata: data || {},
+          paymentMethod: data.paymentMethod,
+          settledAt: new Date(userInput.addedon).getTime(),
+          Booking: {
             update: {
               data: {
                 bookingstatus: BookingStatusEnum.ACCEPTED,
                 bookingend: bookingendTime,
                 finalRate:
-                  previousbookings.Bookings.finalRate +
+                  previousbookings.Booking.finalRate +
                   Number(userInput.amount),
                 Sessions: {
                   create: {
@@ -238,14 +244,14 @@ export class UserTransactionService {
       const { error } = validateFailurePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
-      await this.prismaService.transactions.update({
-        where: { txnid: userInput.txnid },
+      await this.prismaService.transactionLedger.update({
+        where: { txnId: userInput.txnid },
         data: {
           status: TransactionStatusEnum.DECLINED,
-          payurefid: userInput.undefinedmihpayid,
-          transactionTime: new Date(userInput.addedon).getTime(),
-          paymentdetails: data ? { ...data, content: userInput.field9 } : {},
-          Bookings: {
+          paymentGatewayTxnId: userInput.undefinedmihpayid,
+          settledAt: new Date(userInput.addedon).getTime(),
+          metadata: data ? { ...data, content: userInput.field9 } : {},
+          Booking: {
             update: {
               data: { bookingstatus: BookingStatusEnum.UNDEREXTENSION },
             },

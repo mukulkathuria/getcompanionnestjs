@@ -296,7 +296,8 @@ model User {
   ratingsReceived          rating[]                   @relation("Ratee")
   profilevisited           Companion[]                @relation("uservisited")
   bookingStatusHistory     BookingStatusHistory[]     @relation("ActionPerformedByUser")
-  transactionLedger        TransactionLedger[]        @relation("TransactionUser")
+  transactionfromParty     TransactionLedger[]        @relation("TransactionfromParty")
+  transactiontoParty       TransactionLedger[]        @relation("TransactionToParty")
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
 }
@@ -319,7 +320,6 @@ model Companion {
   baselocation           location[]
   companionupdaterequest companionupdaterequest[]
   usersvisited           User[]                     @relation("uservisited")
-  transactionLedger      TransactionLedger[]        @relation("TransactionCompanion")
 }
 
 model Booking {
@@ -396,9 +396,9 @@ model TransactionLedger {
   fromParty              TransactionPartyEnum
   toParty                TransactionPartyEnum
   fromUserId             String?
-  FromUser               User?                @relation("TransactionUser", fields: [fromUserId], references: [id])
+  FromPartyUser          User?                @relation("TransactionfromParty", fields: [fromUserId], references: [id])
   toCompanionId          String?
-  ToCompanion            Companion?           @relation("TransactionCompanion", fields: [toCompanionId], references: [id])
+  ToPartyUser            User?                @relation("TransactionToParty", fields: [toCompanionId], references: [id])
   grossAmount            Float
   platformFee            Float                @default(0)
   taxAmount              Float                @default(0)

@@ -368,7 +368,7 @@ export class AdminBookingService {
             },
           },
         }),
-        this.prismaService.transactions.aggregate({
+        this.prismaService.transactionLedger.aggregate({
           where: { status: 'REFUNDED' },
           _count: { id: true },
         }),

@@ -19,7 +19,7 @@ export class AdminAccountsService {
           netAmount: true,
           taxAmount: true,
           settledAt: true,
-          FromUser:{
+          FromPartyUser:{
             select: {
               firstname: true,
               email: true,
@@ -36,10 +36,10 @@ export class AdminAccountsService {
         },
       });
       const values = data.map((l) => ({
-        username: l.FromUser.firstname,
-        useremail: l.FromUser.email,
-        gender: l.FromUser.gender,
-        userphoneno: String(l.FromUser.phoneno),
+        username: l.FromPartyUser.firstname,
+        useremail: l.FromPartyUser.email,
+        gender: l.FromPartyUser.gender,
+        userphoneno: String(l.FromPartyUser.phoneno),
         amount: String(l.netAmount),
         txid: l.txnId,
         status: l.status,

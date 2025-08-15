@@ -44,9 +44,9 @@ export class AdminTransactionService {
     try {
       const userDetails = await this.prismaService.user.findUnique({
         where: { id: userId },
-        include: { transactionLedger: { take: 5, orderBy: { createdAt: 'desc' } } },
+        include: { transactionfromParty: { take: 5, orderBy: { createdAt: 'desc' } } },
       });
-      return { data: userDetails.transactionLedger };
+      return { data: userDetails.transactionfromParty };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -107,25 +107,25 @@ export class AdminTransactionService {
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
-      const previousbookings = await this.prismaService.transactions.findUnique(
-        { where: { txnid: userInput.txnid }, include: { Bookings: true } },
+      const previousbookings = await this.prismaService.transactionLedger.findUnique(
+        { where: { txnId: userInput.txnid }, include: { Booking: true } },
       );
       if (!previousbookings) {
         return { error: { status: 404, message: 'Transaction not found' } };
       } else if (
-        previousbookings.Bookings.bookingstatus !== 'TRANSACTIONPENDING' ||
+        previousbookings.Booking.bookingstatus !== 'TRANSACTIONPENDING' ||
         previousbookings.status !== 'UNDERPROCESSED'
       ) {
         return { error: { status: 422, message: 'Invalid transaction' } };
       }
-      await this.prismaService.transactions.update({
-        where: { txnid: userInput.txnid },
+      await this.prismaService.transactionLedger.update({
+        where: { txnId: userInput.txnid },
         data: {
           status: TransactionStatusEnum.COMPLETED,
-          payurefid: userInput.undefinedmihpayid,
-          paymentdetails: data || {},
-          transactionTime: new Date(userInput.addedon).getTime(),
-          Bookings: {
+          paymentGatewayTxnId: userInput.undefinedmihpayid,
+          metadata: data || {},
+          settledAt: new Date(userInput.addedon).getTime(),
+          Booking: {
             update: { data: { bookingstatus: BookingStatusEnum.UNDERREVIEW } },
           },
         },
@@ -142,14 +142,14 @@ export class AdminTransactionService {
       const { error } = validateFailurePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
-      await this.prismaService.transactions.update({
-        where: { txnid: userInput.txnid },
+      await this.prismaService.transactionLedger.update({
+        where: { txnId: userInput.txnid },
         data: {
           status: TransactionStatusEnum.DECLINED,
-          payurefid: userInput.undefinedmihpayid,
-          transactionTime: new Date(userInput.addedon).getTime(),
-          paymentdetails: data ? { ...data, content: userInput.field9 } : {},
-          Bookings: {
+          paymentGatewayTxnId: userInput.undefinedmihpayid,
+          settledAt: new Date(userInput.addedon).getTime(),
+          metadata: data ? { ...data, content: userInput.field9 } : {},
+          Booking: {
             update: {
               data: { bookingstatus: BookingStatusEnum.TRANSACTIONPENDING },
             },
@@ -175,17 +175,21 @@ export class AdminTransactionService {
       }
       const { data } = makePaymentdetailsjson(userInput);
       await this.prismaService.$transaction([
-        this.prismaService.transactions.create({
+        this.prismaService.transactionLedger.create({
           data: {
             status: TransactionStatusEnum.REFUNDED,
-            payurefid: userInput.undefinedmihpayid,
-            paymentdetails: data || {},
-            txnid: userInput.txnid,
-            paymentmethod: data.paymentMethod,
-            amount: Number(userInput.amount),
-            transactionTime: new Date(userInput.addedon).getTime(),
-            User: { connect: { id: userId } },
-            Bookings: { connect: { id: userInput.bookingid } },
+            paymentGatewayTxnId: userInput.undefinedmihpayid,
+            transactionType: 'REFUND_TO_USER',
+            metadata: data || {},
+            txnId: userInput.txnid,
+            paymentMethod: data.paymentMethod,
+            netAmount: Number(userInput.amount),
+            grossAmount: Number(userInput.amount),
+            settledAt: new Date(userInput.addedon).getTime(),
+            ToPartyUser: { connect: { id: userId } },
+            fromParty: 'ADMIN',
+            toParty: 'USER',
+            Booking: { connect: { id: userInput.bookingid } },
           },
         }),
         this.prismaService.booking.update({
@@ -210,17 +214,21 @@ export class AdminTransactionService {
       const { error } = validateFailurePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
-      await this.prismaService.transactions.create({
+      await this.prismaService.transactionLedger.create({
         data: {
           status: TransactionStatusEnum.DECLINED,
-          payurefid: userInput.undefinedmihpayid,
-          paymentdetails: data || {},
-          txnid: userInput.txnid,
-          paymentmethod: 'CASH',
-          amount: Number(userInput.amount),
-          transactionTime: new Date(userInput.addedon).getTime(),
-          User: { connect: { id: userId } },
-          Bookings: { connect: { id: userInput.bookingid } },
+          paymentGatewayTxnId: userInput.undefinedmihpayid,
+          transactionType: 'REFUND_TO_USER',
+          fromParty: 'ADMIN',
+          toParty: 'USER',
+          metadata: data || {},
+          txnId: userInput.txnid,
+          paymentMethod: 'CASH',
+          grossAmount: Number(userInput.amount),
+          netAmount: Number(userInput.amount),
+          settledAt: new Date(userInput.addedon).getTime(),
+          FromPartyUser: { connect: { id: userId } },
+          Booking: { connect: { id: userInput.bookingid } },
         },
       });
       return { success: 'true' };
