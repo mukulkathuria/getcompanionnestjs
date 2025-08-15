@@ -117,8 +117,10 @@ export class AdminBookingService {
         Transactions: data.transactionLedger.map((l) => ({
           ...l,
           transactionTime: String(l.settledAt),
+          settledAt: String(l.settledAt),
         })),
       };
+      delete values.transactionLedger;
       return { data: values };
     } catch (error) {
       this.logger.error(error?.message || error);

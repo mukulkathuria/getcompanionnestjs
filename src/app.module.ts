@@ -25,9 +25,14 @@ import { join } from 'path';
     ServeStaticModule.forRoot({
       rootPath:
         process.env.NODE_ENV !== 'production'
-          ? join(__dirname, '..', 'Images')
-          : join(__dirname, 'Images'),
+          ? join(__dirname, '..', '..', 'Images')
+        : join(__dirname, 'Images'),
       serveRoot: '/Images',
+      serveStaticOptions: {
+        index: false,
+        fallthrough: false,
+        extensions: ['jpg', 'jpeg', 'png', 'gif'],
+      },
     }),
     GlobalModule,
     AuthModule,

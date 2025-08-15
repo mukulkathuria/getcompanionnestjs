@@ -18,12 +18,9 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
   },
-  "exclude": [
-    "dist",
-    "node_modules"
-  ],
+  "exclude": ["dist", "node_modules"],
   "watchOptions": {
     "watchFile": "fixedPollingInterval",
     "excludeDirectories": ["dist", "node_modules"]
-  }
+  },
 }
