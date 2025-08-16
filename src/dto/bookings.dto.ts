@@ -1,4 +1,4 @@
-import { Booking } from 'src/schema/app/generated/prisma/client';
+import { Booking } from '@prisma/client';
 import { errorDto } from './common.dto';
 
 export enum BookingDurationUnitEnum {

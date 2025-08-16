@@ -1,4 +1,4 @@
-import { TransactionLedger } from 'src/schema/app/generated/prisma/client';
+import { TransactionLedger } from '@prisma/client';
 import { errorDto } from './common.dto';
 
 export enum TransactionStatusEnum {

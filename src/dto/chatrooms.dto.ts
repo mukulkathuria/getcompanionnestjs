@@ -1,4 +1,4 @@
-import { message, User } from "src/schema/app/generated/prisma/client";
+import { message, User } from "@prisma/client";
 import { errorDto } from "./common.dto";
 
 export interface ChatRoomReturnDto extends errorDto {

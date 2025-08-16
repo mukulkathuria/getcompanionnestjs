@@ -1,4 +1,4 @@
-import { Companion, User } from 'src/schema/app/generated/prisma/client';
+import { Companion, User } from '@prisma/client';
 import { CompanionDetailsDto } from 'src/dto/user.dto';
 
 export const filterCompanionDetailsbyuser = (
