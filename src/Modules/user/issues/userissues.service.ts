@@ -96,20 +96,20 @@ export class UserIssuesServices {
       if (error) {
         return { error };
       }
-      // const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
-      const allimages = [];
-      for (let i = 0; i < images.length; i += 1) {
-        const filepath =
-          'userissue/' + Date.now() + `${images[i].originalname}`;
-        const { data } = await this.awsservice.uploadFileins3(
-          filepath,
-          images[i].buffer,
-          images[i].mimetype,
-        );
-        if (data) {
-          allimages.push(data);
-        }
-      }
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      // const allimages = [];
+      // for (let i = 0; i < images.length; i += 1) {
+      //   const filepath =
+      //     'userissue/' + Date.now() + `${images[i].originalname}`;
+      //   const { data } = await this.awsservice.uploadFileins3(
+      //     filepath,
+      //     images[i].buffer,
+      //     images[i].mimetype,
+      //   );
+      //   if (data) {
+      //     allimages.push(data);
+      //   }
+      // }
       const data = await this.prismaService.userissues.create({
         data: {
           screenshots: allimages,
@@ -142,20 +142,20 @@ export class UserIssuesServices {
           error: { status: 422, message: 'You can attach max 4 screenshot' },
         };
       }
-      // const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
-      const allimages = [];
-      for (let i = 0; i < images.length; i += 1) {
-        const filepath =
-          'userissue/' + Date.now() + `${images[i].originalname}`;
-        const { data } = await this.awsservice.uploadFileins3(
-          filepath,
-          images[i].buffer,
-          images[i].mimetype,
-        );
-        if (data) {
-          allimages.push(data);
-        }
-      }
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      // const allimages = [];
+      // for (let i = 0; i < images.length; i += 1) {
+      //   const filepath =
+      //     'userissue/' + Date.now() + `${images[i].originalname}`;
+      //   const { data } = await this.awsservice.uploadFileins3(
+      //     filepath,
+      //     images[i].buffer,
+      //     images[i].mimetype,
+      //   );
+      //   if (data) {
+      //     allimages.push(data);
+      //   }
+      // }
       const ticketDetails = await this.prismaService.userissues.findUnique({
         where: { id: commentInput.issueId },
       });

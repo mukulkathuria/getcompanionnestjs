@@ -36,19 +36,19 @@ export class CompanionRequestService {
           error: { status: 422, message: 'Maximum 2 images are allowed' },
         };
       }
-      // const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
-      const allimages = [];
-      for (let i = 0; i < images.length; i += 1) {
-        const filepath = 'companionrequest/' + userinfo.email + Date.now();
-        const { data } = await this.awsservice.uploadFileins3(
-          filepath,
-          images[i].buffer,
-          images[i].mimetype,
-        );
-        if (data) {
-          allimages.push(data);
-        }
-      }
+      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      // const allimages = [];
+      // for (let i = 0; i < images.length; i += 1) {
+      //   const filepath = 'companionrequest/' + userinfo.email + Date.now();
+      //   const { data } = await this.awsservice.uploadFileins3(
+      //     filepath,
+      //     images[i].buffer,
+      //     images[i].mimetype,
+      //   );
+      //   if (data) {
+      //     allimages.push(data);
+      //   }
+      // }
       const userdata = {
         firstname: userinfo.firstname,
         lastname: userinfo.lastname,

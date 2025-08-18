@@ -49,21 +49,21 @@ export class UsersService {
         return { error: { status: 422, message: 'User not Exists' } };
       }
       const { userdata } = isvalidUserinputs(userinputs);
-      // const allimages = images.map(
-      //   (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
-      // );
-      const allimages = [];
-      for (let i = 0; i < images.length; i += 1) {
-        const filepath = 'userphotos/' + isUserExists.email + Date.now();
-        const { data } = await this.awsservice.uploadFileins3(
-          filepath,
-          images[i].buffer,
-          images[i].mimetype,
-        );
-        if (data) {
-          allimages.push(data);
-        }
-      }
+      const allimages = images.map(
+        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      );
+      // const allimages = [];
+      // for (let i = 0; i < images.length; i += 1) {
+      //   const filepath = 'userphotos/' + isUserExists.email + Date.now();
+      //   const { data } = await this.awsservice.uploadFileins3(
+      //     filepath,
+      //     images[i].buffer,
+      //     images[i].mimetype,
+      //   );
+      //   if (data) {
+      //     allimages.push(data);
+      //   }
+      // }
       // console.log(allimages);
       if (allimages.length > 1) {
         return {
@@ -223,21 +223,21 @@ export class UsersService {
       if (error) {
         return { error };
       }
-      // const allimages = images.map(
-      //   (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
-      // );
-      const allimages = [];
-      for (let i = 0; i < images.length; i += 1) {
-        const filepath = 'userphotos/companionewphoto' + userinfo.firstname + Date.now();
-        const { data } = await this.awsservice.uploadFileins3(
-          filepath,
-          images[i].buffer,
-          images[i].mimetype,
-        );
-        if (data) {
-          allimages.push(data);
-        }
-      }
+      const allimages = images.map(
+        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      );
+      // const allimages = [];
+      // for (let i = 0; i < images.length; i += 1) {
+      //   const filepath = 'userphotos/companionewphoto' + userinfo.firstname + Date.now();
+      //   const { data } = await this.awsservice.uploadFileins3(
+      //     filepath,
+      //     images[i].buffer,
+      //     images[i].mimetype,
+      //   );
+      //   if (data) {
+      //     allimages.push(data);
+      //   }
+      // }
       if (!userinfo.previousImages && allimages.length < 2) {
         return {
           error: { status: 422, message: 'Images is required' },
