@@ -16,7 +16,14 @@ export const isvalidUserinputs = (userinfo: UpdateUserProfileBodyDto) => {
   const validsusers = ['firstname', 'lastname', 'gender', 'phoneno'];
   for (let i = 0; i < validsusers.length; i += 1) {
     if (userinfo[validsusers[i]] && userinfo[validsusers[i]].trim().length) {
-      results[validsusers[i]] = userinfo[validsusers[i]];
+      if (
+        validsusers[i] === 'gender' &&
+        GenderEnum[userinfo[validsusers[i]].toUpperCase()]
+      ) {
+        results[validsusers[i]] = userinfo[validsusers[i]].toUpperCase();
+      } else {
+        results[validsusers[i]] = userinfo[validsusers[i]];
+      }
     } else if (
       userinfo[validsusers[i]] &&
       !userinfo[validsusers[i]].trim().length
@@ -208,7 +215,11 @@ export const validateCompanionSearch = (
   const filterstosend = {
     include: {
       Companion: {
-        include: { baselocation: { where: { city: userDetails.city, state: userDetails.state } } },
+        include: {
+          baselocation: {
+            where: { city: userDetails.city, state: userDetails.state },
+          },
+        },
       },
     },
   };
