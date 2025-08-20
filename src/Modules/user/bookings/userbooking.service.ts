@@ -315,7 +315,7 @@ export class UserBookingsService {
       const extendedBooking = bookingDetails.statusHistory.find(
         (l) => l.actionType === 'EXTENDED',
       );
-      const totalrefundamount = extendedBooking.extendedHours
+      const totalrefundamount = extendedBooking?.extendedHours
         ? extendedBooking.newRate * 0.7
         : bookingDetails.finalRate * 0.7;
       const cancelStatus = timeofcancellation > 24 ? BookingStatusEnum.CANCELLEDREFUNDPENDING
