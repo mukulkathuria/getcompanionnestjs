@@ -326,11 +326,13 @@ export class AdminBookingService {
           bookingstatus: true,
           finalRate: true,
           bookingstart: true,
+          statusHistory: true
         },
       });
       const values = data.map((l) => ({
         ...l,
         bookingstart: String(l.bookingstart),
+        cancelledBy: l.statusHistory.find((l) => l.actionType === 'CANCELLED').actionPerformedBy
       }));
       return { data: values };
     } catch (error) {
