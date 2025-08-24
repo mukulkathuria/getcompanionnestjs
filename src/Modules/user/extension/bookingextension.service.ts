@@ -149,7 +149,7 @@ export class BookingExtentionService {
               },
             },
           },
-          bookingend: extensionbooking.extendedHours,
+          // bookingend: extensionbooking.extendedHours,
           bookingstatus: BookingStatusEnum.ACCEPTED,
           updatedLocation: bookingdetails.updatedLocation ? 'Yes' : null,
           updatedPurpose: bookingdetails.updatedPurpose,

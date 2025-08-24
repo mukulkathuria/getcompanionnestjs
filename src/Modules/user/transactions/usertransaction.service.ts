@@ -9,6 +9,7 @@ import {
 } from 'src/dto/transactions.dto';
 import { PaymentService } from 'src/Services/payment.service';
 import { PrismaService } from 'src/Services/prisma.service';
+import { addHours } from 'src/utils/common.utils';
 import { makePaymentdetailsjson } from 'src/utils/transactions.utils';
 import {
   validateFailurePaymentStatus,
@@ -43,7 +44,9 @@ export class UserTransactionService {
     try {
       const userDetails = await this.prismaService.user.findUnique({
         where: { id: userId },
-        include: { transactiontoParty: { take: 5, orderBy: { createdAt: 'desc' } } },
+        include: {
+          transactiontoParty: { take: 5, orderBy: { createdAt: 'desc' } },
+        },
       });
       return { data: userDetails.transactiontoParty };
     } catch (error) {
@@ -86,7 +89,8 @@ export class UserTransactionService {
             txnId: values.txnid,
             FromPartyUser: { connect: { id: userDetails.id } },
             Booking: { connect: { id: userInput.bookingId } },
-            netAmount: Number(userInput.amount) * 0.05 + Number(userInput.amount),
+            netAmount:
+              Number(userInput.amount) * 0.05 + Number(userInput.amount),
             grossAmount: Number(userInput.amount),
             taxAmount: Number(userInput.amount) * 0.05,
             status: TransactionStatusEnum.UNDERPROCESSED,
@@ -112,9 +116,11 @@ export class UserTransactionService {
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
-      const previousbookings = await this.prismaService.transactionLedger.findUnique(
-        { where: { txnId: userInput.txnid }, include: { Booking: true } },
-      );
+      const previousbookings =
+        await this.prismaService.transactionLedger.findUnique({
+          where: { txnId: userInput.txnid },
+          include: { Booking: true },
+        });
       if (!previousbookings) {
         return { error: { status: 404, message: 'Transaction not found' } };
       } else if (
@@ -174,23 +180,23 @@ export class UserTransactionService {
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
-      const previousbookings = await this.prismaService.transactionLedger.findUnique(
-        {
+      const previousbookings =
+        await this.prismaService.transactionLedger.findUnique({
           where: { txnId: userInput.txnid },
           include: {
             Booking: { include: { Sessions: true, statusHistory: true } },
           },
-        },
-      );
+        });
       if (!previousbookings) {
         return { error: { status: 404, message: 'Transaction not found' } };
       }
-      const bookingendTime =
-        previousbookings.Booking.Sessions[
-          previousbookings.Booking.Sessions.length
-        ].sessionEndTime;
       const extentedBooking = previousbookings.Booking.statusHistory.find(
         (l) => l.actionType === 'EXTENDED',
+      );
+      const bookingendTime = addHours(
+        extentedBooking.extendedHours,
+        null,
+        previousbookings.Booking.bookingend,
       );
       await this.prismaService.transactionLedger.update({
         where: { txnId: userInput.txnid },
@@ -206,15 +212,7 @@ export class UserTransactionService {
                 bookingstatus: BookingStatusEnum.ACCEPTED,
                 bookingend: bookingendTime,
                 finalRate:
-                  previousbookings.Booking.finalRate +
-                  Number(userInput.amount),
-                Sessions: {
-                  create: {
-                    isExtended: true,
-                    sessionStartTime: Date.now(),
-                    sessionEndTime: bookingendTime,
-                  },
-                },
+                  previousbookings.Booking.finalRate + Number(userInput.amount),
                 statusHistory: {
                   update: {
                     where: { id: extentedBooking.id },
@@ -227,6 +225,13 @@ export class UserTransactionService {
                     },
                   },
                 },
+                Sessions:{
+                  create:{
+                    isExtended: true,
+                    sessionStartTime: previousbookings.Booking.bookingend,
+                    sessionEndTime: bookingendTime,
+                  }
+                }
               },
             },
           },
@@ -234,7 +239,7 @@ export class UserTransactionService {
       });
       return { success: true };
     } catch (error) {
-      this.logger.debug(error?.message || error);
+      this.logger.debug(error);
       return { error: { status: 500, message: 'Server error' } };
     }
   }

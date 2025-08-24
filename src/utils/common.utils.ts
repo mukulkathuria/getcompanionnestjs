@@ -95,10 +95,18 @@ export function sortCompanion(
   }));
 }
 
-export function addHours(hour: number, hourorminute?: dayjs.ManipulateType) {
-  return dayjs()
-    .add(hour, hourorminute || 'hour')
-    .valueOf();
+export function addHours(
+  hour: number,
+  hourorminute?: dayjs.ManipulateType,
+  unixTimeStamp?: BigInt,
+) {
+  return unixTimeStamp
+    ? dayjs(parseInt(String(unixTimeStamp)))
+        .add(hour, hourorminute || 'hour')
+        .valueOf()
+    : dayjs()
+        .add(hour, hourorminute || 'hour')
+        .valueOf();
 }
 
 export function convertToDateTime(date: bigint) {
@@ -117,7 +125,6 @@ export function getUniqueValue(arr: any[]) {
   return results;
 }
 
-
 export const getErrorMessage = (status: number, message: string) => {
-  return { error: { status, message } }
-}
+  return { error: { status, message } };
+};

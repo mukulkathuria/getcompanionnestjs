@@ -492,7 +492,7 @@ model userpaymentmethods {
 
 model Sessions {
   id               String   @id @default(uuid())
-  bookingid        Int      @unique()
+  bookingid        Int
   Bookings         Booking  @relation(fields: [bookingid], references: [id])
   sessionStartTime BigInt
   sessionEndTime   BigInt

@@ -39,7 +39,10 @@ export class UserSessionService {
         return { error };
       }
       const checkBookingandOTP = await this.prismaService.booking.findUnique({
-        where: { id: sessionDetails.bookingid, OTP: sessionDetails.otp },
+        where: {
+          id: sessionDetails.bookingid,
+          OTP: sessionDetails.otp,
+        },
       });
       if (!checkBookingandOTP) {
         return { error: { status: 422, message: 'Booking not found' } };
