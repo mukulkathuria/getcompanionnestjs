@@ -193,11 +193,6 @@ export class UserTransactionService {
       const extentedBooking = previousbookings.Booking.statusHistory.find(
         (l) => l.actionType === 'EXTENDED',
       );
-      const bookingendTime = addHours(
-        extentedBooking.extendedHours,
-        null,
-        previousbookings.Booking.bookingend,
-      );
       await this.prismaService.transactionLedger.update({
         where: { txnId: userInput.txnid },
         data: {
@@ -210,7 +205,7 @@ export class UserTransactionService {
             update: {
               data: {
                 bookingstatus: BookingStatusEnum.ACCEPTED,
-                bookingend: bookingendTime,
+                bookingend: extentedBooking.extendedendtime,
                 finalRate:
                   previousbookings.Booking.finalRate + Number(userInput.amount),
                 statusHistory: {
@@ -229,7 +224,7 @@ export class UserTransactionService {
                   create:{
                     isExtended: true,
                     sessionStartTime: previousbookings.Booking.bookingend,
-                    sessionEndTime: bookingendTime,
+                    sessionEndTime: extentedBooking.extendedendtime,
                   }
                 }
               },
