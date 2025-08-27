@@ -189,6 +189,7 @@ export class AdminTransactionService {
             ToPartyUser: { connect: { id: userId } },
             fromParty: 'ADMIN',
             toParty: 'USER',
+            isSettled: true,
             Booking: { connect: { id: userInput.bookingid } },
           },
         }),
