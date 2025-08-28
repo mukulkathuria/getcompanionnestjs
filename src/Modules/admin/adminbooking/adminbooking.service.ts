@@ -326,13 +326,14 @@ export class AdminBookingService {
           bookingstatus: true,
           finalRate: true,
           bookingstart: true,
-          statusHistory: true
+          statusHistory: true,
         },
       });
       const values = data.map((l) => ({
         ...l,
         bookingstart: String(l.bookingstart),
-        cancelledBy: l.statusHistory.find((l) => l.actionType === 'CANCELLED').actionPerformedBy
+        cancelledBy: l.statusHistory.find((l) => l.actionType === 'CANCELLED')
+          .actionPerformedBy,
       }));
       return { data: values };
     } catch (error) {
@@ -379,10 +380,14 @@ export class AdminBookingService {
       ]);
       const totalCount = aggregateResult._count.id;
       const totalPages = Math.ceil(totalCount / limit);
-      const values = items.map((l) => ({
-        ...l,
-        transactionTime: String(l.settledAt),
-      }));
+      const values = items.map((l) => {
+        const b = {
+          ...l,
+          transactionTime: String(l.settledAt),
+        };
+        delete b.settledAt;
+        return b;
+      });
       const finalvalue = {
         totalPages,
         limit,
