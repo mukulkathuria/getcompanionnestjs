@@ -6,3 +6,10 @@ export const CompanionRequestInnerRoutes = {
     requestforcompanion: 'requestforcompanion',
     registeracompanion: 'registerforcompanion'
 }
+
+export const CompanionBookingInnerRoutes =  {
+    baseUrl: CompanionRoute + '/booking',
+    companionbookingdetails: 'companionbookingdetails',
+    companionacceptbooking: 'companionacceptbooking',
+    companionrejectbooking: 'companionrejectbooking'
+}

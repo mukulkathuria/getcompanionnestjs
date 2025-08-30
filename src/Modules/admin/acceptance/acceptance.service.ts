@@ -22,7 +22,10 @@ export class AcceptanceService {
   ) {}
   private readonly logger = new Logger(PrismaService.name);
 
-  async acceptBooking(bookingId: number): Promise<controllerReturnDto> {
+  async acceptBooking(
+    bookingId: number,
+    actionPerformedBy?: 'ADMIN' | 'COMPANION',
+  ): Promise<controllerReturnDto> {
     try {
       const bookingDetails = await this.prismaService.booking.findUnique({
         where: { id: bookingId },
@@ -58,7 +61,7 @@ export class AcceptanceService {
               actionType: 'ACCEPTED',
               previousStatus: 'ACCEPTED',
               newStatus: 'ACCEPTED',
-              actionPerformedBy: 'ADMIN',
+              actionPerformedBy: actionPerformedBy || 'ADMIN',
             },
           },
         },
@@ -192,7 +195,10 @@ export class AcceptanceService {
     }
   }
 
-  async rejectBooking(bookingId: number): Promise<controllerReturnDto> {
+  async rejectBooking(
+    bookingId: number,
+    actionPerformedBy?: 'ADMIN' | 'COMPANION',
+  ): Promise<controllerReturnDto> {
     try {
       const bookingDetails = await this.prismaService.booking.findUnique({
         where: { id: bookingId },
@@ -219,15 +225,15 @@ export class AcceptanceService {
         where: { id: bookingId },
         data: {
           bookingstatus: 'REJECTED',
-          statusHistory:{
+          statusHistory: {
             create: {
               actionType: 'REJECTED',
               previousStatus: 'UNDERREVIEW',
               newStatus: 'REJECTED',
-              actionPerformedBy: 'ADMIN',
-              refundAmount: bookingDetails.finalRate
+              actionPerformedBy: actionPerformedBy || 'ADMIN',
+              refundAmount: bookingDetails.finalRate,
             },
-          }
+          },
         },
       });
       const userdata = bookingDetails.User.find((l) => !l.isCompanion);
