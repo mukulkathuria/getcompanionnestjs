@@ -1,5 +1,6 @@
 import { BookingMeetingLocationDto } from './bookings.dto';
 import { errorDto, successErrorDto } from './common.dto';
+import { paymentdetailsDto } from './transactions.dto';
 import {
   CompanionDescriptionEnum,
   CompanionDrinkingHabitEnum,
@@ -10,6 +11,7 @@ import {
   GenderEnum,
   MaleCompanionBodyTypeEnum,
 } from './user.dto';
+import { PaymentMethodInput } from './userpaymentmethod.dto';
 
 export type registerBodyDto = {
   firstname: string;
@@ -40,6 +42,7 @@ export type registerCompanionBodyDto = {
   drinkinghabits: CompanionDrinkingHabitEnum;
   smokinghabits: CompanionSmokingHabitEnum;
   baselocations: BookingMeetingLocationDto[]
+  paymentmethods: PaymentMethodInput[]
 };
 
 export interface previousImagesDto {

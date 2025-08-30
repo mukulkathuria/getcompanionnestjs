@@ -196,6 +196,27 @@ enum PaymentmethodEnum {
   QR
 }
 
+enum PaymentType {
+  BANK_ACCOUNT
+  UPI
+  WALLET
+}
+
+enum BankAccountType {
+  SAVINGS
+  CURRENT
+}
+
+enum WalletProvider {
+  PAYTM
+  PHONEPE
+  AMAZON_PAY
+  MOBIKWIK
+  FREECHARGE
+  AIRTEL_MONEY
+  JIO_MONEY
+}
+
 model notification {
   id                 Int                        @id @default(autoincrement())
   expiry             BigInt
@@ -476,18 +497,32 @@ model message {
 }
 
 model userpaymentmethods {
-  id             String            @id @default(uuid())
-  userid         String
-  User           User              @relation(fields: [userid], references: [id])
-  upiId          String?
-  paymentMethod  PaymentmethodEnum @default(UPI)
-  debidcard      String?
-  creditcard     String?
-  paymentDetails Json?
-  isDefault      Boolean           @default(false)
-  isActive       Boolean           @default(true)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  id                String           @id @default(uuid())
+  userid            String
+  User              User             @relation(fields: [userid], references: [id])
+  nickname          String?
+  type              PaymentType
+  isVerified        Boolean          @default(false)
+  accountHolderName String?
+  accountNumber     String?
+  ifscCode          String?
+  bankName          String?
+  branchName        String?
+  accountType       BankAccountType?
+  upiId             String?
+  upiProvider       String?
+  walletProvider    WalletProvider?
+  walletIdentifier  String?
+  recipientName     String
+  isDefault         Boolean          @default(false)
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([userid, accountNumber, ifscCode])
+  @@unique([userid, upiId])
+  @@unique([userid, walletProvider, walletIdentifier])
+  @@index([userid, isActive])
 }
 
 model Sessions {

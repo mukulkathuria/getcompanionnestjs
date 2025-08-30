@@ -29,6 +29,10 @@ import { User } from '@prisma/client';
 import { successErrorReturnDto } from 'src/dto/common.dto';
 import { getErrorMessage } from 'src/utils/common.utils';
 import { bookingLocationValidation } from './booking.validation';
+import {
+  PaymentMethodService,
+  PaymentMethodValidator,
+} from './userpaymentmethod.validation';
 
 export const validateregisterUser = (
   userinfo: registerBodyDto,
@@ -69,14 +73,17 @@ export function validateregisterCompanion(
 ) {
   const { firstname, lastname, email, password, gender, age, phoneno } =
     userinfo;
+  const paymentMethodData = [];
   try {
     if (userinfo.description) {
       const tempdesc = JSON.parse(userinfo.description as any);
       const tempbaseloc = JSON.parse(userinfo.baselocations as any);
+      const temppayment = JSON.parse(userinfo.paymentmethods as any);
       userinfo.baselocations = tempbaseloc;
       userinfo['description'] = Array.isArray(tempdesc)
         ? tempdesc.map((l) => l.trim())
         : [];
+      userinfo.paymentmethods = temppayment;
     }
   } catch (error) {
     console.log('Error JSON in description', error, userinfo.description);
@@ -194,6 +201,17 @@ export function validateregisterCompanion(
     return {
       error: { status: 422, message: 'Companion height is required' },
     };
+  } else if (!userinfo.paymentmethods.length) {
+    return {
+      error: { status: 422, message: 'Payment Method is required' },
+    };
+  } else if (userinfo.paymentmethods.length > 4) {
+    return {
+      error: {
+        status: 422,
+        message: 'You cant add more than 4 payment method',
+      },
+    };
   }
   for (let i = 0; i < userinfo.baselocations.length; i += 1) {
     const { error } = bookingLocationValidation(userinfo.baselocations[i]);
@@ -201,6 +219,26 @@ export function validateregisterCompanion(
       return { error };
     }
   }
+  for (let i = 0; i < userinfo.paymentmethods.length; i += 1) {
+    const { isValid, errors } = PaymentMethodValidator.validate(
+      userinfo.paymentmethods[i],
+    );
+    if (!isValid && errors.length) {
+      return {
+        error: {
+          status: 422,
+          message: errors.map((l) => l.message).join(', '),
+        },
+      };
+    }
+  }
+  for (let i = 0; i < userinfo.paymentmethods.length; i += 1) {
+    const paymentmethod = new PaymentMethodService().prepareDataForDB(
+      userinfo.paymentmethods[i],
+    );
+    paymentMethodData.push(paymentmethod)
+  }
+  userinfo['paymentmethods'] = paymentMethodData;
   return { user: userinfo };
 }
 
