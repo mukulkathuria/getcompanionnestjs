@@ -581,7 +581,7 @@ model companionrequests {
 }
 
 model companionupdaterequest {
-  id               Int                        @id @default(autoincrement())
+  id               Int                         @id @default(autoincrement())
   companionid      String
   firstname        String
   lastname         String
@@ -596,10 +596,11 @@ model companionupdaterequest {
   drinkinghabits   CompanionDrinkingHabitEnum
   smokinghabits    CompanionSmokingHabitEnum
   baselocations    requestlocation[]
-  companiondetails Companion                  @relation(fields: [companionid], references: [id])
-  status           AccountEnum                @default(REVIEWED)
-  createdAt        DateTime                   @default(now())
-  updatedAt        DateTime                   @updatedAt
+  paymentmethods   requestuserpaymentmethods[]
+  companiondetails Companion                   @relation(fields: [companionid], references: [id])
+  status           AccountEnum                 @default(REVIEWED)
+  createdAt        DateTime                    @default(now())
+  updatedAt        DateTime                    @updatedAt
 }
 
 model requestlocation {
@@ -619,4 +620,28 @@ model requestlocation {
   basefrom              LocationBaseFromEnum    @default(USER)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
+}
+
+model requestuserpaymentmethods {
+  id                 String                  @id @default(uuid())
+  companionrequestid Int?
+  companionrequests  companionupdaterequest? @relation(fields: [companionrequestid], references: [id])
+  nickname           String?
+  type               PaymentType
+  isVerified         Boolean                 @default(false)
+  accountHolderName  String?
+  accountNumber      String?
+  ifscCode           String?
+  bankName           String?
+  branchName         String?
+  accountType        BankAccountType?
+  upiId              String?
+  upiProvider        String?
+  walletProvider     WalletProvider?
+  walletIdentifier   String?
+  recipientName      String
+  isDefault          Boolean                 @default(false)
+  isActive           Boolean                 @default(true)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
 }

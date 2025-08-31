@@ -262,6 +262,7 @@ export class UsersService {
         data: {
           ...user,
           baselocations: { createMany: { data: user.baselocations } },
+          paymentmethods: { createMany:{ data: user.paymentmethods } },
           companiondetails: { connect: { id: userId } },
         },
       });

@@ -1,4 +1,5 @@
 import { BookingMeetingLocationDto } from "./bookings.dto";
+import { PaymentMethodInput } from "./userpaymentmethod.dto";
 
 export enum GenderEnum {
   MALE = 'MALE',
@@ -163,4 +164,5 @@ export interface CompanionUpdateRequestInputDto {
   eatinghabits: CompanionEatingHabitsEnum;
   drinkinghabits: CompanionDrinkingHabitEnum;
   smokinghabits: CompanionSmokingHabitEnum;
+  paymentmethods: PaymentMethodInput[]
 }

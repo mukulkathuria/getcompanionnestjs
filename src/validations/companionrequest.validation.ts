@@ -14,6 +14,8 @@ import {
 } from 'src/dto/user.dto';
 import { bookingLocationValidation } from './booking.validation';
 import { bookinglocationPrismaDto } from 'src/dto/bookings.dto';
+import { PaymentMethodService, PaymentMethodValidator } from './userpaymentmethod.validation';
+import { PaymentMethodInput } from 'src/dto/userpaymentmethod.dto';
 
 export function validateCompanionRequestInput(
   userinfo: registercompanionInputDto,
@@ -53,8 +55,10 @@ export function validatecompanionupdaterequest(
         ? JSON.parse(userinfo.previousImages as any)
         : [];
       const tempbaseloc = JSON.parse(userinfo.baselocations as any);
+      const temppaymentmethod = JSON.parse(userinfo.paymentmethods as any);
       userinfo.baselocations = tempbaseloc;
       userinfo.previousImages = temppreviousImges;
+      userinfo.paymentmethods = temppaymentmethod;
       userinfo['description'] = Array.isArray(tempdesc)
         ? tempdesc.map((l) => l.trim())
         : [];
@@ -160,6 +164,17 @@ export function validatecompanionupdaterequest(
     return {
       error: { status: 422, message: 'Atleast 4 baselocation is required' },
     };
+  } else if (!userinfo.paymentmethods.length) {
+    return {
+      error: { status: 422, message: 'Payment Method is required' },
+    };
+  } else if (userinfo.paymentmethods.length > 4) {
+    return {
+      error: {
+        status: 422,
+        message: 'You cant add more than 4 payment method',
+      },
+    };
   }
   for (let i = 0; i < userinfo.baselocations.length; i += 1) {
     const { error } = bookingLocationValidation(userinfo.baselocations[i]);
@@ -167,6 +182,19 @@ export function validatecompanionupdaterequest(
       return { error };
     }
   }
+    for (let i = 0; i < userinfo.paymentmethods.length; i += 1) {
+      const { isValid, errors } = PaymentMethodValidator.validate(
+        userinfo.paymentmethods[i],
+      );
+      if (!isValid && errors.length) {
+        return {
+          error: {
+            status: 422,
+            message: errors.map((l) => l.message).join(', '),
+          },
+        };
+      }
+    }
   const values = [
     'firstname',
     'lastname',
@@ -188,6 +216,13 @@ export function validatecompanionupdaterequest(
       keyvalues[key] = userinfo[key];
     }
   }
+  const paymentMethodData = [];
+  for (let i = 0; i < userinfo.paymentmethods.length; i += 1) {
+      const paymentmethod = new PaymentMethodService().prepareDataForDB(
+        userinfo.paymentmethods[i],
+      );
+      paymentMethodData.push(paymentmethod)
+    }
   keyvalues['baselocations'] = userinfo.baselocations.map((l) => ({
     city: l.city,
     state: l.state,
@@ -198,8 +233,10 @@ export function validatecompanionupdaterequest(
     lng: l.lng,
     googleplaceextra: l.googleextra,
   }));
-  type newRequest = Omit<CompanionUpdateRequestInputDto, 'baselocations'> & {
+  keyvalues['paymentmethods'] = paymentMethodData;
+  type newRequest = Omit<CompanionUpdateRequestInputDto, 'baselocations' | 'paymentmethods'> & {
     baselocations: bookinglocationPrismaDto[];
+    paymentmethods: PaymentMethodInput[]
   };
   return { user: keyvalues as newRequest };
 }
