@@ -62,13 +62,13 @@ export class PaymentMethodValidator {
     input: any,
     errors: ValidationError[],
   ): void {
-    if (!input.userId) {
-      errors.push({ field: 'userId', message: 'User ID is required' });
-    } else if (typeof input.userId !== 'string') {
-      errors.push({ field: 'userId', message: 'User ID must be a string' });
-    } else if (!this.PATTERNS.CUID.test(input.userId)) {
-      errors.push({ field: 'userId', message: 'Invalid user ID format' });
-    }
+    // if (!input.userId) {
+    //   errors.push({ field: 'userId', message: 'User ID is required' });
+    // } else if (typeof input.userId !== 'string') {
+    //   errors.push({ field: 'userId', message: 'User ID must be a string' });
+    // } else if (!this.PATTERNS.CUID.test(input.userId)) {
+    //   errors.push({ field: 'userId', message: 'Invalid user ID format' });
+    // }
     if (!input.type) {
       errors.push({ field: 'type', message: 'Payment type is required' });
     } else if (!Object.values(PaymentType).includes(input.type)) {
@@ -78,28 +78,28 @@ export class PaymentMethodValidator {
       });
     }
 
-    if (!input.userName) {
+    if (!input.recipientName) {
       errors.push({
-        field: 'userName',
-        message: 'User name is required',
+        field: 'recipientName',
+        message: 'recipient name is required',
       });
-    } else if (typeof input.userName !== 'string') {
+    } else if (typeof input.recipientName !== 'string') {
       errors.push({
-        field: 'userName',
-        message: 'User name must be a string',
+        field: 'recipientName',
+        message: 'recipient name must be a string',
       });
     } else if (
-      input.userName.length < 2 ||
-      input.userName.length > 100
+      input.recipientName.length < 2 ||
+      input.recipientName.length > 100
     ) {
       errors.push({
-        field: 'userName',
-        message: 'User name must be between 2 and 100 characters',
+        field: 'recipientName',
+        message: 'recipient name must be between 2 and 100 characters',
       });
-    } else if (!this.PATTERNS.NAME.test(input.userName)) {
+    } else if (!this.PATTERNS.NAME.test(input.recipientName)) {
       errors.push({
-        field: 'userName',
-        message: 'User name can only contain letters and spaces',
+        field: 'recipientName',
+        message: 'recipient name can only contain letters and spaces',
       });
     }
 
