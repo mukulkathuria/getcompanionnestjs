@@ -97,6 +97,11 @@ export class CompanionService {
         Images: allimages,
         lastlogin: Date.now(),
         phoneno: Number(user.phoneno),
+        userpaymentmethods: {
+          createMany: {
+            data: user.paymentmethods,
+          },
+        },
         expiryDate: getdefaultexpirydate(),
       };
       const companion = {
