@@ -13,3 +13,12 @@ export const CompanionBookingInnerRoutes =  {
     companionacceptbooking: 'companionacceptbooking',
     companionrejectbooking: 'companionrejectbooking'
 }
+
+export const CompanionAnalysisInnerRoutes =  {
+    baseUrl: CompanionRoute + '/analysis',
+    companionoverallanalysis: 'companionoverallanalysis',
+    companionanalysisdetails: 'companionanalysisdetails',
+    companionanalysisdetailsbyid: 'companionanalysisdetailsbyid',
+    companionearningsanalysis: 'companionearningsanalysis',
+    companionratingsanalysis: 'companionratingsanalysis'
+}

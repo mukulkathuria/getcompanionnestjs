@@ -1,4 +1,4 @@
-function getearningofCompanionQuery(){
+export function getearningofCompanionQuery(companionId: string) {
     return `
         WITH companion_bookings AS (
         SELECT 
@@ -11,10 +11,10 @@ function getearningofCompanionQuery(){
         JOIN "_BookingToUser" btu ON b.id = btu."A"
         JOIN "User" u ON btu."B" = u.id
         WHERE EXISTS (
-            SELECT 1 FROM "Companion" c WHERE c.userid = '071ba621-cef8-4fcb-9e87-8bb1872f79cc'
+            SELECT 1 FROM "Companion" c WHERE c.userid = '${companionId}'
         )
         AND b.bookingstatus IN ('COMPLETED', 'ACCEPTED', 'UNDERREVIEW', 'TRANSACTIONPENDING', 'UNDEREXTENSION')
-        AND u.id != '071ba621-cef8-4fcb-9e87-8bb1872f79cc' -- This gets the user (customer), not the companion
+        AND u.id != '${companionId}' -- This gets the user (customer), not the companion
         ),
 
         total_bookings_hours AS (
@@ -39,14 +39,14 @@ function getearningofCompanionQuery(){
             ELSE 0
             END as bayesian_avg_rating
         FROM companion_bookings cb
-        LEFT JOIN rating r ON cb.id = r."bookingId" AND r."rateeId" = '071ba621-cef8-4fcb-9e87-8bb1872f79cc'
+        LEFT JOIN rating r ON cb.id = r."bookingId" AND r."rateeId" = '${companionId}'
         ),
 
         total_earnings AS (
         SELECT 
             COALESCE(SUM(tl."netAmount"), 0) as total_earning
         FROM "TransactionLedger" tl
-        WHERE tl."toCompanionId" = '071ba621-cef8-4fcb-9e87-8bb1872f79cc' 
+        WHERE tl."toCompanionId" = '${companionId}' 
             AND tl."transactionType" = 'PAYMENT_TO_COMPANION'
             AND tl.status = 'COMPLETED'
         ),
@@ -55,7 +55,7 @@ function getearningofCompanionQuery(){
         SELECT 
             COALESCE(SUM(tl."netAmount"), 0) as last_week_earning
         FROM "TransactionLedger" tl
-        WHERE tl."toCompanionId" = '071ba621-cef8-4fcb-9e87-8bb1872f79cc' 
+        WHERE tl."toCompanionId" = '${companionId}' 
             AND tl."transactionType" = 'PAYMENT_TO_COMPANION'
             AND tl.status = 'COMPLETED'
             AND tl."createdAt" >= NOW() - INTERVAL '7 days'
@@ -104,7 +104,7 @@ function getearningofCompanionQuery(){
         SELECT 
             COALESCE(SUM(tl."netAmount"), 0) as last_month_earning
         FROM "TransactionLedger" tl
-        WHERE tl."toCompanionId" = '071ba621-cef8-4fcb-9e87-8bb1872f79cc'
+        WHERE tl."toCompanionId" = '${companionId}'
             AND tl."transactionType" = 'PAYMENT_TO_COMPANION'
             AND tl.status = 'COMPLETED'
             AND tl."createdAt" >= NOW() - INTERVAL '30 days'
@@ -116,7 +116,7 @@ function getearningofCompanionQuery(){
         FROM (
             SELECT tl."netAmount"
             FROM "TransactionLedger" tl
-            WHERE tl."toCompanionId" = '071ba621-cef8-4fcb-9e87-8bb1872f79cc'
+            WHERE tl."toCompanionId" = '${companionId}'
             AND tl."transactionType" = 'PAYMENT_TO_COMPANION'
             AND tl.status = 'COMPLETED'
             ORDER BY tl."createdAt" DESC
@@ -159,7 +159,7 @@ function getearningofCompanionQuery(){
             JOIN "Booking" b ON tl."bookingId" = b.id
             JOIN "_BookingToUser" btu ON CAST(b.id AS text) = btu."B"
             JOIN "User" u ON btu."B" = u.id::text
-            WHERE tl."toCompanionId" = '071ba621-cef8-4fcb-9e87-8bb1872f79cc'
+            WHERE tl."toCompanionId" = '${companionId}'
             AND tl."transactionType" = 'PAYMENT_TO_COMPANION'
             AND tl.status = 'COMPLETED'
             ORDER BY tl."createdAt" DESC
@@ -171,7 +171,7 @@ function getearningofCompanionQuery(){
         SELECT 
             COALESCE(SUM(tl."netAmount"), 0) as pending_amount
         FROM "TransactionLedger" tl
-        WHERE tl."toCompanionId" = '071ba621-cef8-4fcb-9e87-8bb1872f79cc' 
+        WHERE tl."toCompanionId" = '${companionId}' 
             AND tl."transactionType" = 'PAYMENT_TO_COMPANION'
             AND tl.status IN ('UNDERPROCESSED', 'COMPLETED')
             AND tl."isSettled" = false
@@ -181,7 +181,7 @@ function getearningofCompanionQuery(){
         SELECT 
             COALESCE(SUM(tl."penaltyAmount"), 0) as total_penalty
         FROM "TransactionLedger" tl
-        WHERE tl."fromUserId" = '071ba621-cef8-4fcb-9e87-8bb1872f79cc' 
+        WHERE tl."fromUserId" = '${companionId}' 
             AND tl."transactionType" = 'CANCELLATION_PENALTY'
             AND tl.status = 'COMPLETED'
         )
