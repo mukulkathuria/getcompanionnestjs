@@ -1,4 +1,5 @@
 import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
+import { PaymentType } from 'src/dto/userpaymentmethod.dto';
 
 //  const location = userinfo.baselocations.map((l) => ({
 //         city: l.city,
@@ -53,6 +54,7 @@ export const getupdateCompanionDetailrawQuey = (
   userinfo: registerCompanionBodyDto,
   user: registerCompanionBodyDto,
   baseids: number[],
+  paymentmethodids: string[],
 ) => {
   const location = userinfo.baselocations.map((l, i) => ({
     id: baseids[i],
@@ -70,15 +72,15 @@ export const getupdateCompanionDetailrawQuey = (
   for (let i = 0; i < user.description.length; i += 1) {
     if (i < user.description.length - 1) {
       description += `'${user.description[i]}',`;
-    }else{
-        description += `'${user.description[i]}'`;
+    } else {
+      description += `'${user.description[i]}'`;
     }
   }
   let images = '';
   for (let i = 0; i < user.Images.length; i += 1) {
     if (i < user.Images.length - 1) {
       images += `'${user.Images[i]}',`;
-    }else{
+    } else {
       images += `'${user.Images[i]}'`;
     }
   }
@@ -112,9 +114,79 @@ export const getupdateCompanionDetailrawQuey = (
     .join(' ');
 
   const setGooglePlaceExtraCase = location
-    .map((l) => `WHEN id = ${l.id} THEN '${JSON.stringify(l.googleplaceextra)}'`)
+    .map(
+      (l) => `WHEN id = ${l.id} THEN '${JSON.stringify(l.googleplaceextra)}'`,
+    )
     .join(' ');
-  
+
+  const paymentTypeCase = userinfo.paymentmethods
+    .map((l, i) => `WHEN id = '${paymentmethodids[i]}' THEN '${l.type}'`)
+    .join(' ');
+
+  const ifscCase = userinfo.paymentmethods
+    .map(
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN '${JSON.stringify(l.type === PaymentType.BANK_ACCOUNT ? l.ifscCode : '')}'`,
+    )
+    .join(' ');
+  const upiIdCase = userinfo.paymentmethods
+    .map(
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN '${JSON.stringify(l.type === PaymentType.UPI ? l.upiId : '')}'`,
+    )
+    .join(' ');
+  const walletDetailsCase = userinfo.paymentmethods
+    .map(
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN '${JSON.stringify(l.type === PaymentType.WALLET ? l.walletIdentifier : '')}'`,
+    )
+    .join(' ');
+  const accountNumberCase = userinfo.paymentmethods
+    .map(
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN '${JSON.stringify(l.type === PaymentType.BANK_ACCOUNT ? l.accountNumber : '')}'`,
+    )
+    .join(' ');
+  const accountHolderNameCase = userinfo.paymentmethods
+    .map(
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN '${JSON.stringify(l.type === PaymentType.BANK_ACCOUNT ? l.accountHolderName : '')}'`,
+    )
+    .join(' ');
+  const recipientNameCase = userinfo.paymentmethods
+    .map(
+      (l, i) => `WHEN id = '${paymentmethodids[i]}' THEN '${l.recipientName}'`,
+    )
+    .join(' ');
+  const nicknameCase = userinfo.paymentmethods
+    .map(
+      (l, i) => `WHEN id = '${paymentmethodids[i]}' THEN '${l.nickname || ''}'`,
+    )
+    .join(' ');
+  const upiProviderCase = userinfo.paymentmethods
+    .map(
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN '${l.type === PaymentType.UPI ? l.upiProvider || '' : ''}'`,
+    )
+    .join(' ');
+  const walletProviderCase = userinfo.paymentmethods
+    .map(
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN '${l.type === PaymentType.WALLET ? l.walletProvider : ''}'`,
+    )
+    .join(' ');
+  const bankNameCase = userinfo.paymentmethods
+    .map(
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN '${l.type === PaymentType.BANK_ACCOUNT ? l.bankName : ''}'`,
+    )
+    .join(' ');
+  const accountTypeCase = userinfo.paymentmethods
+    .map(
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN '${l.type === PaymentType.BANK_ACCOUNT ? l.accountType : ''}'`,
+    )
+    .join(' ');
   const updateUserQuery = `
         -- Update User table
         UPDATE "User"
@@ -156,5 +228,23 @@ export const getupdateCompanionDetailrawQuey = (
           googleplaceextra = CASE ${setGooglePlaceExtraCase} ELSE googleplaceextra END
         WHERE id IN (${location.map((l) => l.id).join(', ')});
       `;
-  return { updateUserQuery, updateCompanionQuery, updateLocationquery };
+  const updatePaymentMethodquery = `
+        -- Update Payment Methods table
+        UPDATE "userpaymentmethods"
+        SET
+          type = CASE ${paymentTypeCase} ELSE type END,
+          recipientname = CASE ${recipientNameCase} ELSE recipientname END,
+          nickname = CASE ${nicknameCase} ELSE nickname END,
+          ifsccode = CASE ${ifscCase} ELSE ifsccode END,
+          upiid = CASE ${upiIdCase} ELSE upiid END,
+          walletidentifier = CASE ${walletDetailsCase} ELSE walletidentifier END,
+          accountnumber = CASE ${accountNumberCase} ELSE accountnumber END,
+          accountholdername = CASE ${accountHolderNameCase} ELSE accountholdername END,
+          upiprovider = CASE ${upiProviderCase} ELSE upiprovider END,
+          walletprovider = CASE ${walletProviderCase} ELSE walletprovider END,
+          bankname = CASE ${bankNameCase} ELSE bankname END,
+          accounttype = CASE ${accountTypeCase} ELSE accounttype END
+        WHERE id IN (${paymentmethodids.map((l) => `'${l}'`).join(', ')});
+      `;
+  return { updateUserQuery, updateCompanionQuery, updateLocationquery, updatePaymentMethodquery };
 };

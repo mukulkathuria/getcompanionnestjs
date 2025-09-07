@@ -277,6 +277,7 @@ export class CompanionService {
               googleplaceextra: true,
             },
           },
+          paymentmethods: true,
         },
       });
       if (!data) {
@@ -331,7 +332,10 @@ export class CompanionService {
     try {
       const isUserExists = await this.prismaService.user.findUnique({
         where: { id },
-        include: { Companion: { include: { baselocation: true } } },
+        include: {
+          Companion: { include: { baselocation: true } },
+          userpaymentmethods: true,
+        },
       });
       if (!isUserExists) {
         return { error: { status: 422, message: 'User not Exists' } };
@@ -377,15 +381,26 @@ export class CompanionService {
       }
       delete userinfo.previousImages;
       const baseids = isUserExists.Companion[0].baselocation.map((l) => l.id);
+      const paymentmethodids = isUserExists.userpaymentmethods.map((l) => l.id);
       const { getupdateCompanionDetailrawQuey } = await import(
         '../../../utils/admin.companion.utils'
       );
-      const { updateUserQuery, updateCompanionQuery, updateLocationquery } =
-        getupdateCompanionDetailrawQuey(userinfo, user, baseids);
+      const {
+        updateUserQuery,
+        updateCompanionQuery,
+        updateLocationquery,
+        updatePaymentMethodquery,
+      } = getupdateCompanionDetailrawQuey(
+        userinfo,
+        user,
+        baseids,
+        paymentmethodids,
+      );
       await this.prismaService.$transaction([
         this.prismaService.$queryRawUnsafe(updateUserQuery),
         this.prismaService.$queryRawUnsafe(updateCompanionQuery),
         this.prismaService.$queryRawUnsafe(updateLocationquery),
+        this.prismaService.$queryRawUnsafe(updatePaymentMethodquery),
       ]);
       return { success: true };
     } catch (error) {
