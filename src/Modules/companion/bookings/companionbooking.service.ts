@@ -12,27 +12,21 @@ export class CompanionBookingService {
   private readonly logger = new Logger(CompanionBookingService.name);
 
   async acceptBooking(bookingparams: bookingIdDto) {
-    if (
-      !bookingparams.bookingid ||
-      typeof bookingparams.bookingid !== 'number'
-    ) {
+    if (!bookingparams.bookingid) {
       return { error: { status: 422, message: 'bookingid is required' } };
     }
     return this.acceptanceService.acceptBooking(
-      bookingparams.bookingid,
+      Number(bookingparams.bookingid),
       'COMPANION',
     );
   }
 
   async rejectBooking(bookingparams: bookingIdDto) {
-    if (
-      !bookingparams.bookingid ||
-      typeof bookingparams.bookingid !== 'number'
-    ) {
+    if (!bookingparams.bookingid) {
       return { error: { status: 422, message: 'bookingid is required' } };
     }
     return this.acceptanceService.rejectBooking(
-      bookingparams.bookingid,
+      Number(bookingparams.bookingid),
       'COMPANION',
     );
   }
@@ -43,7 +37,7 @@ export class CompanionBookingService {
         return { error: { status: 422, message: 'bookingid is required' } };
       }
       const data = await this.prismaService.booking.findUnique({
-        where: { id: bookingparams.bookingid },
+        where: { id: Number(bookingparams.bookingid) },
         select: {
           User: {
             select: {
