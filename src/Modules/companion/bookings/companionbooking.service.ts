@@ -39,10 +39,7 @@ export class CompanionBookingService {
 
   async getcompanionBookingDetails(bookingparams: bookingIdDto) {
     try {
-      if (
-        !bookingparams.bookingid ||
-        typeof bookingparams.bookingid !== 'number'
-      ) {
+      if (!bookingparams.bookingid) {
         return { error: { status: 422, message: 'bookingid is required' } };
       }
       const data = await this.prismaService.booking.findUnique({
