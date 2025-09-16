@@ -520,21 +520,22 @@ export class UserBookingsService {
     }
   }
 
-  async getUpcomingBookingsForCompanion(userId: string) {
+  async getUpcomingBookingsForCompanion(userId: string, params: pageNoQueryDto) {
     try {
       if (!userId) {
         return { error: { status: 422, message: 'userId is required' } };
       }
+      const pageNo = Number(params.pageNo) || 1;
       const data = await this.prismaService.user.findUnique({
         where: { id: userId },
         include: {
           Booking: {
             where: {
               bookingstart: { gt: Date.now() },
-              // bookingstatus: 'ACCEPTED',
+              bookingstatus:{ in: ['ACCEPTED','TRANSACTIONPENDING','UNDERCANCELLATION','UNDEREXTENSION','UNDERREVIEW'] },
             },
             orderBy: { bookingend: 'desc' },
-            take: 5,
+            // take: 5,
             include: {
               User: {
                 select: {
@@ -573,7 +574,13 @@ export class UserBookingsService {
           sessionstart: String(l.sessionStartTime),
         })),
       }));
-      return { data: filtervalues };
+      const finalvalue = {
+        totalPages: Math.ceil(filtervalues.length / 5),
+        limit: 5,
+        currentPage: pageNo,
+        bookings: filtervalues.slice((pageNo - 1) * 5, pageNo * 5),
+      };
+      return { data: finalvalue };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
