@@ -531,7 +531,7 @@ export class UserBookingsService {
           Booking: {
             where: {
               bookingstart: { gt: Date.now() },
-              bookingstatus: 'ACCEPTED',
+              // bookingstatus: 'ACCEPTED',
             },
             orderBy: { bookingend: 'desc' },
             take: 5,
