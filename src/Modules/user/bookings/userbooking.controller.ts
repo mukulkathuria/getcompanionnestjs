@@ -218,7 +218,10 @@ export class UserBookingController {
 
   @UseGuards(AuthGuard)
   @Get(UserBookingInnerRoute.getupcomingbookingforcompanion)
-  async getupcomingbookingforcompanionController(@Req() req: Request) {
+  async getupcomingbookingforcompanionController(
+    @Req() req: Request,
+    @Query() params: pageNoQueryDto,
+  ) {
     const { data: tokendata, error: TokenError } = decodeExpressRequest(req);
     if (TokenError) {
       throw new HttpException('Invalid User', 403);
@@ -226,6 +229,7 @@ export class UserBookingController {
     const { data, error } =
       await this.userbookingservice.getUpcomingBookingsForCompanion(
         tokendata.userId,
+        params,
       );
     if (data) {
       return {
@@ -293,7 +297,7 @@ export class UserBookingController {
     const { data, error } =
       await this.userbookingservice.getLiveLocationforBooking(
         Number(bookingid?.bookingid),
-        tokendata.userId
+        tokendata.userId,
       );
     if (data) {
       return {
@@ -315,12 +319,11 @@ export class UserBookingController {
     if (TokenError) {
       throw new HttpException('Invalid User', 403);
     }
-    const { success, error } =
-      await this.userbookingservice.updateLiveLocation(
-        Number(id.id),
-        bodyparams,
-        tokendata.userId
-      );
+    const { success, error } = await this.userbookingservice.updateLiveLocation(
+      Number(id.id),
+      bodyparams,
+      tokendata.userId,
+    );
     if (success) {
       return {
         success,
