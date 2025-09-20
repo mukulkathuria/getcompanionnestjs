@@ -40,23 +40,38 @@ export class AdminTransactionService {
     }
   }
 
-  async getAllPendingTransactionsforCompanion(params: pageNoQueryDto){
+  async getAllPendingTransactionsforCompanion(params: pageNoQueryDto) {
     try {
       const transactions = await this.prismaService.transactionLedger.findMany({
-        where: { status: TransactionStatusEnum.UNDERPROCESSED, toParty: 'COMPANION' },
+        where: {
+          status: TransactionStatusEnum.UNDERPROCESSED,
+          toParty: 'COMPANION',
+        },
+        include: { ToPartyUser: true },
       });
       const pageNo = Number(params.pageNo) || 1;
-      const data = transactions.map((t) => ({
-        ...t,
-        settledAt: String(t.settledAt),
-        createdAt: String(t.createdAt),
-        updatedAt: String(t.updatedAt),
+      const data = transactions.map((t) => {
+        const vals = {
+          ...t,
+        };
+        delete vals.ToPartyUser;
+        delete vals.settledAt;
+        delete vals.createdAt;
+        delete vals.updatedAt;
+        return vals;
+      });
+      const allcompanions = transactions.map((t) => ({
+        id: t.id,
+        name: t.ToPartyUser?.firstname,
+        images: t.ToPartyUser.Images,
+        email: t.ToPartyUser?.email,
       }));
       const finalvalue = {
         totalPages: Math.ceil(data.length / 5),
         limit: 5,
         currentPage: pageNo,
         pendingtransactions: data.slice((pageNo - 1) * 5, pageNo * 5),
+        all_companions: allcompanions,
       };
       return { data: finalvalue };
     } catch (error) {
@@ -69,7 +84,9 @@ export class AdminTransactionService {
     try {
       const userDetails = await this.prismaService.user.findUnique({
         where: { id: userId },
-        include: { transactionfromParty: { take: 5, orderBy: { createdAt: 'desc' } } },
+        include: {
+          transactionfromParty: { take: 5, orderBy: { createdAt: 'desc' } },
+        },
       });
       return { data: userDetails.transactionfromParty };
     } catch (error) {
@@ -132,9 +149,11 @@ export class AdminTransactionService {
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
       const { data } = makePaymentdetailsjson(userInput);
-      const previousbookings = await this.prismaService.transactionLedger.findUnique(
-        { where: { txnId: userInput.txnid }, include: { Booking: true } },
-      );
+      const previousbookings =
+        await this.prismaService.transactionLedger.findUnique({
+          where: { txnId: userInput.txnid },
+          include: { Booking: true },
+        });
       if (!previousbookings) {
         return { error: { status: 404, message: 'Transaction not found' } };
       } else if (
