@@ -1,3 +1,5 @@
+import { get } from "http";
+
 export const AdminRoute = '/admin';
 export const AdminUserDelete = AdminRoute + '/delete';
 export const AdminUserProfileRoute = AdminRoute + '/profile';
@@ -61,7 +63,12 @@ export const AdminAccountsInnerRoute = {
 }
 
 export const AdminTransactionInnerRoutes = {
-    onsuccessfullrefundamount: 'onsuccessfullrefundamount'
+    onsuccessfullrefundamount: 'onsuccessfullrefundamount',
+    getallpendingtransactionsforcompanion: 'getallpendingtransactionsforcompanion',
+    getprevioustransactions: 'getprevioustransactions/:userId',
+    getalltransactionforbooking: 'getalltransactionforbooking/:bookingId',
+    gethashfortransaction: 'gethashfortransaction',
+    initiatepayment: 'initiatepayment'
 }
 
 export const AdminDeveloperInnerRoute = {

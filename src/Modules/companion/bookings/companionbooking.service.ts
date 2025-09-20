@@ -51,6 +51,7 @@ export class CompanionBookingService {
           bookingend: true,
           bookingpurpose: true,
           Meetinglocation: true,
+          bookingstatus: true,
         },
       });
       if (!data) {

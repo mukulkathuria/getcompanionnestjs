@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +15,7 @@ import {
 } from '../routes/admin.routes';
 import { AdminGuard } from 'src/guards/admin.guard';
 import { refundAmountInputDto } from 'src/dto/admin.module.dto';
+import { pageNoQueryDto } from 'src/dto/bookings.dto';
 
 @Controller(AdminTransactionRoute)
 export class AdminTransactionController {
@@ -46,6 +49,18 @@ export class AdminTransactionController {
       }
     } else {
       throw new HttpException(TokenError, 422);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get(AdminTransactionInnerRoutes.getallpendingtransactionsforcompanion)
+  async getAllPendingTransactionsforCompanion(@Query() params: pageNoQueryDto) {
+    const { data, error } =
+      await this.usertransactionservice.getAllPendingTransactionsforCompanion(params);
+    if (data) {
+      return { data };
+    } else {
+      throw new HttpException(error.message, error.status);
     }
   }
 }

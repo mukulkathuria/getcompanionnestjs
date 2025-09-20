@@ -21,6 +21,7 @@ import { Notificationhours } from 'src/constants/common.constants';
 import { addHours } from 'src/utils/common.utils';
 import notificationTemplate from 'src/templates/notification.template';
 import { successErrorReturnDto } from 'src/dto/common.dto';
+import { getTxnId } from 'src/utils/uuid.utils';
 
 @Injectable()
 export class UserSessionService {
@@ -84,6 +85,9 @@ export class UserSessionService {
                   id: true,
                 },
               },
+              transactionLedger: {
+                select: { netAmount: true, fromParty: true, status: true },
+              },
             },
           },
         },
@@ -93,12 +97,33 @@ export class UserSessionService {
       }
       const companiondata = userdata.Bookings.User.find((l) => l.isCompanion);
       const userDetails = userdata.Bookings.User.find((l) => !l.isCompanion);
+      const alltransactions = userdata.Bookings.transactionLedger
+        .filter((l) => l.status === 'COMPLETED' && l.fromParty === 'USER')
+        .reduce((a, b) => a + b.netAmount, 0);
+      const netAmount =
+        alltransactions - alltransactions * 0.1 * 0.18 - alltransactions * 0.03;
       const data = await this.prismaService.sessions.update({
         where: { id: sessionDetails.sessionid },
         data: {
           Bookings: {
             update: {
-              data: { bookingstatus: 'COMPLETED' }, //bookingend: Date.now()
+              data: {
+                bookingstatus: 'COMPLETED',
+                transactionLedger: {
+                  create: {
+                    txnId: getTxnId(),
+                    netAmount: netAmount,
+                    grossAmount: netAmount,
+                    platformFee: alltransactions * 0.03,
+                    taxAmount: alltransactions * 0.1 * 0.18,
+                    status: 'UNDERPROCESSED',
+                    paymentMethod: 'CASH',
+                    transactionType: 'PAYMENT_TO_COMPANION',
+                    toParty: 'COMPANION',
+                    fromParty: 'ADMIN',
+                  },
+                },
+              }, //bookingend: Date.now()
             },
           },
           sessionEndTime: Date.now(),

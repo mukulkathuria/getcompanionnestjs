@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { refundAmountInputDto } from 'src/dto/admin.module.dto';
-import { BookingStatusEnum } from 'src/dto/bookings.dto';
+import { BookingStatusEnum, pageNoQueryDto } from 'src/dto/bookings.dto';
 import {
   BookingTransactionReturnDto,
   getHashInputDto,
@@ -34,6 +34,31 @@ export class AdminTransactionService {
         where: { bookingId },
       });
       return { data: transactions };
+    } catch (error) {
+      this.logger.debug(error?.message || error);
+      return { error: { status: 500, message: 'Server error' } };
+    }
+  }
+
+  async getAllPendingTransactionsforCompanion(params: pageNoQueryDto){
+    try {
+      const transactions = await this.prismaService.transactionLedger.findMany({
+        where: { status: TransactionStatusEnum.UNDERPROCESSED, toParty: 'COMPANION' },
+      });
+      const pageNo = Number(params.pageNo) || 1;
+      const data = transactions.map((t) => ({
+        ...t,
+        settledAt: String(t.settledAt),
+        createdAt: String(t.createdAt),
+        updatedAt: String(t.updatedAt),
+      }));
+      const finalvalue = {
+        totalPages: Math.ceil(data.length / 5),
+        limit: 5,
+        currentPage: pageNo,
+        pendingtransactions: data.slice((pageNo - 1) * 5, pageNo * 5),
+      };
+      return { data: finalvalue };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
