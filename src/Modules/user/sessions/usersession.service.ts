@@ -121,6 +121,11 @@ export class UserSessionService {
                     transactionType: 'PAYMENT_TO_COMPANION',
                     toParty: 'COMPANION',
                     fromParty: 'ADMIN',
+                    ToPartyUser:{
+                      connect:{
+                        id: companiondata.id
+                      }
+                    }
                   },
                 },
               }, //bookingend: Date.now()

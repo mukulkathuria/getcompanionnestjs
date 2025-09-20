@@ -486,6 +486,22 @@ export class CompanionService {
       );
       const query = getCompanionDetailsQueryforupdateRate(id);
       const data = (await this.prismaService.$queryRawUnsafe(query)) as any;
+      const last30daysearnings =
+        await this.prismaService.transactionLedger.findMany({
+          where: {
+            toCompanionId: id,
+            createdAt: { gte: subDays(30) },
+            status: { in: ['UNDERPROCESSED', 'COMPLETED'] },
+          },
+          select: {
+            id: true,
+            netAmount: true,
+            taxAmount: true,
+            status: true,
+            createdAt: true,
+            Booking: { select: { bookingstart: true, bookingend: true } },
+          },
+        });
       const value = {
         ...data[0],
         last24hoursbookings: data[0].last24hoursbookings
@@ -497,6 +513,39 @@ export class CompanionService {
         last30daysbookings: data[0].last30daysbookings
           ? getUniqueValue(data[0].last30daysbookings)
           : data[0].last30daysbookings,
+        last7daysearnings: last30daysearnings.filter((l) =>
+          l.createdAt >= subDays(7) && l.status === 'UNDERPROCESSED'
+            ? {
+                ...l,
+                createdAt: String(l.createdAt),
+                Booking: {
+                  bookingstart: String(l.Booking.bookingstart),
+                  bookingend: String(l.Booking.bookingend),
+                },
+              }
+            : null,
+        ),
+        last30daysearnings: last30daysearnings.filter((l) =>
+          l.status === 'UNDERPROCESSED'
+            ? {
+                ...l,
+                createdAt: String(l.createdAt),
+                Booking: {
+                  bookingstart: String(l.Booking.bookingstart),
+                  bookingend: String(l.Booking.bookingend),
+                },
+              }
+            : null,
+        ),
+        completedearnings: last30daysearnings.filter((l) =>
+          l.status === 'COMPLETED'
+            ? {
+                ...l,
+                createdAt: String(l.createdAt),
+                Booking: { bookingstart: String(l.Booking.bookingstart), bookingend: String(l.Booking.bookingend) },
+              }
+            : null,
+        )
       };
       return { data: value };
     } catch (error) {
