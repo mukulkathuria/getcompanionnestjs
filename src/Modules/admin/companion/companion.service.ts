@@ -514,7 +514,7 @@ export class CompanionService {
         last30daysbookings: data[0].last30daysbookings
           ? getUniqueValue(data[0].last30daysbookings)
           : data[0].last30daysbookings,
-        last7daysearnings: last30daysearnings.filter((l) =>
+        last7daysearnings: last30daysearnings.map((l) =>
           l.createdAt >= new Date(subDays(7)) && l.status === 'UNDERPROCESSED'
             ? {
                 ...l,
@@ -525,7 +525,7 @@ export class CompanionService {
                 },
               }
             : null,
-        ),
+        ).filter((l) => l),
         last30daysearnings: last30daysearnings.filter((l) =>
           l.status === 'UNDERPROCESSED'
             ? {
@@ -538,7 +538,7 @@ export class CompanionService {
               }
             : null,
         ),
-        completedearnings: last30daysearnings.filter((l) =>
+        completedearnings: last30daysearnings.map((l) =>
           l.status === 'COMPLETED'
             ? {
                 ...l,
@@ -546,7 +546,7 @@ export class CompanionService {
                 Booking: { bookingstart: String(l.Booking.bookingstart), bookingend: String(l.Booking.bookingend) },
               }
             : null,
-        )
+        ).filter((l) => l),
       };
       return { data: value };
     } catch (error) {
