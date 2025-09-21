@@ -101,7 +101,7 @@ export class UserSessionService {
         .filter((l) => l.status === 'COMPLETED' && l.fromParty === 'USER')
         .reduce((a, b) => a + b.netAmount, 0);
       const netAmount =
-        alltransactions - alltransactions * 0.1 * 0.18 - alltransactions * 0.03;
+        alltransactions - (alltransactions * 0.1 + alltransactions * 0.1 * 0.18) - alltransactions * 0.03;
       const data = await this.prismaService.sessions.update({
         where: { id: sessionDetails.sessionid },
         data: {

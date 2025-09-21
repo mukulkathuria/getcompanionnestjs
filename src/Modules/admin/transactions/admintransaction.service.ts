@@ -16,6 +16,7 @@ import { PaymentService } from 'src/Services/payment.service';
 import { PrismaService } from 'src/Services/prisma.service';
 import { makePaymentdetailsjson } from 'src/utils/transactions.utils';
 import {
+  validateadmincompaniontransaction,
   validateFailurePaymentStatus,
   validatehashGeneration,
   validatePaymentInitiation,
@@ -289,8 +290,11 @@ export class AdminTransactionService {
 
   async payPendingAmountToCompanion(
     updateparams: updatependingtransactionforcompanionDto,
+    userId: string,
   ) {
     try {
+      const { error } = validateadmincompaniontransaction(updateparams);
+      if(error) { return { error }; }
       const allcompanions = updateparams.companionids.split(',');
       const transactiondata =
         await this.prismaService.transactionLedger.findMany({
@@ -308,6 +312,22 @@ export class AdminTransactionService {
       if (allamounts === 0) {
         return { error: { status: 422, message: 'No pending amount to pay' } };
       }
+      await this.prismaService.transactionLedger.updateMany({
+        where: {
+          toCompanionId: { in: allcompanions },
+          status: TransactionStatusEnum.UNDERPROCESSED,
+          toParty: 'COMPANION',
+        },
+        data: {
+          status: TransactionStatusEnum.COMPLETED,
+          paymentGatewayTxnId: updateparams.txId,
+          isSettled: true,
+          fromUserId: userId,
+          metadata: updateparams.metadata,
+          settledAt: Date.now(),
+        },
+      });
+      return { data: { totalAmountPaid: allamounts } };
     } catch (error) {}
   }
 }

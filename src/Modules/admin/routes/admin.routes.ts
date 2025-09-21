@@ -65,6 +65,7 @@ export const AdminAccountsInnerRoute = {
 export const AdminTransactionInnerRoutes = {
     onsuccessfullrefundamount: 'onsuccessfullrefundamount',
     getallpendingtransactionsforcompanion: 'getallpendingtransactionsforcompanion',
+    paypendingamounttoCompanion: 'paypendingamounttoCompanion',
     getprevioustransactions: 'getprevioustransactions/:userId',
     getalltransactionforbooking: 'getalltransactionforbooking/:bookingId',
     gethashfortransaction: 'gethashfortransaction',

@@ -15,7 +15,10 @@ import {
 } from '../routes/admin.routes';
 import { AdminGuard } from 'src/guards/admin.guard';
 import { refundAmountInputDto } from 'src/dto/admin.module.dto';
-import { pageNoQueryDto } from 'src/dto/bookings.dto';
+import {
+  pageNoQueryDto,
+  updatependingtransactionforcompanionDto,
+} from 'src/dto/bookings.dto';
 
 @Controller(AdminTransactionRoute)
 export class AdminTransactionController {
@@ -56,11 +59,42 @@ export class AdminTransactionController {
   @Get(AdminTransactionInnerRoutes.getallpendingtransactionsforcompanion)
   async getAllPendingTransactionsforCompanion(@Query() params: pageNoQueryDto) {
     const { data, error } =
-      await this.usertransactionservice.getAllPendingTransactionsforCompanion(params);
+      await this.usertransactionservice.getAllPendingTransactionsforCompanion(
+        params,
+      );
     if (data) {
       return { data };
     } else {
       throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Post(AdminTransactionInnerRoutes.paypendingamounttoCompanion)
+  async paypendingamounttoCompanionController(
+    @Body() params: updatependingtransactionforcompanionDto,
+    @Req() req: Request,
+  ) {
+    const { decodeExpressRequest } = await import(
+      '../../../guards/strategies/jwt.strategy'
+    );
+    const { data: Tokendata, error: TokenError } = decodeExpressRequest(req);
+    if (Tokendata) {
+      const { data, error } =
+        await this.usertransactionservice.payPendingAmountToCompanion(
+          params,
+          Tokendata.userId,
+        );
+      if (data) {
+        return {
+          success: true,
+          message: 'Successfully updated the transactions',
+        };
+      } else {
+        throw new HttpException(error.message, error.status);
+      }
+    } else {
+      throw new HttpException(TokenError, 403);
     }
   }
 }

@@ -1,4 +1,5 @@
 import { EmailRegex } from 'src/constants/regex.constants';
+import { updatependingtransactionforcompanionDto } from 'src/dto/bookings.dto';
 import { successErrorDto } from 'src/dto/common.dto';
 import {
   getHashInputDto,
@@ -73,6 +74,23 @@ export const validateFailurePaymentStatus = (
     return { error: { status: 422, message: 'Amount is required' } };
   } else if (!details.txnid?.trim().length) {
     return { error: { status: 422, message: 'Transaction is required' } };
+  }
+  return { success: true };
+};
+
+export const validateadmincompaniontransaction = (
+  data: updatependingtransactionforcompanionDto,
+): successErrorDto => {
+  if (!data.txId) {
+    return { error: { status: 422, message: 'Transaction id is required' } };
+  } else if (!data.companionids) {
+    return { error: { status: 422, message: 'Companion ids is required' } };
+  } else if(!data.companionids.split(',').length){
+    return { error: { status: 422, message: 'Companion ids is not valid' } };
+  } else if (data.netamount && typeof data.netamount !== 'number') {
+    return { error: { status: 422, message: 'Net amount is not valid' } };
+  } else if (data.metadata && typeof data.metadata !== 'object') {
+    return { error: { status: 422, message: 'Metadata is not valid' } };
   }
   return { success: true };
 };
