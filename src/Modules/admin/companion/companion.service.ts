@@ -495,7 +495,7 @@ export class CompanionService {
             transactionType: 'PAYMENT_TO_COMPANION',
           },
           select: {
-            id: true,
+            txnId: true,
             netAmount: true,
             taxAmount: true,
             status: true,

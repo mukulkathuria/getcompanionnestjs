@@ -108,7 +108,7 @@ export interface bookinglocationPrismaDto {
 }
 
 export interface updatependingtransactionforcompanionDto {
-  companionids: string;
+  ids: string;
   netamount: number;
   txId: string;
   metadata: { [key: string]: string };

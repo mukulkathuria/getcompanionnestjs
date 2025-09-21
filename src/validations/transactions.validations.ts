@@ -82,15 +82,23 @@ export const validateadmincompaniontransaction = (
   data: updatependingtransactionforcompanionDto,
 ): successErrorDto => {
   if (!data.txId) {
-    return { error: { status: 422, message: 'Transaction id is required' } };
-  } else if (!data.companionids) {
-    return { error: { status: 422, message: 'Companion ids is required' } };
-  } else if(!data.companionids.split(',').length){
-    return { error: { status: 422, message: 'Companion ids is not valid' } };
+    return { error: { status: 422, message: 'Payu Transaction id is required' } };
+  } else if (!data.ids) {
+    return { error: { status: 422, message: 'Transaction ids is required' } };
+  } else if (!data.ids.split(',').length) {
+    return { error: { status: 422, message: 'Transaction ids is not valid' } };
+  } else if (!data.netamount){
+    return { error: { status: 422, message: 'Net amount is required' } };
   } else if (data.netamount && typeof data.netamount !== 'number') {
     return { error: { status: 422, message: 'Net amount is not valid' } };
   } else if (data.metadata && typeof data.metadata !== 'object') {
     return { error: { status: 422, message: 'Metadata is not valid' } };
+  }
+  const { error } = validatePaymentStatus(
+    data.metadata as unknown as payUTransactionDetailsDto,
+  );
+  if (error) {
+    return { error };
   }
   return { success: true };
 };

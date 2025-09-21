@@ -297,21 +297,14 @@ export class AdminTransactionService {
       if (error) {
         return { error };
       }
-      const { error: paymenterror } = validatePaymentStatus(
-        updateparams.metadata as unknown as payUTransactionDetailsDto,
-      );
-      if (paymenterror) {
-        return { error: paymenterror };
-      }
-      if (error) return { error };
       const { data: paymentdata } = makePaymentdetailsjson(
         updateparams.metadata as unknown as payUTransactionDetailsDto,
       );
-      const allcompanions = updateparams.companionids.split(',');
+      const allTxIds = updateparams.ids.split(',');
       const transactiondata =
         await this.prismaService.transactionLedger.findMany({
           where: {
-            toCompanionId: { in: allcompanions },
+            txnId: { in: allTxIds },
             status: TransactionStatusEnum.UNDERPROCESSED,
             toParty: 'COMPANION',
           },
@@ -326,7 +319,7 @@ export class AdminTransactionService {
       }
       await this.prismaService.transactionLedger.updateMany({
         where: {
-          toCompanionId: { in: allcompanions },
+          txnId: { in: allTxIds },
           status: TransactionStatusEnum.UNDERPROCESSED,
           toParty: 'COMPANION',
         },
