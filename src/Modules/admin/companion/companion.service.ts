@@ -526,7 +526,7 @@ export class CompanionService {
               }
             : null,
         ).filter((l) => l),
-        last30daysearnings: last30daysearnings.filter((l) =>
+        last30daysearnings: last30daysearnings.map((l) =>
           l.status === 'UNDERPROCESSED'
             ? {
                 ...l,
@@ -537,7 +537,7 @@ export class CompanionService {
                 },
               }
             : null,
-        ),
+        ).filter((l) => l),
         completedearnings: last30daysearnings.map((l) =>
           l.status === 'COMPLETED'
             ? {
