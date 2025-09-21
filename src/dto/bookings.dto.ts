@@ -106,3 +106,10 @@ export interface bookinglocationPrismaDto {
   googleplaceextra?: { [key: string]: string };
   googleformattedadress: string;
 }
+
+export interface updatependingtransactionforcompanionDto {
+  companionids: string;
+  netamount: number;
+  txId: string;
+  metadata: { [key: string]: string };
+}

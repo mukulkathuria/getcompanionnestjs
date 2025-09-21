@@ -10,7 +10,7 @@ export const addDays = (days: number, date?: Date): Date => {
   }
 };
 
-export const subDays = (days: number): any => {
+export const subDays = (days: number): number => {
   const date = new Date();
   date.setDate(date.getDate() - days);
   date.setHours(0);

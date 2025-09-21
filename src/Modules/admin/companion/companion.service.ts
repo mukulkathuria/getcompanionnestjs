@@ -490,8 +490,9 @@ export class CompanionService {
         await this.prismaService.transactionLedger.findMany({
           where: {
             toCompanionId: id,
-            createdAt: { gte: subDays(30) },
+            createdAt: { gte: new Date(subDays(30)) },
             status: { in: ['UNDERPROCESSED', 'COMPLETED'] },
+            transactionType: 'PAYMENT_TO_COMPANION',
           },
           select: {
             id: true,
@@ -514,7 +515,7 @@ export class CompanionService {
           ? getUniqueValue(data[0].last30daysbookings)
           : data[0].last30daysbookings,
         last7daysearnings: last30daysearnings.filter((l) =>
-          l.createdAt >= subDays(7) && l.status === 'UNDERPROCESSED'
+          l.createdAt >= new Date(subDays(7)) && l.status === 'UNDERPROCESSED'
             ? {
                 ...l,
                 createdAt: String(l.createdAt),
