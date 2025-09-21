@@ -294,7 +294,19 @@ export class AdminTransactionService {
   ) {
     try {
       const { error } = validateadmincompaniontransaction(updateparams);
-      if(error) { return { error }; }
+      if (error) {
+        return { error };
+      }
+      const { error: paymenterror } = validatePaymentStatus(
+        updateparams.metadata as unknown as payUTransactionDetailsDto,
+      );
+      if (paymenterror) {
+        return { error: paymenterror };
+      }
+      if (error) return { error };
+      const { data: paymentdata } = makePaymentdetailsjson(
+        updateparams.metadata as unknown as payUTransactionDetailsDto,
+      );
       const allcompanions = updateparams.companionids.split(',');
       const transactiondata =
         await this.prismaService.transactionLedger.findMany({
@@ -323,7 +335,8 @@ export class AdminTransactionService {
           paymentGatewayTxnId: updateparams.txId,
           isSettled: true,
           fromUserId: userId,
-          metadata: updateparams.metadata,
+          paymentMethod: (paymentdata && paymentdata.paymentMethod) || 'CASH',
+          metadata: paymentdata || {},
           settledAt: Date.now(),
         },
       });
