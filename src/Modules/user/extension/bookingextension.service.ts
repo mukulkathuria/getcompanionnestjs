@@ -45,7 +45,7 @@ export class BookingExtentionService {
         bookingstart: String(data.bookingstart),
         bookingend: String(data.bookingend),
         bookingrate: amount,
-        updatedrate: amount + amount * 0.18,
+        updatedrate: amount + amount * 0.05,
         bookingpurpose: data.bookingpurpose,
         extendedhours: extensiondata.extendedHours,
         meetinglocation: data.Meetinglocation[0],

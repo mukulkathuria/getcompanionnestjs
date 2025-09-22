@@ -31,7 +31,7 @@ export const getFinalRate = (
   ) {
     amount = userInfo.bookingduration * 60 * companion.bookingrate;
   }
-  return amount + amount * 0.18;
+  return amount + amount * 0.05;
 };
 
 export const filterSlotAvailability = (
