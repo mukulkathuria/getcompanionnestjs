@@ -239,7 +239,7 @@ export class CompanionController {
     }
     const { data, error } =
       await this.companionservice.getnewCompanionRequestDetails(
-        Number(queryparams.companionId),
+        queryparams.companionId,
       );
     if (data) {
       return {

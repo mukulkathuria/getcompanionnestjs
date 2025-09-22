@@ -333,7 +333,7 @@ export class AdminBookingService {
         ...l,
         bookingstart: String(l.bookingstart),
         cancelledBy: l.statusHistory.find((l) => l.actionType === 'CANCELLED')
-          .actionPerformedBy,
+          ?.actionPerformedBy,
       }));
       return { data: values };
     } catch (error) {

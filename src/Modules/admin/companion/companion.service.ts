@@ -514,39 +514,48 @@ export class CompanionService {
         last30daysbookings: data[0].last30daysbookings
           ? getUniqueValue(data[0].last30daysbookings)
           : data[0].last30daysbookings,
-        last7daysearnings: last30daysearnings.map((l) =>
-          l.createdAt >= new Date(subDays(7)) && l.status === 'UNDERPROCESSED'
-            ? {
-                ...l,
-                createdAt: String(l.createdAt),
-                Booking: {
-                  bookingstart: String(l.Booking.bookingstart),
-                  bookingend: String(l.Booking.bookingend),
-                },
-              }
-            : null,
-        ).filter((l) => l),
-        last30daysearnings: last30daysearnings.map((l) =>
-          l.status === 'UNDERPROCESSED'
-            ? {
-                ...l,
-                createdAt: String(l.createdAt),
-                Booking: {
-                  bookingstart: String(l.Booking.bookingstart),
-                  bookingend: String(l.Booking.bookingend),
-                },
-              }
-            : null,
-        ).filter((l) => l),
-        completedearnings: last30daysearnings.map((l) =>
-          l.status === 'COMPLETED'
-            ? {
-                ...l,
-                createdAt: String(l.createdAt),
-                Booking: { bookingstart: String(l.Booking.bookingstart), bookingend: String(l.Booking.bookingend) },
-              }
-            : null,
-        ).filter((l) => l),
+        last7daysearnings: last30daysearnings
+          .map((l) =>
+            l.createdAt >= new Date(subDays(7)) && l.status === 'UNDERPROCESSED'
+              ? {
+                  ...l,
+                  createdAt: String(l.createdAt),
+                  Booking: {
+                    bookingstart: String(l.Booking.bookingstart),
+                    bookingend: String(l.Booking.bookingend),
+                  },
+                }
+              : null,
+          )
+          .filter((l) => l),
+        last30daysearnings: last30daysearnings
+          .map((l) =>
+            l.status === 'UNDERPROCESSED'
+              ? {
+                  ...l,
+                  createdAt: String(l.createdAt),
+                  Booking: {
+                    bookingstart: String(l.Booking.bookingstart),
+                    bookingend: String(l.Booking.bookingend),
+                  },
+                }
+              : null,
+          )
+          .filter((l) => l),
+        completedearnings: last30daysearnings
+          .map((l) =>
+            l.status === 'COMPLETED'
+              ? {
+                  ...l,
+                  createdAt: String(l.createdAt),
+                  Booking: {
+                    bookingstart: String(l.Booking.bookingstart),
+                    bookingend: String(l.Booking.bookingend),
+                  },
+                }
+              : null,
+          )
+          .filter((l) => l),
       };
       return { data: value };
     } catch (error) {
@@ -559,16 +568,28 @@ export class CompanionService {
 
   async getnewCompanionRequestlist() {
     try {
-      const data = await this.prismaService.companionrequests.findMany({
-        where: { status: 'ACTIVE' },
+      const data = await this.prismaService.companion.findMany({
+        where: { account: 'REVIEWED' },
+        select: {
+          id: true,
+          User: {
+            select: {
+              firstname: true,
+              email: true,
+              age: true,
+              Images: true,
+              gender: true,
+            },
+          },
+        },
       });
       const values = data.map((l) => ({
         id: l.id,
-        firstname: l.firstname,
-        email: l.email,
-        age: l.age,
-        images: l.photos,
-        gender: l.gender,
+        firstname: l.User.firstname,
+        email: l.User.email,
+        age: l.User.age,
+        images: l.User.Images,
+        gender: l.User.gender,
       }));
       return { data: values };
     } catch (error) {
@@ -579,24 +600,27 @@ export class CompanionService {
     }
   }
 
-  async getnewCompanionRequestDetails(id: number) {
+  async getnewCompanionRequestDetails(id: string) {
     try {
-      const data = await this.prismaService.companionrequests.findUnique({
-        where: { id },
+      const data = await this.prismaService.companion.findUnique({
+        where: { id, account: 'REVIEWED' },
         select: {
-          id: true,
-          firstname: true,
-          lastname: true,
-          email: true,
-          phoneNo: true,
-          photos: true,
-          age: true,
+          User: {
+            select: {
+              id: true,
+              firstname: true,
+              lastname: true,
+              email: true,
+              Images: true,
+              age: true,
+            },
+          },
         },
       });
       if (!data) {
         return { error: { status: 404, message: 'Companion not found' } };
       }
-      const values = { ...data, phoneNo: String(data.phoneNo) };
+      const values = { ...data };
       return { data: values };
     } catch (error) {
       this.logger.error(error?.message || error);
@@ -634,18 +658,18 @@ export class CompanionService {
 
   async updatebeCompanionRequestStatus(bookingInput: statusUpdateInputDto) {
     try {
-      const id = Number(bookingInput.id);
-      if (!id || typeof id !== 'number') {
+      const id = bookingInput.id;
+      if (!id || typeof id !== 'string') {
         return { error: { status: 422, message: 'Invalid companion search' } };
       }
       const { error } = validateRequestInput(bookingInput, 'Companion');
       if (error) {
         return { error };
       }
-      await this.prismaService.companionrequests.update({
+      await this.prismaService.companion.update({
         where: { id },
         data: {
-          status: bookingInput.approve ? 'RESOLVED' : 'REJECTED',
+          account: bookingInput.approve ? 'ACCEPTED' : 'REJECTED',
         },
       });
       return { success: true };
