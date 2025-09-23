@@ -33,12 +33,29 @@ import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
 import { companionDetailsQuery } from 'src/dto/companionfind.dto';
 import { Request as ExpressRquest } from 'express';
 
+import { ApiControllerTag, ApiBodyDto, ApiSuccessResponse, ApiBadRequestResponse, ApiUnauthorizedResponse } from 'src/swagger/decorators';
+import { ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { 
+  CompanionDetailsQueryDto, 
+  CompanionDetailsResponseDto, 
+  UpdateUserProfileDto, 
+  UserProfileParamsDto as UserProfileSwaggerParamsDto,
+  UserProfileResponseDto 
+} from 'src/dto/user.swagger.dto';
+import { ApiErrorResponseDto, ApiSuccessResponseDto } from 'src/dto/common.swagger.dto';
+
+@ApiControllerTag('User-Profile')
 @Controller(UserProfileRoute)
 export class DeleteUsersController {
   constructor(private readonly userservice: UsersService) {}
 
   @UseGuards(AuthGuard)
   @Delete(UserprofileInnerRoute.deleteuser)
+  @ApiOperation({ summary: 'Delete user account' })
+  @ApiQuery({ name: 'userId', description: 'ID of the user to delete', type: String })
+  @ApiSuccessResponse('User deleted successfully', ApiSuccessResponseDto)
+  @ApiUnauthorizedResponse('Unauthorized access', ApiErrorResponseDto)
+  @ApiBadRequestResponse('Invalid user ID', ApiErrorResponseDto)
   async deleteUsersController(@Query() userId: string) {
     const { error, success, message } =
       await this.userservice.deleteUser(userId);
@@ -58,6 +75,12 @@ export class DeleteUsersController {
   @UseInterceptors(
     FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
   )
+  @ApiOperation({ summary: 'Update user profile' })
+  @ApiParam({ name: 'id', description: 'User ID', type: String })
+  @ApiBodyDto(UpdateUserProfileDto, 'User profile data to update')
+  @ApiSuccessResponse('User profile updated successfully', UserProfileResponseDto)
+  @ApiBadRequestResponse('Invalid user data', ApiErrorResponseDto)
+  @ApiUnauthorizedResponse('Unauthorized access', ApiErrorResponseDto)
   async userupdateprofileController(
     @Param() id: UserProfileParamsDto,
     @Body() userinfo: UpdateUserProfileBodyDto,

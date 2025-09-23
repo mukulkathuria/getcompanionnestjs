@@ -13,7 +13,10 @@ import {
   SessionIdBodyParamsDto,
   StartBookingBodyparamsDto,
 } from 'src/dto/usersession.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('user-usersession')
 @Controller(UserSessionRoute)
 export class UserSessionController {
   constructor(private readonly usersessionservice: UserSessionService) {}

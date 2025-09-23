@@ -16,6 +16,10 @@ import {
 } from './validations/chat.validations';
 import { ChatService } from './chat.service';
 import { WsThrottlerGuard } from 'src/guards/throttler.guard';
+import { ApiControllerTag } from 'src/swagger/decorators';
+import { ApiOperation, ApiBody } from '@nestjs/swagger';
+import { JoinRoomDto, MessageRoomDto } from 'src/dto/chat.swagger.dto';
+
 
 @WebSocketGateway({
   cors: {
@@ -30,6 +34,8 @@ export class ChatController {
 
   @UseGuards(WsAuthGuard)
   @SubscribeMessage('joinchatroom')
+  @ApiOperation({ summary: 'Join a chat room' })
+  @ApiBody({ type: JoinRoomDto, description: 'Join room data' })
   async addedUser(
     @MessageBody() roomdata: joinedRoomDto,
     @ConnectedSocket() client: Socket,
@@ -72,6 +78,8 @@ export class ChatController {
 
   @UseGuards(WsAuthGuard)
   @SubscribeMessage('sendMessage')
+  @ApiOperation({ summary: 'Send a message to a chat room' })
+  @ApiBody({ type: MessageRoomDto, description: 'Message data to send' })
   async sendMessage(@MessageBody() data: messageRoomDto): Promise<void> {
     const { error } = messageRoomValidation(data);
     if (!error) {

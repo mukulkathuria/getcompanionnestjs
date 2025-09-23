@@ -21,7 +21,13 @@ import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
 import { registercompanionInputDto } from 'src/dto/user.dto';
 import { controllerReturnDto } from 'src/dto/common.dto';
 import { registerCompanionBodyDto } from 'src/dto/auth.module.dto';
+import { ApiBodyDto, ApiControllerTag, ApiSuccessResponse } from 'src/swagger/decorators';
+import { ApiOperation } from '@nestjs/swagger';
+import { CompanionRequestDto, CompanionResponseDto } from 'src/dto/companion.swagger.dto';
+import { ApiErrorResponseDto } from 'src/dto/common.swagger.dto';
 
+
+@ApiControllerTag('companion-companionrequest')
 @Controller(CompanionRequestInnerRoutes.baseUrl)
 export class CompanionRequestCotroller {
   constructor(
@@ -33,6 +39,9 @@ export class CompanionRequestCotroller {
   @UseInterceptors(
     FilesInterceptor('images', COMPANIONREQUESTMAXCOUNT, RequestCompanionImageMulterConfig),
   )
+  @ApiOperation({ summary: 'Submit a request to become a companion' })
+  @ApiBodyDto(CompanionRequestDto, 'Companion request data')
+  @ApiSuccessResponse('Request submitted successfully', CompanionResponseDto)
   async requestforCompanionController(
     @Body() userinfo: registercompanionInputDto,
     @UploadedFiles(new FileSizeValidationPipe())
@@ -55,6 +64,9 @@ export class CompanionRequestCotroller {
     @UseInterceptors(
       FilesInterceptor('images', COMPANIONIMAGESMAXCOUNT, UserImageMulterConfig),
     )
+    @ApiOperation({ summary: 'Register as a companion' })
+    @ApiBodyDto(CompanionRequestDto, 'Companion registration data')
+    @ApiSuccessResponse('Companion registered successfully', CompanionResponseDto)
     async registerCompanionController(
       @Body() userinfo: registerCompanionBodyDto,
       @UploadedFiles(new FileSizeValidationPipe())

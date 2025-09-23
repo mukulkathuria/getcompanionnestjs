@@ -13,7 +13,10 @@ import { AdminGuard } from 'src/guards/admin.guard';
 import { AcceptanceService } from './acceptance.service';
 import { bookingIdDto } from 'src/dto/bookings.dto';
 import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('admin-accceptance')
 @Controller(AdminAcceptanceRoute)
 export class AcceptanceController {
   constructor(private readonly acceptanceservice: AcceptanceService) {}

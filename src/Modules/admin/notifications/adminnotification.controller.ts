@@ -5,7 +5,10 @@ import {
 } from '../routes/admin.routes';
 import { AdminNotificationServices } from './adminnotifications.service';
 import { AdminGuard } from 'src/guards/admin.guard';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('admin-adminnotification')
 @Controller(AdminNotificaionRoute)
 export class AdminNotificationController {
   constructor(

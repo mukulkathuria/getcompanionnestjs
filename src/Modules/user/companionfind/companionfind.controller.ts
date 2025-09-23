@@ -12,7 +12,10 @@ import {
   userCompanionFindLocationInputDto,
 } from 'src/dto/companionfind.dto';
 import { AuthGuard } from 'src/guards/jwt.guard';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('user-companionfind')
 @Controller(UserCompanionFindRoute)
 export class CompanionFindController {
   constructor(private readonly companionfindservice: CompanionFindService) {}

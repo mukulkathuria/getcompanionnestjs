@@ -14,7 +14,10 @@ import {
 import { UserNotificationServices } from './notifications.service';
 import { AuthGuard } from 'src/guards/jwt.guard';
 import { UserProfileParamsDto as notificationIdDto } from 'src/dto/user.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('user-usernotifications')
 @Controller(UserNotificationRoute)
 export class UserNotificationController {
   constructor(private readonly notificationservice: UserNotificationServices) {}

@@ -25,7 +25,10 @@ import {
   createIssueInputDto,
   getIssueDetailsQueryDto,
 } from 'src/dto/userissues.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('user-userissues')
 @Controller(UserIssuesRoute)
 export class UserIssuesController {
   constructor(private readonly userissuesservices: UserIssuesServices) {}

@@ -34,7 +34,10 @@ import {
   updateCompanionPriceInputDto,
 } from 'src/dto/admin.module.dto';
 import { companionDetailsQuery } from 'src/dto/companionfind.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('admin-companion')
 @Controller(AdminUserProfileRoute)
 export class CompanionController {
   constructor(private readonly companionservice: CompanionService) {}

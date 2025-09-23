@@ -14,7 +14,10 @@ import {
   UserExtensionRoute,
 } from '../routes/user.routes';
 import { bookingIdDto, updateextensionbokingInputDto } from 'src/dto/bookings.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('user-bookingextension')
 @Controller(UserExtensionRoute)
 export class BookingExtentionController {
   constructor(private readonly bookingservice: BookingExtentionService) {}

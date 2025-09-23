@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 // import * as fs from 'fs';
 import { ClusterService } from './Services/cluster.service';
+import { setupSwagger } from './swagger/swagger.config';
 
 ClusterService.clusterize(async () => {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -22,10 +23,15 @@ ClusterService.clusterize(async () => {
   if (process.env.NODE_ENV !== 'production') {
     app.getHttpAdapter().getInstance().set('json spaces', 2);
   }
+  
+  // Setup Swagger documentation
+  setupSwagger(app);
+  
   const Port = process.env['DEFAULT_PORT'];
   const Host = process.env['DEFAULT_HOST'];
   await app.listen(Port, Host);
   console.log(`Server is running on ${Port}`);
+  console.log(`Swagger documentation available at http://${Host}:${Port}/api/docs`);
 });
 
 // (async () => {

@@ -1,5 +1,3 @@
-import { clear } from 'node:console';
-
 export const UserRoute = '/user';
 export const UserLocationRoute = UserRoute + '/location';
 export const UserDelete = UserRoute + '/delete';

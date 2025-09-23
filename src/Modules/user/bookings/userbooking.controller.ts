@@ -27,7 +27,10 @@ import { controllerReturnDto } from 'src/dto/common.dto';
 import { decodeExpressRequest } from 'src/guards/strategies/jwt.strategy';
 import { companionDetailsQuery } from 'src/dto/companionfind.dto';
 import { UserlocationProfileDto, UserProfileParamsDto } from 'src/dto/user.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('user-userbooking')
 @Controller(UserBookingsRoute)
 export class UserBookingController {
   constructor(private readonly userbookingservice: UserBookingsService) {}

@@ -16,7 +16,10 @@ import {
   payUTransactionDetailsDto,
 } from 'src/dto/transactions.dto';
 import { AuthGuard } from 'src/guards/jwt.guard';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('user-usertransaction')
 @Controller(UserTransactionsRoute)
 export class UserTransactionController {
   constructor(

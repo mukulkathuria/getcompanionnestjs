@@ -19,7 +19,10 @@ import {
   pageNoQueryDto,
   updatependingtransactionforcompanionDto,
 } from 'src/dto/bookings.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('admin-admintransaction')
 @Controller(AdminTransactionRoute)
 export class AdminTransactionController {
   constructor(

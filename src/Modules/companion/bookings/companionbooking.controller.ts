@@ -2,7 +2,10 @@ import { Body, Controller, Get, HttpException, Query } from '@nestjs/common';
 import { CompanionBookingInnerRoutes } from '../routes/companion.routes';
 import { bookingIdDto } from 'src/dto/bookings.dto';
 import { CompanionBookingService } from './companionbooking.service';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('companion-companionbooking')
 @Controller(CompanionBookingInnerRoutes.baseUrl)
 export class CompanionBookingController {
   constructor(

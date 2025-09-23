@@ -15,7 +15,10 @@ import {
 import { UserChatRoomsService } from './userchatrooms.service';
 import { AuthGuard } from 'src/guards/jwt.guard';
 import { UserProfileParamsDto } from 'src/dto/user.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('user-userchatroom')
 @Controller(UserChatRoomRoute)
 export class UserChatRoomController {
   constructor(private readonly companionfindservice: UserChatRoomsService) {}

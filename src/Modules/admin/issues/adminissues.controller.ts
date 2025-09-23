@@ -29,7 +29,10 @@ import {
 } from 'src/config/multer.config';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('admin-adminissues')
 @Controller(AdminIssuesRoute)
 export class AdminIssuesController {
   constructor(private readonly adminissuesservices: AdminIssuesServices) {}

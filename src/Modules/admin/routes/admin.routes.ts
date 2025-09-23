@@ -1,5 +1,3 @@
-import { get } from "http";
-
 export const AdminRoute = '/admin';
 export const AdminUserDelete = AdminRoute + '/delete';
 export const AdminUserProfileRoute = AdminRoute + '/profile';

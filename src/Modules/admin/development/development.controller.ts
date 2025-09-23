@@ -4,7 +4,10 @@ import {
   AdminDeveloperRoute,
 } from '../routes/admin.routes';
 import { DevelopmentService } from './development.service';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('admin-development')
 @Controller(AdminDeveloperRoute)
 export class DevelopmentController {
   constructor(private readonly developerservice: DevelopmentService) {}

@@ -19,7 +19,10 @@ import {
   pageNoQueryDto,
   updateBookingStatusInputDto,
 } from 'src/dto/bookings.dto';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('admin-adminbooking')
 @Controller(AdminUserBookingsRoute)
 export class AdminBookingController {
   constructor(private readonly adminbookingservice: AdminBookingService) {}

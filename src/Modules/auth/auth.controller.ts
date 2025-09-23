@@ -31,7 +31,19 @@ import {
 } from 'src/config/multer.config';
 import { FileSizeValidationPipe } from 'src/multer/multer.filesizevalidator';
 import { UserAuthInnerRoute } from '../user/routes/user.routes';
+import { ApiControllerTag, ApiBodyDto, ApiSuccessResponse, ApiBadRequestResponse, ApiUnauthorizedResponse } from 'src/swagger/decorators';
+import { ApiOperation } from '@nestjs/swagger';
+import { 
+  LoginDto, 
+  LoginResponseDto, 
+  RegisterDto, 
+  ForgotPasswordDto, 
+  ForgotPasswordInitDto, 
+  RefreshTokenDto 
+} from 'src/dto/auth.swagger.dto';
+import { ApiErrorResponseDto, ApiSuccessResponseDto } from 'src/dto/common.swagger.dto';
 
+@ApiControllerTag('Authentication')
 @Controller(UserAuthInnerRoute.base)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -41,6 +53,10 @@ export class AuthController {
   @UseInterceptors(
     FilesInterceptor('images', USERIMAGESMAXCOUNT, UserImageMulterConfig),
   )
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiBodyDto(RegisterDto)
+  @ApiSuccessResponse('User registered successfully', ApiSuccessResponseDto)
+  @ApiBadRequestResponse('Invalid registration data', ApiErrorResponseDto)
   async registerController(
     @Body() userinfo: registerBodyDto,
     @UploadedFiles(new FileSizeValidationPipe())
@@ -62,6 +78,10 @@ export class AuthController {
 
   @Post(UserAuthInnerRoute.login)
   @HttpCode(200)
+  @ApiOperation({ summary: 'Login user' })
+  @ApiBodyDto(LoginDto)
+  @ApiSuccessResponse('Login successful', LoginResponseDto)
+  @ApiUnauthorizedResponse('Invalid credentials', ApiErrorResponseDto)
   async loginController(
     @Body() loginInfo: loginBodyDto,
   ): Promise<loginUserDto> {

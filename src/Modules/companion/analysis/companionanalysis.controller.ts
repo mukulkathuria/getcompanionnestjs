@@ -1,7 +1,10 @@
 import { Controller, Get, HttpException, Req } from '@nestjs/common';
 import { CompanionAnalysisInnerRoutes } from '../routes/companion.routes';
 import { CompanionAnalysisService } from './companionaalysis.service';
+import { ApiControllerTag } from 'src/swagger/decorators';
 
+
+@ApiControllerTag('companion-companionanalysis')
 @Controller(CompanionAnalysisInnerRoutes.baseUrl)
 export class CompanionAnalysisController {
   constructor(
