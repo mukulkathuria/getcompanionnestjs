@@ -13,6 +13,7 @@ import {
   CompanionBookingUnitEnum,
   UpdateCompanionProfileBodyDto,
 } from 'src/dto/user.dto';
+import { UsersService } from 'src/Modules/user/users/users.service';
 import { PrismaService } from 'src/Services/prisma.service';
 import { S3Service } from 'src/Services/s3.service';
 import {
@@ -33,6 +34,7 @@ export class CompanionService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly awsservice: S3Service,
+    private readonly userservice: UsersService,
   ) {}
   private readonly logger = new Logger(PrismaService.name);
 
@@ -240,6 +242,7 @@ export class CompanionService {
                   age: true,
                   Images: true,
                   gender: true,
+                  userpaymentmethods: true,
                 },
               },
               bookingrate: true,
@@ -571,9 +574,9 @@ export class CompanionService {
       const data = await this.prismaService.companion.findMany({
         where: { account: 'REVIEWED' },
         select: {
-          id: true,
           User: {
             select: {
+              id: true,
               firstname: true,
               email: true,
               age: true,
@@ -583,14 +586,15 @@ export class CompanionService {
           },
         },
       });
-      const values = data.map((l) => ({
-        id: l.id,
-        firstname: l.User.firstname,
-        email: l.User.email,
-        age: l.User.age,
-        images: l.User.Images,
-        gender: l.User.gender,
-      }));
+      // const values = data.map((l) => ({
+      //   id: l.User.id,
+      //   firstname: l.User.firstname,
+      //   email: l.User.email,
+      //   age: l.User.age,
+      //   images: l.User.Images,
+      //   gender: l.User.gender,
+      // }));
+      const values = data.map((l) => l.User);
       return { data: values };
     } catch (error) {
       this.logger.error(error?.message || error);
@@ -602,26 +606,11 @@ export class CompanionService {
 
   async getnewCompanionRequestDetails(id: string) {
     try {
-      const data = await this.prismaService.companion.findUnique({
-        where: { id, account: 'REVIEWED' },
-        select: {
-          User: {
-            select: {
-              id: true,
-              firstname: true,
-              lastname: true,
-              email: true,
-              Images: true,
-              age: true,
-            },
-          },
-        },
-      });
-      if (!data) {
-        return { error: { status: 404, message: 'Companion not found' } };
+      const { data, error } = await this.userservice.getfullCompanionDetails(id);
+      if(error){
+        return { error }
       }
-      const values = { ...data };
-      return { data: values };
+      return { data };
     } catch (error) {
       this.logger.error(error?.message || error);
       return {

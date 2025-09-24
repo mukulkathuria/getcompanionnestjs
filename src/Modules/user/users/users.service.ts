@@ -159,6 +159,7 @@ export class UsersService {
           firstname: true,
           lastname: true,
           gender: true,
+          userpaymentmethods: true,
           Companion: {
             select: {
               id: true,
@@ -192,6 +193,12 @@ export class UsersService {
       const values = {
         ...data,
         phoneno: String(data.phoneno),
+        userpaymentmethods: data.userpaymentmethods.map((l) => {
+          const val = {...l};
+          delete val.createdAt;
+          delete val.updatedAt;
+          return val;
+        }),
         Companion: data.Companion.map((l) => ({
           ...l,
           baselocation: l.baselocation.map((p) => ({
