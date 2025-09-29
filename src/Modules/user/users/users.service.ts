@@ -169,6 +169,7 @@ export class UsersService {
               height: true,
               bodytype: true,
               eatinghabits: true,
+              bookingrate: true,
               drinkinghabits: true,
               smokinghabits: true,
               baselocation: {

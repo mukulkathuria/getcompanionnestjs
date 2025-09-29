@@ -656,7 +656,7 @@ export class CompanionService {
         return { error };
       }
       await this.prismaService.companion.update({
-        where: { id },
+        where: { userid: id },
         data: {
           account: bookingInput.approve ? 'ACCEPTED' : 'REJECTED',
         },
