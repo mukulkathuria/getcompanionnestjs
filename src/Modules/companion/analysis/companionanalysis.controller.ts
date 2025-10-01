@@ -5,15 +5,18 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CompanionAnalysisInnerRoutes } from '../routes/companion.routes';
 import { CompanionAnalysisService } from './companionanalysis.service';
 import { ApiControllerTag } from 'src/swagger/decorators';
 import { AuthGuard } from 'src/guards/jwt.guard';
 import { pageNoQueryDto } from 'src/dto/bookings.dto';
+import { BigIntSerializerInterceptor } from 'src/interceptors/bigint-serializer.interceptor';
 
 @ApiControllerTag('companion-companionanalysis')
 @Controller(CompanionAnalysisInnerRoutes.baseUrl)
+@UseInterceptors(BigIntSerializerInterceptor)
 export class CompanionAnalysisController {
   constructor(
     private readonly companionanalysisservice: CompanionAnalysisService,
