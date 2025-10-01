@@ -518,47 +518,26 @@ export class CompanionService {
           ? getUniqueValue(data[0].last30daysbookings)
           : data[0].last30daysbookings,
         last7daysearnings: last30daysearnings
-          .map((l) =>
-            l.createdAt >= new Date(subDays(7)) && l.status === 'UNDERPROCESSED'
-              ? {
-                  ...l,
-                  createdAt: String(l.createdAt),
-                  Booking: {
-                    bookingstart: String(l.Booking.bookingstart),
-                    bookingend: String(l.Booking.bookingend),
-                  },
-                }
-              : null,
-          )
-          .filter((l) => l),
+          .filter(
+            (l) =>
+              l.createdAt >= new Date(subDays(7)) &&
+              l.status === 'UNDERPROCESSED',
+          ),
         last30daysearnings: last30daysearnings
-          .map((l) =>
-            l.status === 'UNDERPROCESSED'
-              ? {
-                  ...l,
-                  createdAt: String(l.createdAt),
-                  Booking: {
-                    bookingstart: String(l.Booking.bookingstart),
-                    bookingend: String(l.Booking.bookingend),
-                  },
-                }
-              : null,
-          )
-          .filter((l) => l),
+          .filter(
+            (l) => l.status === 'UNDERPROCESSED',
+            // ? {
+            //     ...l,
+            //     createdAt: String(l.createdAt),
+            //     Booking: {
+            //       bookingstart: String(l.Booking.bookingstart),
+            //       bookingend: String(l.Booking.bookingend),
+            //     },
+            //   }
+            // : null,
+          ),
         completedearnings: last30daysearnings
-          .map((l) =>
-            l.status === 'COMPLETED'
-              ? {
-                  ...l,
-                  createdAt: String(l.createdAt),
-                  Booking: {
-                    bookingstart: String(l.Booking.bookingstart),
-                    bookingend: String(l.Booking.bookingend),
-                  },
-                }
-              : null,
-          )
-          .filter((l) => l),
+          .filter((l) => l.status === 'COMPLETED')
       };
       return { data: value };
     } catch (error) {
@@ -606,9 +585,10 @@ export class CompanionService {
 
   async getnewCompanionRequestDetails(id: string) {
     try {
-      const { data, error } = await this.userservice.getfullCompanionDetails(id);
-      if(error){
-        return { error }
+      const { data, error } =
+        await this.userservice.getfullCompanionDetails(id);
+      if (error) {
+        return { error };
       }
       return { data };
     } catch (error) {

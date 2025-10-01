@@ -90,6 +90,10 @@ export const getCompanionDetailsQueryforupdateRate = (companionId: string) => {
     l."city",
     l."state",
     comp."bookingrate",
+    COALESCE(
+          json_agg(row_to_json(pay)) FILTER (WHERE pay.id IS NOT NULL), 
+          '[]'::json
+      ) AS user_payment_methods,
       -- Total Booking Hours (in hours)
       SUM(EXTRACT(EPOCH FROM (TO_TIMESTAMP(b."bookingend" / 1000) - TO_TIMESTAMP(b."bookingstart" / 1000))) / 3600) AS totalBookingHours,
       -- Average Rating (out of 5)
@@ -123,6 +127,7 @@ export const getCompanionDetailsQueryforupdateRate = (companionId: string) => {
     LEFT JOIN "rating" r ON c."id" = r."rateeId"
     LEFT JOIN "Companion" comp ON comp."userid" = c."id"
     LEFT JOIN "location" l ON l."userid" = comp."id"
+	  LEFT JOIN "userpaymentmethods" pay ON c."id" = pay."userid"
     WHERE c.id = '${companionId}' AND 
     (b.bookingstatus = 'ACCEPTED' OR b.bookingstatus = 'COMPLETED')
     GROUP BY c."id", l."city", l."state",comp."bookingrate";

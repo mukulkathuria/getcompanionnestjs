@@ -17,7 +17,7 @@ export class BigIntSerializerInterceptor implements NestInterceptor {
   }
 
   private convertBigIntToString(data: any): any {
-    if (data instanceof Object && !Array.isArray(data)) {
+    if (typeof data === 'object' && !Array.isArray(data) && data instanceof Object) {
       const newData = {};
       for (const key in data) {
         newData[key] = this.convertBigIntToString(data[key]);

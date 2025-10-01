@@ -20,5 +20,7 @@ export const CompanionAnalysisInnerRoutes =  {
     companionanalysisdetails: 'companionanalysisdetails',
     companionanalysisdetailsbyid: 'companionanalysisdetailsbyid',
     companionearningsanalysis: 'companionearningsanalysis',
-    companionratingsanalysis: 'companionratingsanalysis'
+    companionratingsanalysis: 'companionratingsanalysis',
+    getallcompanioncompletedearnings: 'getallcompanioncompletedearnings',
+    getallcompanionpendingearnings: 'getallcompanionpendingearnings'
 }

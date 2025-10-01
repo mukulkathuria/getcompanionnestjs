@@ -35,10 +35,12 @@ import {
 } from 'src/dto/admin.module.dto';
 import { companionDetailsQuery } from 'src/dto/companionfind.dto';
 import { ApiControllerTag } from 'src/swagger/decorators';
+import { BigIntSerializerInterceptor } from 'src/interceptors/bigint-serializer.interceptor';
 
 
 @ApiControllerTag('admin-companion')
 @Controller(AdminUserProfileRoute)
+@UseInterceptors(BigIntSerializerInterceptor)
 export class CompanionController {
   constructor(private readonly companionservice: CompanionService) {}
 
