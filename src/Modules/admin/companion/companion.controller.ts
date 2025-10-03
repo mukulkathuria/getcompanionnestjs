@@ -208,7 +208,7 @@ export class CompanionController {
       await this.companionservice.getCompanionDetailsforupdateRate(
         queryparams.companionId,
       );
-    if (data) {
+    if (data || data === null) {
       return {
         data,
       };

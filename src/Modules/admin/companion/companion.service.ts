@@ -506,8 +506,9 @@ export class CompanionService {
             Booking: { select: { bookingstart: true, bookingend: true } },
           },
         });
-      const value = {
+      const value = data[0] ? {
         ...data[0],
+        user_payment_methods: getUniqueValue(data[0].user_payment_methods),
         last24hoursbookings: data[0].last24hoursbookings
           ? getUniqueValue(data[0].last24hoursbookings)
           : data[0].last24hoursbookings,
@@ -538,10 +539,10 @@ export class CompanionService {
           ),
         completedearnings: last30daysearnings
           .filter((l) => l.status === 'COMPLETED')
-      };
+      } : null;
       return { data: value };
     } catch (error) {
-      this.logger.error(error?.message || error);
+      this.logger.error(error);
       return {
         error: { status: 500, message: 'Server error' },
       };
