@@ -8,6 +8,7 @@ import {
 } from 'src/dto/userissues.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import { S3Service } from 'src/Services/s3.service';
+import { handleImageInStorage } from 'src/utils/imageDownload.utils';
 import { getTxnId } from 'src/utils/uuid.utils';
 import { validateRequestInput } from 'src/validations/companionrequest.validation';
 import {
@@ -98,7 +99,10 @@ export class AdminIssuesServices {
       if (error) {
         return { error };
       }
-      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      const allimages = await handleImageInStorage(
+        images,
+        'userissue/' + Date.now(),
+      );
       // const allimages = [];
       // for (let i = 0; i < images.length; i += 1) {
       //   const filepath =
@@ -144,7 +148,10 @@ export class AdminIssuesServices {
           error: { status: 422, message: 'You can attach max 4 screenshot' },
         };
       }
-      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
+      const allimages = await handleImageInStorage(
+        images,
+        'userissue/' + Date.now(),
+      );
       // const allimages = [];
       // for (let i = 0; i < images.length; i += 1) {
       //   const filepath =

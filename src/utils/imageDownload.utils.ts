@@ -33,3 +33,33 @@ export const Download = (
     return fileStream.path.toString();
   }
 };
+
+export async function handleImageInStorage(
+  images: Express.Multer.File[],
+  fileName? : string,
+): Promise<string[]> {
+  const imageUrls: string[] = [];
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  if (isDevelopment) {
+    images.forEach((image) => {
+      const localUrl =
+        process.env.DEFAULT_URL + image.destination + '/' + image.filename;
+      imageUrls.push(localUrl);
+    });
+  } else {
+    const { S3Service } = await import('src/Services/s3.service');
+    const awsservice = new S3Service();
+    for (let i = 0; i < images.length; i += 1) {
+      const filepath = fileName + Date.now();
+      const { data } = await awsservice.uploadFileins3(
+        filepath,
+        images[i].buffer,
+        images[i].mimetype,
+      );
+      if (data) {
+        imageUrls.push(data);
+      }
+    }
+  }
+  return imageUrls;
+}

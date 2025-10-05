@@ -41,6 +41,7 @@ import { NotificationFromModuleEnum } from 'src/dto/bookings.dto';
 import { Notificationhours } from 'src/constants/common.constants';
 import notificationTemplate from 'src/templates/notification.template';
 import { S3Service } from 'src/Services/s3.service';
+import { handleImageInStorage } from 'src/utils/imageDownload.utils';
 // import axios from 'axios';
 
 @Injectable()
@@ -106,19 +107,10 @@ export class AuthService {
       if (error) {
         return { error };
       }
-      const allimages = images.map((l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename);
-      // const allimages = [];
-      // for (let i = 0; i < images.length; i += 1) {
-      //   const filepath = 'userphotos/' + userinfo.email + Date.now();
-      //   const { data } = await this.awsservice.uploadFileins3(
-      //     filepath,
-      //     images[i].buffer,
-      //     images[i].mimetype,
-      //   );
-      //   if (data) {
-      //     allimages.push(data);
-      //   }
-      // }
+      const allimages = await handleImageInStorage(
+        images,
+        'userphotos/' + userinfo.email,
+      );
       const userdata = {
         firstname: user.firstname,
         lastname: user.lastname,

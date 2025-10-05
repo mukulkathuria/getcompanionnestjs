@@ -13,6 +13,7 @@ import { validatecompanionupdaterequest } from 'src/validations/companionrequest
 import { isvalidUserinputs } from 'src/validations/user.validations';
 import { Request } from 'express';
 import { validateUserAgentlocation } from 'src/validations/booking.validation';
+import { handleImageInStorage } from 'src/utils/imageDownload.utils';
 
 @Injectable()
 export class UsersService {
@@ -49,22 +50,10 @@ export class UsersService {
         return { error: { status: 422, message: 'User not Exists' } };
       }
       const { userdata } = isvalidUserinputs(userinputs);
-      const allimages = images.map(
-        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      const allimages = await handleImageInStorage(
+        images,
+        'userphotos/' + isUserExists.email,
       );
-      // const allimages = [];
-      // for (let i = 0; i < images.length; i += 1) {
-      //   const filepath = 'userphotos/' + isUserExists.email + Date.now();
-      //   const { data } = await this.awsservice.uploadFileins3(
-      //     filepath,
-      //     images[i].buffer,
-      //     images[i].mimetype,
-      //   );
-      //   if (data) {
-      //     allimages.push(data);
-      //   }
-      // }
-      // console.log(allimages);
       if (allimages.length > 1) {
         return {
           error: { status: 422, message: 'Images more than 1 is not allowed' },
@@ -195,7 +184,7 @@ export class UsersService {
         ...data,
         phoneno: String(data.phoneno),
         userpaymentmethods: data.userpaymentmethods.map((l) => {
-          const val = {...l};
+          const val = { ...l };
           delete val.createdAt;
           delete val.updatedAt;
           return val;
@@ -231,21 +220,10 @@ export class UsersService {
       if (error) {
         return { error };
       }
-      const allimages = images.map(
-        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      const allimages = await handleImageInStorage(
+        images,
+        'userphotos/companionewphoto' + userinfo.firstname,
       );
-      // const allimages = [];
-      // for (let i = 0; i < images.length; i += 1) {
-      //   const filepath = 'userphotos/companionewphoto' + userinfo.firstname + Date.now();
-      //   const { data } = await this.awsservice.uploadFileins3(
-      //     filepath,
-      //     images[i].buffer,
-      //     images[i].mimetype,
-      //   );
-      //   if (data) {
-      //     allimages.push(data);
-      //   }
-      // }
       if (!userinfo.previousImages && allimages.length < 2) {
         return {
           error: { status: 422, message: 'Images is required' },
@@ -270,7 +248,7 @@ export class UsersService {
         data: {
           ...user,
           baselocations: { createMany: { data: user.baselocations } },
-          paymentmethods: { createMany:{ data: user.paymentmethods } },
+          paymentmethods: { createMany: { data: user.paymentmethods } },
           companiondetails: { connect: { id: userId } },
         },
       });

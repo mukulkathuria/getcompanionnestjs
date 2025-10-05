@@ -10,6 +10,7 @@ import { PrismaService } from 'src/Services/prisma.service';
 import { S3Service } from 'src/Services/s3.service';
 import { getdefaultexpirydate } from 'src/utils/common.utils';
 import { encrypt } from 'src/utils/crypt.utils';
+import { handleImageInStorage } from 'src/utils/imageDownload.utils';
 import { validateregisterCompanion } from 'src/validations/auth.validation';
 import { validateCompanionRequestInput } from 'src/validations/companionrequest.validation';
 
@@ -45,21 +46,10 @@ export class CompanionRequestService {
           error: { status: 422, message: 'Maximum 2 images are allowed' },
         };
       }
-      const allimages = images.map(
-        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      const allimages = await handleImageInStorage(
+        images,
+        'companionrequest/' + userinfo.email,
       );
-      // const allimages = [];
-      // for (let i = 0; i < images.length; i += 1) {
-      //   const filepath = 'companionrequest/' + userinfo.email + Date.now();
-      //   const { data } = await this.awsservice.uploadFileins3(
-      //     filepath,
-      //     images[i].buffer,
-      //     images[i].mimetype,
-      //   );
-      //   if (data) {
-      //     allimages.push(data);
-      //   }
-      // }
       const userdata = {
         firstname: userinfo.firstname,
         lastname: userinfo.lastname,
@@ -92,21 +82,10 @@ export class CompanionRequestService {
       if (isUserExists) {
         return { error: { status: 422, message: 'User already exists' } };
       }
-      const allimages = images.map(
-        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      const allimages = await handleImageInStorage(
+        images,
+        'companionrequest/' + userinfo.email,
       );
-      // const allimages = [];
-      // for (let i = 0; i < images.length; i += 1) {
-      //   const filepath = 'userphotos/' + userinfo.email + Date.now();
-      //   const { data } = await this.awsservice.uploadFileins3(
-      //     filepath,
-      //     images[i].buffer,
-      //     images[i].mimetype,
-      //   );
-      //   if (data) {
-      //     allimages.push(data);
-      //   }
-      // }
       if (allimages.length < 2) {
         return {
           error: { status: 422, message: 'Atleast 2 images are required' },

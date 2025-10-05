@@ -22,6 +22,7 @@ import {
   subDays,
 } from 'src/utils/common.utils';
 import { encrypt } from 'src/utils/crypt.utils';
+import { handleImageInStorage } from 'src/utils/imageDownload.utils';
 import {
   validatepreviousImages,
   validateregisterCompanion,
@@ -53,21 +54,10 @@ export class CompanionService {
       if (isUserExists) {
         return { error: { status: 422, message: 'User already exists' } };
       }
-      const allimages = images.map(
-        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      const allimages = await handleImageInStorage(
+        images,
+        'userphotos/' + userinfo.email,
       );
-      // const allimages = [];
-      // for (let i = 0; i < images.length; i += 1) {
-      //   const filepath = 'userphotos/' + userinfo.email + Date.now();
-      //   const { data } = await this.awsservice.uploadFileins3(
-      //     filepath,
-      //     images[i].buffer,
-      //     images[i].mimetype,
-      //   );
-      //   if (data) {
-      //     allimages.push(data);
-      //   }
-      // }
       if (allimages.length < 2) {
         return {
           error: { status: 422, message: 'Atleast 2 images are required' },
@@ -153,21 +143,11 @@ export class CompanionService {
       }
       const { userdata, locationdata, companiondata } =
         isvalidComanioninputs(userinputs);
-      const allimages = images.map(
-        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      const allimages = await handleImageInStorage(
+        images,
+        'userphotos/' + isUserExists.email,
       );
-      // const allimages = [];
-      // for (let i = 0; i < images.length; i += 1) {
-      //   const filepath = 'userphotos/' + isUserExists.email + Date.now();
-      //   const { data } = await this.awsservice.uploadFileins3(
-      //     filepath,
-      //     images[i].buffer,
-      //     images[i].mimetype,
-      //   );
-      //   if (data) {
-      //     allimages.push(data);
-      //   }
-      // }
+
       if (allimages.length > 4) {
         return {
           error: { status: 422, message: 'Images more than 4 is not allowed' },
@@ -343,21 +323,10 @@ export class CompanionService {
       if (!isUserExists) {
         return { error: { status: 422, message: 'User not Exists' } };
       }
-      const allimages = images.map(
-        (l) => process.env.DEFAULT_URL + l.destination + '/' + l.filename,
+      const allimages = await handleImageInStorage(
+        images,
+        'userphotos/' + isUserExists.email,
       );
-      // const allimages = [];
-      // for (let i = 0; i < images.length; i += 1) {
-      //   const filepath = 'userphotos/' + isUserExists.email + Date.now();
-      //   const { data } = await this.awsservice.uploadFileins3(
-      //     filepath,
-      //     images[i].buffer,
-      //     images[i].mimetype,
-      //   );
-      //   if (data) {
-      //     allimages.push(data);
-      //   }
-      // }
       const { images: previousImages, error: imagesError } =
         validatepreviousImages(userinfo.previousImages);
       if (imagesError) {
@@ -506,40 +475,41 @@ export class CompanionService {
             Booking: { select: { bookingstart: true, bookingend: true } },
           },
         });
-      const value = data[0] ? {
-        ...data[0],
-        user_payment_methods: getUniqueValue(data[0].user_payment_methods),
-        last24hoursbookings: data[0].last24hoursbookings
-          ? getUniqueValue(data[0].last24hoursbookings)
-          : data[0].last24hoursbookings,
-        last7daysbookings: data[0].last7daysbookings
-          ? getUniqueValue(data[0].last7daysbookings)
-          : data[0].last7daysbookings,
-        last30daysbookings: data[0].last30daysbookings
-          ? getUniqueValue(data[0].last30daysbookings)
-          : data[0].last30daysbookings,
-        last7daysearnings: last30daysearnings
-          .filter(
-            (l) =>
-              l.createdAt >= new Date(subDays(7)) &&
-              l.status === 'UNDERPROCESSED',
-          ),
-        last30daysearnings: last30daysearnings
-          .filter(
-            (l) => l.status === 'UNDERPROCESSED',
-            // ? {
-            //     ...l,
-            //     createdAt: String(l.createdAt),
-            //     Booking: {
-            //       bookingstart: String(l.Booking.bookingstart),
-            //       bookingend: String(l.Booking.bookingend),
-            //     },
-            //   }
-            // : null,
-          ),
-        completedearnings: last30daysearnings
-          .filter((l) => l.status === 'COMPLETED')
-      } : null;
+      const value = data[0]
+        ? {
+            ...data[0],
+            user_payment_methods: getUniqueValue(data[0].user_payment_methods),
+            last24hoursbookings: data[0].last24hoursbookings
+              ? getUniqueValue(data[0].last24hoursbookings)
+              : data[0].last24hoursbookings,
+            last7daysbookings: data[0].last7daysbookings
+              ? getUniqueValue(data[0].last7daysbookings)
+              : data[0].last7daysbookings,
+            last30daysbookings: data[0].last30daysbookings
+              ? getUniqueValue(data[0].last30daysbookings)
+              : data[0].last30daysbookings,
+            last7daysearnings: last30daysearnings.filter(
+              (l) =>
+                l.createdAt >= new Date(subDays(7)) &&
+                l.status === 'UNDERPROCESSED',
+            ),
+            last30daysearnings: last30daysearnings.filter(
+              (l) => l.status === 'UNDERPROCESSED',
+              // ? {
+              //     ...l,
+              //     createdAt: String(l.createdAt),
+              //     Booking: {
+              //       bookingstart: String(l.Booking.bookingstart),
+              //       bookingend: String(l.Booking.bookingend),
+              //     },
+              //   }
+              // : null,
+            ),
+            completedearnings: last30daysearnings.filter(
+              (l) => l.status === 'COMPLETED',
+            ),
+          }
+        : null;
       return { data: value };
     } catch (error) {
       this.logger.error(error);
