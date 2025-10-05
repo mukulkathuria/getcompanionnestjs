@@ -233,17 +233,17 @@ export const getupdateCompanionDetailrawQuey = (
         UPDATE "userpaymentmethods"
         SET
           type = CASE ${paymentTypeCase} ELSE type END,
-          recipientname = CASE ${recipientNameCase} ELSE recipientname END,
+          "recipientName" = CASE ${recipientNameCase} ELSE "recipientName" END,
           nickname = CASE ${nicknameCase} ELSE nickname END,
-          ifsccode = CASE ${ifscCase} ELSE ifsccode END,
-          upiid = CASE ${upiIdCase} ELSE upiid END,
-          walletidentifier = CASE ${walletDetailsCase} ELSE walletidentifier END,
-          accountnumber = CASE ${accountNumberCase} ELSE accountnumber END,
-          accountholdername = CASE ${accountHolderNameCase} ELSE accountholdername END,
-          upiprovider = CASE ${upiProviderCase} ELSE upiprovider END,
-          walletprovider = CASE ${walletProviderCase} ELSE walletprovider END,
-          bankname = CASE ${bankNameCase} ELSE bankname END,
-          accounttype = CASE ${accountTypeCase} ELSE accounttype END
+          "ifscCode" = CASE ${ifscCase} ELSE "ifscCode" END,
+          "upiId" = CASE ${upiIdCase} ELSE "upiId" END,
+          "walletIdentifier" = CASE ${walletDetailsCase} ELSE "walletIdentifier" END,
+          "accountNumber" = CASE ${accountNumberCase} ELSE "accountNumber" END,
+          "accountHolderName" = CASE ${accountHolderNameCase} ELSE "accountHolderName" END,
+          "upiProvider" = CASE ${upiProviderCase} ELSE "upiProvider" END,
+          "walletProvider" = CASE ${walletProviderCase} ELSE "walletProvider" END,
+          "bankName" = CASE ${bankNameCase} ELSE "bankName" END,
+          "accountType" = CASE ${accountTypeCase} ELSE "accountType" END
         WHERE id IN (${paymentmethodids.map((l) => `'${l}'`).join(', ')});
       `;
   return { updateUserQuery, updateCompanionQuery, updateLocationquery, updatePaymentMethodquery };
