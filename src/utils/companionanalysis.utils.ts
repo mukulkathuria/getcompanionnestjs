@@ -147,7 +147,7 @@ export function getearningofCompanionQuery(companionId: string) {
             '[]'::json
             ) as recent_earnings_data
         FROM (
-            SELECT 
+            SELECT DISTINCT ON (tl.id) 
             tl."netAmount",
             tl."createdAt" as transaction_created_at,
             b.*,
@@ -157,12 +157,12 @@ export function getearningofCompanionQuery(companionId: string) {
             u."Images" as user_images
             FROM "TransactionLedger" tl
             JOIN "Booking" b ON tl."bookingId" = b.id
-            JOIN "_BookingToUser" btu ON CAST(b.id AS text) = btu."B"
+            JOIN "_BookingToUser" btu ON b.id = btu."A"
             JOIN "User" u ON btu."B" = u.id::text
             WHERE tl."toCompanionId" = '${companionId}'
             AND tl."transactionType" = 'PAYMENT_TO_COMPANION'
             AND tl.status = 'COMPLETED'
-            ORDER BY tl."createdAt" DESC
+            ORDER BY tl.id, tl."createdAt" DESC
             LIMIT 5
         ) recent_data
         ),
