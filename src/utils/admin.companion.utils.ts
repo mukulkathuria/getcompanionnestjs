@@ -160,31 +160,31 @@ export const getupdateCompanionDetailrawQuey = (
     .join(' ');
   const nicknameCase = userinfo.paymentmethods
     .map(
-      (l, i) => `WHEN id = '${paymentmethodids[i]}' THEN '${l.nickname || ''}'`,
+      (l, i) => `WHEN id = '${paymentmethodids[i]}' THEN '${l.nickname || null}'`,
     )
     .join(' ');
   const upiProviderCase = userinfo.paymentmethods
     .map(
       (l, i) =>
-        `WHEN id = '${paymentmethodids[i]}' THEN '${l.type === PaymentType.UPI ? l.upiProvider || '' : ''}'`,
+        `WHEN id = '${paymentmethodids[i]}' THEN ${l.type === PaymentType.UPI ? `'${l.upiProvider}'` || null : null}`,
     )
     .join(' ');
   const walletProviderCase = userinfo.paymentmethods
     .map(
       (l, i) =>
-        `WHEN id = '${paymentmethodids[i]}' THEN '${l.type === PaymentType.WALLET ? l.walletProvider : ''}'`,
+        `WHEN id = '${paymentmethodids[i]}' THEN ${l.type === PaymentType.WALLET ? `'${l.walletProvider}'` : null}`,
     )
     .join(' ');
   const bankNameCase = userinfo.paymentmethods
     .map(
       (l, i) =>
-        `WHEN id = '${paymentmethodids[i]}' THEN '${l.type === PaymentType.BANK_ACCOUNT ? l.bankName : ''}'`,
+        `WHEN id = '${paymentmethodids[i]}' THEN ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.bankName}'` : null}`,
     )
     .join(' ');
   const accountTypeCase = userinfo.paymentmethods
     .map(
       (l, i) =>
-        `WHEN id = '${paymentmethodids[i]}' THEN '${l.type === PaymentType.BANK_ACCOUNT ? l.accountType : ''}'`,
+        `WHEN id = '${paymentmethodids[i]}' THEN ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountType}'` : null}`,
     )
     .join(' ');
   const updateUserQuery = `
