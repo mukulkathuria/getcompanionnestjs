@@ -47,7 +47,7 @@ export async function handleImageInStorage(
       imageUrls.push(localUrl);
     });
   } else {
-    const { S3Service } = await import('src/Services/s3.service');
+    const { S3Service } = await import('../Services/s3.service');
     const awsservice = new S3Service();
     for (let i = 0; i < images.length; i += 1) {
       const filepath = fileName + Date.now();
