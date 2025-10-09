@@ -38,28 +38,32 @@ export async function handleImageInStorage(
   images: Express.Multer.File[],
   fileName? : string,
 ): Promise<string[]> {
-  const imageUrls: string[] = [];
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  if (isDevelopment) {
-    images.forEach((image) => {
-      const localUrl =
-        process.env.DEFAULT_URL + image.destination + '/' + image.filename;
-      imageUrls.push(localUrl);
-    });
-  } else {
-    const { S3Service } = await import('../Services/s3.service');
-    const awsservice = new S3Service();
-    for (let i = 0; i < images.length; i += 1) {
-      const filepath = fileName + Date.now();
-      const { data } = await awsservice.uploadFileins3(
-        filepath,
-        images[i].buffer,
-        images[i].mimetype,
-      );
-      if (data) {
-        imageUrls.push(data);
+  try {
+    const imageUrls: string[] = [];
+    const isProduction = process.env.NODE_ENV === 'development';
+    if (!isProduction) {
+      images.forEach((image) => {
+        const localUrl =
+          process.env.DEFAULT_URL + image.destination + '/' + image.filename;
+        imageUrls.push(localUrl);
+      });
+    } else {
+      const { S3Service } = await import('../Services/s3.service');
+      const awsservice = new S3Service();
+      for (let i = 0; i < images.length; i += 1) {
+        const filepath = fileName + Date.now();
+        const { data } = await awsservice.uploadFileins3(
+          filepath,
+          images[i].buffer,
+          images[i].mimetype,
+        );
+        if (data) {
+          imageUrls.push(data);
+        }
       }
     }
+    return imageUrls;
+  } catch (error) {
+    console.error('Error handling image in storage:', error);
   }
-  return imageUrls;
 }
