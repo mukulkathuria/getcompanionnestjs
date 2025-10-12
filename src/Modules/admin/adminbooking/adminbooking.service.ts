@@ -90,7 +90,6 @@ export class AdminBookingService {
           bookingpurpose: true,
           finalRate: true,
           bookingstatus: true,
-          // cancelledReason: true,
           transactionLedger: {
             select: {
               status: true,

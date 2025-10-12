@@ -32,6 +32,16 @@ export class CompanionAnalysisService {
             toCompanionId: companionId,
             status: 'COMPLETED',
           },
+          include: {
+            Booking: {
+              select: {
+                bookingstart: true,
+                bookingend: true,
+                bookingduration: true,
+                bookingdurationUnit: true,
+              },
+            },
+          },
           skip: (pageNo - 1) * limit,
           take: limit,
           orderBy: { createdAt: 'desc' },
@@ -73,6 +83,16 @@ export class CompanionAnalysisService {
           where: {
             toCompanionId: companionId,
             status: 'UNDERPROCESSED',
+          },
+          include: {
+            Booking: {
+              select: {
+                bookingstart: true,
+                bookingend: true,
+                bookingduration: true,
+                bookingdurationUnit: true,
+              },
+            },
           },
           skip: (pageNo - 1) * limit,
           take: limit,

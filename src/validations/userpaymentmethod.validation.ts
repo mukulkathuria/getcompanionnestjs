@@ -77,7 +77,14 @@ export class PaymentMethodValidator {
         message: `Payment type must be one of: ${Object.values(PaymentType).join(', ')}`,
       });
     }
-
+    if (input.isDefault !== undefined && input.isDefault !== null) {
+      if (typeof input.isDefault !== 'boolean') {
+        errors.push({
+          field: 'isDefault',
+          message: 'isDefault must be a boolean',
+        });
+      }
+    }
     if (!input.recipientName) {
       errors.push({
         field: 'recipientName',
@@ -435,7 +442,8 @@ export class PaymentMethodService {
       nickname: data.nickname || null,
       type: data.type,
       recipientName: data.recipientName,
-      isActive: false,
+      isDefault: data.isDefault || false,
+      isActive: true,
       isVerified: false,
     };
 

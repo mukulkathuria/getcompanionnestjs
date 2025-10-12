@@ -32,6 +32,7 @@ export interface BankAccountInput {
   bankName: string;
   branchName?: string;
   accountType: BankAccountType;
+  isDefault?: boolean;
 }
 
 export interface UPIInput {
@@ -41,6 +42,7 @@ export interface UPIInput {
   recipientName: string;
   upiId: string;
   upiProvider?: string;
+  isDefault?: boolean;
 }
 
 export interface WalletInput {
@@ -50,6 +52,7 @@ export interface WalletInput {
   recipientName: string;
   walletProvider: WalletProvider;
   walletIdentifier: string;
+  isDefault?: boolean;
 }
 
 export type PaymentMethodInput = BankAccountInput | UPIInput | WalletInput;
