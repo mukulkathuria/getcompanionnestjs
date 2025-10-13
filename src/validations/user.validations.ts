@@ -213,6 +213,9 @@ export const validateCompanionSearch = (
     return { error: { status: 422, message: 'Invalid skin tone filter' } };
   }
   const filterstosend = {
+    where:{
+      Companion: { every: { account: 'ACCEPTED' as 'ACCEPTED' } },
+    },
     include: {
       Companion: {
         include: {
@@ -224,16 +227,18 @@ export const validateCompanionSearch = (
     },
   };
   if (filters.minAge || filters.maxAge) {
-    filterstosend['where'] = {};
+    filterstosend['where'] = {
+      Companion: { every: { account: 'ACCEPTED' as 'ACCEPTED' } },
+    };
   }
   if (filters.skintone || filters.bodytype) {
     filterstosend['include']['Companion']['where'] = {};
   }
   if (filters.minAge) {
-    filterstosend['where']['lte'] = filters.minAge;
+    filterstosend['where']['gte'] = filters.minAge;
   }
   if (filters.maxAge) {
-    filterstosend['where']['gte'] = filters.maxAge;
+    filterstosend['where']['lte'] = filters.maxAge;
   }
   if (filters.skintone) {
     filterstosend['include']['Companion']['where']['Skintone'] =

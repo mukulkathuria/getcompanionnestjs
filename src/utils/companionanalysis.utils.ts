@@ -132,6 +132,8 @@ export function getearningofCompanionQuery(companionId: string) {
                 'amount', recent_data."netAmount",
                 'tax_amount', recent_data."taxAmount",
                 'penalty_amount', recent_data."penaltyAmount",
+                'platform_fee', recent_data."platformFee",
+                'txn_id', recent_data."txnId",
                 'booking_start', recent_data.bookingstart,
                 'booking_end', recent_data.bookingend,
                 'booking_id', recent_data.id,
@@ -151,8 +153,10 @@ export function getearningofCompanionQuery(companionId: string) {
         FROM (
             SELECT DISTINCT ON (tl.id) 
             tl."netAmount",
+            tl."txnId",
             tl."taxAmount",
             tl."penaltyAmount",
+            tl."platformFee",
             tl."createdAt" as transaction_created_at,
             b.*,
             u.firstname,

@@ -36,7 +36,7 @@ export class CompanionFindService {
                 lng: l.baselocation[0].lng,
                 companiondata: l,
                 images: l.images,
-                firstname: l.firstname
+                firstname: l.firstname,
               }))
             : [];
         const sortedCompanions = companionplaces.length
@@ -48,7 +48,7 @@ export class CompanionFindService {
           bookingrateunit: l.bookingrateunit,
           distance: l.distance,
           images: l.images,
-          firstname: l.firstname
+          firstname: l.firstname,
         }));
         return { data: filteredData };
       }
