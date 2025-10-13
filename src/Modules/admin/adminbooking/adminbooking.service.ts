@@ -73,16 +73,7 @@ export class AdminBookingService {
               isCompanion: true,
             },
           },
-          // cancellationDetails: {
-          //   select: {
-          //     firstname: true,
-          //     lastname: true,
-          //     age: true,
-          //     Images: true,
-          //     gender: true,
-          //     isCompanion: true,
-          //   },
-          // },
+          statusHistory: true,
           bookingstart: true,
           bookingrate: true,
           bookingend: true,
@@ -109,10 +100,17 @@ export class AdminBookingService {
       if (!data) {
         return { error: { status: 404, message: 'Booking id not found' } };
       }
+      const cancellationDetails = data.statusHistory.find(
+        (l) => l.newStatus === 'CANCELLED' && l.actionPerformedBy === 'COMPANION',
+      );
       const values = {
         ...data,
         bookingstart: String(data.bookingstart),
         bookingend: String(data.bookingend),
+        cancellationDetails:{
+          reason: cancellationDetails.comment,
+          cancelledAt: String(cancellationDetails.createdAt),
+        },
         Transactions: data.transactionLedger.map((l) => ({
           ...l,
           transactionTime: String(l.settledAt),
