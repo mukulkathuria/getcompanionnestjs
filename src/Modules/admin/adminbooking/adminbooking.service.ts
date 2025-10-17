@@ -10,7 +10,7 @@ import { validateBookingStatusInput } from 'src/validations/booking.validation';
 @Injectable()
 export class AdminBookingService {
   constructor(private readonly prismaService: PrismaService) {}
-  private readonly logger = new Logger(PrismaService.name);
+  private readonly logger = new Logger(AdminBookingService.name);
 
   async getAllAdminBookings() {
     try {
@@ -331,6 +331,12 @@ export class AdminBookingService {
         bookingstart: String(l.bookingstart),
         cancelledBy: l.statusHistory.find((l) => l.actionType === 'CANCELLED')
           ?.actionPerformedBy,
+        refundAmount: l.statusHistory.find(
+          (l) =>
+            l.newStatus === 'CANCELLEDREFUNDPENDING' ||
+            l.newStatus === 'CANCELLATIONAPPROVED' &&
+            l.actionType === 'REJECTED'
+        )?.refundAmount,
       }));
       return { data: values };
     } catch (error) {

@@ -331,6 +331,7 @@ export class UserBookingsService {
               comment: input.reason,
               newStatus: cancelStatus,
               actionPerformedBy: 'USER',
+              refundAmount: totalrefundamount,
             },
           },
         },

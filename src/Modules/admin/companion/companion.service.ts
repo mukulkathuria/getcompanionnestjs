@@ -368,6 +368,7 @@ export class CompanionService {
         baseids,
         paymentmethodids,
       );
+      console.log(updateUserQuery, updateCompanionQuery, updateLocationquery, updatePaymentMethodquery);
       await this.prismaService.$transaction([
         this.prismaService.$queryRawUnsafe(updateUserQuery),
         this.prismaService.$queryRawUnsafe(updateCompanionQuery),
