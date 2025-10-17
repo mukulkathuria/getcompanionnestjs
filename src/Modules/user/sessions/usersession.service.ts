@@ -195,7 +195,7 @@ export class UserSessionService {
         return {
           error: {
             status: 422,
-            message: 'Sorry our services available in around 9-12 only',
+            message: 'Sorry our services available in around 9-11 only',
           },
         };
       }
@@ -281,7 +281,7 @@ export class UserSessionService {
         return {
           error: {
             status: 422,
-            message: 'Sorry our services available in around 9-12 only',
+            message: 'Sorry our services available in around 9-11 only',
           },
         };
       }
