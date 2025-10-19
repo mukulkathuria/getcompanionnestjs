@@ -37,7 +37,7 @@ export class CompanionService {
     private readonly awsservice: S3Service,
     private readonly userservice: UsersService,
   ) {}
-  private readonly logger = new Logger(PrismaService.name);
+  private readonly logger = new Logger(CompanionService.name);
 
   async registerCompanion(
     userinfo: registerCompanionBodyDto,
@@ -411,6 +411,7 @@ export class CompanionService {
           Companion: {
             every: {
               baselocation: { every: { city: 'Mumbai', state: 'Maharashtra' } },
+              account: 'ACCEPTED',
             },
           },
         },

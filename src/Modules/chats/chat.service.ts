@@ -11,7 +11,7 @@ import { validateMessage } from './validations/chat.validations';
 @Injectable()
 export class ChatService {
   constructor(private readonly prismaService: PrismaService) {}
-  private readonly logger = new Logger(PrismaService.name);
+  private readonly logger = new Logger(ChatService.name);
 
   async adduserchatroom(roomuser: joinedRoomDto) {
     const { userid, roomid } = roomuser;

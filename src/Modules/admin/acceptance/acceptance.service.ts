@@ -20,7 +20,7 @@ export class AcceptanceService {
     private readonly prismaService: PrismaService,
     private readonly nodemailerService: NodeMailerService,
   ) {}
-  private readonly logger = new Logger(PrismaService.name);
+  private readonly logger = new Logger(AcceptanceService.name);
 
   async acceptBooking(
     bookingId: number,
