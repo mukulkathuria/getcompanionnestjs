@@ -89,8 +89,7 @@ export class UserTransactionService {
             txnId: values.txnid,
             FromPartyUser: { connect: { id: userDetails.id } },
             Booking: { connect: { id: userInput.bookingId } },
-            netAmount:
-              Number(userInput.amount) * 0.05 + Number(userInput.amount),
+            netAmount: Number(userInput.amount),
             grossAmount: Number(userInput.amount),
             taxAmount: Number(userInput.amount) * 0.05,
             status: TransactionStatusEnum.UNDERPROCESSED,
