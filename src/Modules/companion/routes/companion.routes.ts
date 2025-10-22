@@ -24,3 +24,11 @@ export const CompanionAnalysisInnerRoutes =  {
     getallcompanioncompletedearnings: 'getallcompanioncompletedearnings',
     getallcompanionpendingearnings: 'getallcompanionpendingearnings'
 }
+
+export const CompanionSettingInnerRoutes =  {
+    baseUrl: CompanionRoute + '/setting',
+    companionavailableslot: 'companionavailableslot',
+    companionupdateslot: 'companionupdateslot',
+    companionupdatesetting: 'companionupdatesetting',
+    companiongetsetting: 'companiongetsetting',
+}

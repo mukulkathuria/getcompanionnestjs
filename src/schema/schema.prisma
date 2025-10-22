@@ -340,6 +340,7 @@ model Companion {
   baselocation           location[]
   companionupdaterequest companionupdaterequest[]
   usersvisited           User[]                     @relation("uservisited")
+  CompanionAvailability  CompanionAvailability?
 }
 
 model Booking {
@@ -540,7 +541,7 @@ model Sessions {
 
 model userissues {
   id          String               @id @default(uuid())
-  issueId     String               @unique()
+  issueId     String               @unique
   subject     String
   explanation String
   userid      String
@@ -644,4 +645,27 @@ model requestuserpaymentmethods {
   isActive           Boolean                 @default(true)
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
+}
+
+model CompanionAvailability {
+  id                Int                  @id @default(autoincrement())
+  companionId       String               @unique
+  Companion         Companion?           @relation(fields:[companionId], references: [id])
+  isAvailable       Boolean              @default(false) // Whether the companion is available for the next 3 days
+  startDate         BigInt // Start date of the availability period
+  endDate           BigInt // End date of the availability period (3 days from startDate)
+  availabletimeslot CompanionTimeSlot[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+}
+
+model CompanionTimeSlot {
+  id                    Int                   @id @default(autoincrement())
+  availabilityId        Int // Relation to Companion
+  CompanionAvailability CompanionAvailability @relation(fields: [availabilityId], references: [id])
+  dayOfWeek             Int // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  startTime             BigInt // Start time of the slot (e.g., "09:00")
+  endTime               BigInt // End time of the slot (e.g., "17:00")
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
 }

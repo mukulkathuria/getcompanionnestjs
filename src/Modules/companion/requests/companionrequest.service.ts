@@ -8,7 +8,7 @@ import {
 } from 'src/dto/user.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import { S3Service } from 'src/Services/s3.service';
-import { getdefaultexpirydate } from 'src/utils/common.utils';
+import { addDays, getdefaultexpirydate } from 'src/utils/common.utils';
 import { encrypt } from 'src/utils/crypt.utils';
 import { handleImageInStorage } from 'src/utils/imageDownload.utils';
 import { validateregisterCompanion } from 'src/validations/auth.validation';
@@ -135,6 +135,9 @@ export class CompanionRequestService {
         drinkinghabits: user.drinkinghabits,
         smokinghabits: user.smokinghabits,
         account: AccountEnum.REVIEWED,
+        CompanionAvailability: {
+          create: { startDate: Date.now(), endDate: addDays(3).valueOf() },
+        },
         baselocation: { createMany: { data: location } },
       };
       await this.prismaService.user.create({
