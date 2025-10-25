@@ -32,7 +32,7 @@ export function validateCompanionSettingDto(
   //     errors.push('endDate is required');
   //   }
 
-  if (companionSettingDto.availabletimeslot.length >= 7) {
+  if (companionSettingDto.availabletimeslot.length < 7) {
     errors.push('availabletimeslot must have 7 days');
   }
   companionSettingDto.availabletimeslot.forEach((slot) => {

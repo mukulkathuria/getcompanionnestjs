@@ -48,40 +48,66 @@ export class CompanionSettingService {
       if (!success) {
         return { error: errors[0], status: 400 };
       }
-      const deleteavailabletimeslot = await this.prismaService.companion.update(
-        {
-          where: {
-            userid: companionId,
-          },
-          data: {
-            CompanionAvailability: {
-              update: {
-                availabletimeslot: {
-                  deleteMany: {},
+      const availableslots = await this.prismaService.companion.findUnique({
+        where: {
+          userid: companionId,
+        },
+        select: {
+          id: true,
+          CompanionAvailability: {
+            select: {
+              id: true,
+              availabletimeslot: {
+                select: {
+                  id: true,
                 },
               },
             },
           },
         },
-      );
+      });
+      if (availableslots.CompanionAvailability) {
+        await this.prismaService.companionTimeSlot.deleteMany({
+          where: {
+            availabilityId: availableslots.CompanionAvailability.id,
+          },
+        });
+      }
       const data = await this.prismaService.companion.update({
         where: {
           userid: companionId,
         },
         data: {
           CompanionAvailability: {
-            update: {
-              isAvailable: values.isAvailable,
-              startDate: values.startDate,
-              endDate: values.endDate,
-              availabletimeslot: {
-                updateMany: values.availabletimeslot,
+            upsert: {
+              where: {
+                companionId: availableslots.id,
+              },
+              update: {
+                isAvailable: values.isAvailable,
+                startDate: values.startDate,
+                endDate: values.endDate,
+                availabletimeslot: {
+                  createMany: {
+                    data: values.availabletimeslot,
+                  },
+                },
+              },
+              create: {
+                isAvailable: values.isAvailable,
+                startDate: values.startDate,
+                endDate: values.endDate,
+                availabletimeslot: {
+                  createMany: {
+                    data: values.availabletimeslot,
+                  },
+                },
               },
             },
           },
         },
       });
-      return { data };
+      return { success: true };
     } catch (error) {
       this.logger.error(error.message, error.stack);
       return { error: 'Server Error', status: 500 };

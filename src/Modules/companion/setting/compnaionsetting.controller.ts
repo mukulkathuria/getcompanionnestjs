@@ -49,7 +49,7 @@ export class CompanionSettingController {
     if (TokenError) {
       return new HttpException(TokenError, HttpStatus.BAD_REQUEST);
     }
-    const { data, error } =
+    const { success, error } =
       await this.companionSettingService.updateCompanionSetting(
         Tokendata.userId,
         companionSetting,
@@ -57,6 +57,6 @@ export class CompanionSettingController {
     if (error) {
       return new HttpException(error, HttpStatus.BAD_REQUEST);
     }
-    return data;
+    return { success: true };
   }
 }
