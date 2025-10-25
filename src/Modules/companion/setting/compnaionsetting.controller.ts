@@ -7,13 +7,16 @@ import {
   Param,
   Post,
   Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CompanionSettingInnerRoutes } from '../routes/companion.routes';
 import { CompanionSettingService } from './companionsetting.service';
 import { CompanionSettingDto } from 'src/dto/companionsetting.dto';
 import { ApiControllerTag } from 'src/swagger/decorators';
+import { BigIntSerializerInterceptor } from 'src/interceptors/bigint-serializer.interceptor';
 
 @ApiControllerTag('companion-companionsetting')
+@UseInterceptors(BigIntSerializerInterceptor)
 @Controller(CompanionSettingInnerRoutes.baseUrl)
 export class CompanionSettingController {
   constructor(
