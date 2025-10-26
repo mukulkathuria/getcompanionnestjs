@@ -113,4 +113,33 @@ export class CompanionSettingService {
       return { error: 'Server Error', status: 500 };
     }
   }
+
+  async tempFind() {
+    try {
+      const data = await this.prismaService.user.findMany({
+       where:{
+        isCompanion: true,
+        Companion:{
+          every:{ account: 'ACCEPTED', CompanionAvailability: { isAvailable: true } },
+        }
+       },
+       select:{
+        firstname: true,
+        Companion:{
+          select:{
+            CompanionAvailability:{
+              select:{
+                isAvailable: true
+              }
+            }
+          }
+        }
+       }
+      });
+      return { data };
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      return { error: 'Server Error', status: 500 };
+    }
+  }
 }

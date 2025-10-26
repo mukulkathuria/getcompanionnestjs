@@ -214,7 +214,7 @@ export const validateCompanionSearch = (
   }
   const filterstosend = {
     where:{
-      Companion: { every: { account: 'ACCEPTED' as 'ACCEPTED' } },
+      Companion: { every: { account: 'ACCEPTED' as 'ACCEPTED', CompanionAvailability: { isAvailable: true } } },
     },
     include: {
       Companion: {
@@ -228,7 +228,7 @@ export const validateCompanionSearch = (
   };
   if (filters.minAge || filters.maxAge) {
     filterstosend['where'] = {
-      Companion: { every: { account: 'ACCEPTED' as 'ACCEPTED' } },
+      Companion: { every: { account: 'ACCEPTED' as 'ACCEPTED', CompanionAvailability: { isAvailable: true } } },
     };
   }
   if (filters.skintone || filters.bodytype) {

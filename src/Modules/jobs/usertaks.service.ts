@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { PrismaService } from 'src/Services/prisma.service';
 
 @Injectable()
 export class UserTasksService {
+  constructor(private readonly prismaService: PrismaService) {}
+
   private readonly logger = new Logger(UserTasksService.name);
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
@@ -23,6 +26,16 @@ export class UserTasksService {
         OTPData.removeExpiredData(OTPData.data[i]);
       }
       this.logger.log('UserPhotos deleted successfully');
+      await this.prismaService.companionAvailability.updateMany({
+        where: {
+          isAvailable: true,
+          endDate: { lt: Date.now() },
+        },
+        data: {
+          isAvailable: false,
+        },
+      });
+      this.logger.log('CompanionAvailability updated successfully');
       return { success: true };
     } catch (error) {
       this.logger.debug(error?.message || error);

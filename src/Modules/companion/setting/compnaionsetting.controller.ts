@@ -62,4 +62,14 @@ export class CompanionSettingController {
     }
     return { success: true };
   }
+
+  @Get('tempfind')
+  async tempFind() {
+    const { data, error } =
+      await this.companionSettingService.tempFind();
+    if (error) {
+      return new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+    return data;
+  }
 }

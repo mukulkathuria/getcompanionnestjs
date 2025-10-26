@@ -204,6 +204,24 @@ export class UserSessionService {
       const isSlotAvailable = await this.prismaService.user.findMany({
         where: { id: companionuser.id, isCompanion: true },
         include: {
+          Companion:{
+            select:{
+              CompanionAvailability:{
+                where:{
+                  isAvailable: true,
+                },
+                select:{
+                  availabletimeslot:{
+                    select:{
+                      dayOfWeek: true,
+                      startTime: true,
+                      endTime: true,
+                    }
+                  }
+                }
+              }
+            }
+          },
           Booking: {
             where: {
               bookingstart: {

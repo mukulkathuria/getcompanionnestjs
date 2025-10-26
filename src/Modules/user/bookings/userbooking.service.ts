@@ -146,7 +146,24 @@ export class UserBookingsService {
               },
             },
           },
-          Companion: true,
+          Companion: {
+            include:{
+              CompanionAvailability:{
+                where:{
+                  isAvailable: true,
+                },
+                select:{
+                  availabletimeslot:{
+                    select:{
+                      dayOfWeek: true,
+                      startTime: true,
+                      endTime: true,
+                    }
+                  }
+                }
+              }
+            }
+          },
         },
       });
       if (isSlotAvailable[0].Booking.length) {
@@ -218,6 +235,24 @@ export class UserBookingsService {
       const userDetails = await this.prismaService.user.findUnique({
         where: { id: companionId },
         include: {
+          Companion: {
+            select: {
+              CompanionAvailability: {
+                where: {
+                  isAvailable: true,
+                },
+                select: {
+                  availabletimeslot: {
+                    select: {
+                      dayOfWeek: true,
+                      startTime: true,
+                      endTime: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           Booking: {
             where: {
               bookingstart: { gt: Date.now() },
@@ -318,8 +353,10 @@ export class UserBookingsService {
       const totalrefundamount = extendedBooking?.extendedHours
         ? extendedBooking.newRate * 0.7
         : bookingDetails.finalRate * 0.7;
-      const cancelStatus = timeofcancellation > 24 ? BookingStatusEnum.CANCELLEDREFUNDPENDING
-              : BookingStatusEnum.CANCELLED
+      const cancelStatus =
+        timeofcancellation > 24
+          ? BookingStatusEnum.CANCELLEDREFUNDPENDING
+          : BookingStatusEnum.CANCELLED;
       await this.prismaService.booking.update({
         where: { id: input.bookingid },
         data: {
@@ -521,7 +558,10 @@ export class UserBookingsService {
     }
   }
 
-  async getUpcomingBookingsForCompanion(userId: string, params: pageNoQueryDto) {
+  async getUpcomingBookingsForCompanion(
+    userId: string,
+    params: pageNoQueryDto,
+  ) {
     try {
       if (!userId) {
         return { error: { status: 422, message: 'userId is required' } };
@@ -533,7 +573,15 @@ export class UserBookingsService {
           Booking: {
             where: {
               bookingstart: { gt: Date.now() },
-              bookingstatus:{ in: ['ACCEPTED','TRANSACTIONPENDING','UNDERCANCELLATION','UNDEREXTENSION','UNDERREVIEW'] },
+              bookingstatus: {
+                in: [
+                  'ACCEPTED',
+                  'TRANSACTIONPENDING',
+                  'UNDERCANCELLATION',
+                  'UNDEREXTENSION',
+                  'UNDERREVIEW',
+                ],
+              },
             },
             orderBy: { bookingend: 'desc' },
             // take: 5,
