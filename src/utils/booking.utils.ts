@@ -4,6 +4,7 @@ import {
   companionslotsavailabilityDto,
   userBookingBodyDto,
 } from 'src/dto/bookings.dto';
+import { AvailableTimeSlotBigInt } from 'src/dto/companionsetting.dto';
 
 export const getFinalRate = (
   userInfo: userBookingBodyDto,
@@ -133,3 +134,47 @@ export const getCompanionDetailsQueryforupdateRate = (companionId: string) => {
     GROUP BY c."id", l."city", l."state",comp."bookingrate";
   `;
 };
+
+export function generateStimeSlots(startMs: number, endMs: number) {
+  let startTime = new Date(startMs).getHours();
+  let endTime = new Date(endMs).getHours();
+  let times = [];
+  console.log('function generateStimeSlots ', { startTime, endTime });
+  while (startTime < endTime) {
+    let starthours = startTime;
+    let startampm = starthours >= 12 ? 'PM' : 'AM';
+    starthours = starthours % 12;
+    starthours = starthours ? starthours : 12;
+    let formattedstartTime = starthours + ':' + '00' + ' ' + startampm;
+    let endhours = startTime + 1;
+    let endampm = endhours >= 12 ? 'PM' : 'AM';
+    endhours = endhours % 12;
+    endhours = endhours ? endhours : 12;
+    let formattedendTime = endhours + ':' + '00' + ' ' + endampm;
+    times.push(`${formattedstartTime} - ${formattedendTime}`);
+    // startTime.setHours(startTime.getHours() + 1);
+    startTime++;
+  }
+
+  return times;
+}
+
+export function checkcompanionSlotsAvailable(
+  companionSlots: AvailableTimeSlotBigInt[],
+  bookingdate: string,
+  bookingduration: number,
+) {
+  const startTime = new Date(bookingdate).setHours(
+    new Date(bookingdate).getHours() - 1,
+  );
+  const endDate = new Date(bookingdate).setHours(
+    new Date(bookingdate).getHours() + bookingduration,
+  );
+  const day = new Date(bookingdate).getDay();
+  const isAvailable = companionSlots.some((slot) => {
+    return slot.dayOfWeek === day &&
+      startTime >= Number(slot.startTime) &&
+      endDate <= Number(slot.endTime);
+  });
+  return isAvailable;
+}

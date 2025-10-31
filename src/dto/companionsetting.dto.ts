@@ -1,7 +1,13 @@
 export interface AvailableTimeSlot {
   dayOfWeek: number;
-  startTime: string;
+  startTime: string ;
   endTime: string;
+}
+
+export interface AvailableTimeSlotBigInt {
+  dayOfWeek: number;
+  startTime:  BigInt;
+  endTime: BigInt;
 }
 
 export interface CompanionSettingDto {

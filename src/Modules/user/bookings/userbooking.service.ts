@@ -17,7 +17,12 @@ import { NodeMailerService } from 'src/Services/nodemailer.service';
 import { PrismaService } from 'src/Services/prisma.service';
 import emailTemplate from 'src/templates/email.template';
 import notificationTemplate from 'src/templates/notification.template';
-import { filterSlotAvailability, getFinalRate } from 'src/utils/booking.utils';
+import {
+  checkcompanionSlotsAvailable,
+  filterSlotAvailability,
+  generateStimeSlots,
+  getFinalRate,
+} from 'src/utils/booking.utils';
 import { addHours, convertToDateTime, createOTP } from 'src/utils/common.utils';
 import {
   checkValidCancelBookngInputs,
@@ -147,26 +152,38 @@ export class UserBookingsService {
             },
           },
           Companion: {
-            include:{
-              CompanionAvailability:{
-                where:{
+            include: {
+              CompanionAvailability: {
+                where: {
                   isAvailable: true,
                 },
-                select:{
-                  availabletimeslot:{
-                    select:{
+                select: {
+                  isAvailable: true,
+                  availabletimeslot: {
+                    select: {
                       dayOfWeek: true,
                       startTime: true,
                       endTime: true,
-                    }
-                  }
-                }
-              }
-            }
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       });
-      if (isSlotAvailable[0].Booking.length) {
+      if (
+        isSlotAvailable[0].Booking.length ||
+        !isSlotAvailable[0].Companion[0].CompanionAvailability.isAvailable
+      ) {
+        return { error: { status: 422, message: 'Slot not available' } };
+      }
+      const isAvailable = checkcompanionSlotsAvailable(
+        isSlotAvailable[0].Companion[0].CompanionAvailability.availabletimeslot,
+        bookingDetails.bookingdate,
+        bookingDetails.bookingduration,
+      );
+      if (!isAvailable) {
         return { error: { status: 422, message: 'Slot not available' } };
       }
       const rates = {
@@ -272,8 +289,17 @@ export class UserBookingsService {
       if (!userDetails || !userDetails.isCompanion) {
         return { error: { status: 422, message: 'Invalid User' } };
       }
+      const companionslots =
+        userDetails.Companion[0].CompanionAvailability.availabletimeslot.map(
+          (l) => ({
+            dayOfWeek: l.dayOfWeek,
+            startTime: String(l.startTime),
+            endTime: String(l.endTime),
+            slots: generateStimeSlots(Number(l.startTime), Number(l.endTime)),
+          }),
+        );
       const filtereddata = filterSlotAvailability(userDetails.Booking);
-      return { data: filtereddata };
+      return { data: { bookedslots: filtereddata, companionslots } };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
