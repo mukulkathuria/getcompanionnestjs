@@ -172,9 +172,12 @@ export function checkcompanionSlotsAvailable(
   );
   const day = new Date(bookingdate).getDay();
   const isAvailable = companionSlots.some((slot) => {
-    return slot.dayOfWeek === day &&
-      startTime >= Number(slot.startTime) &&
-      endDate <= Number(slot.endTime);
+    return (
+      slot.dayOfWeek === day &&
+      new Date(startTime).getHours() >=
+        new Date(Number(slot.startTime)).getHours() &&
+      new Date(endDate).getHours() <= new Date(Number(slot.endTime)).getHours()
+    );
   });
   return isAvailable;
 }
