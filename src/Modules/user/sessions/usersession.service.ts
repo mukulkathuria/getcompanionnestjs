@@ -22,6 +22,7 @@ import { addHours } from 'src/utils/common.utils';
 import notificationTemplate from 'src/templates/notification.template';
 import { successErrorReturnDto } from 'src/dto/common.dto';
 import { getTxnId } from 'src/utils/uuid.utils';
+import { checkcompanionSlotsAvailable } from 'src/utils/booking.utils';
 
 @Injectable()
 export class UserSessionService {
@@ -101,7 +102,9 @@ export class UserSessionService {
         .filter((l) => l.status === 'COMPLETED' && l.fromParty === 'USER')
         .reduce((a, b) => a + b.netAmount, 0);
       const netAmount =
-        alltransactions - (alltransactions * 0.1 + alltransactions * 0.1 * 0.18) - alltransactions * 0.03;
+        alltransactions -
+        (alltransactions * 0.1 + alltransactions * 0.1 * 0.18) -
+        alltransactions * 0.03;
       const data = await this.prismaService.sessions.update({
         where: { id: sessionDetails.sessionid },
         data: {
@@ -121,11 +124,11 @@ export class UserSessionService {
                     transactionType: 'PAYMENT_TO_COMPANION',
                     toParty: 'COMPANION',
                     fromParty: 'ADMIN',
-                    ToPartyUser:{
-                      connect:{
-                        id: companiondata.id
-                      }
-                    }
+                    ToPartyUser: {
+                      connect: {
+                        id: companiondata.id,
+                      },
+                    },
                   },
                 },
               }, //bookingend: Date.now()
@@ -204,23 +207,23 @@ export class UserSessionService {
       const isSlotAvailable = await this.prismaService.user.findMany({
         where: { id: companionuser.id, isCompanion: true },
         include: {
-          Companion:{
-            select:{
-              CompanionAvailability:{
-                where:{
+          Companion: {
+            select: {
+              CompanionAvailability: {
+                where: {
                   isAvailable: true,
                 },
-                select:{
-                  availabletimeslot:{
-                    select:{
+                select: {
+                  availabletimeslot: {
+                    select: {
                       dayOfWeek: true,
                       startTime: true,
                       endTime: true,
-                    }
-                  }
-                }
-              }
-            }
+                    },
+                  },
+                },
+              },
+            },
           },
           Booking: {
             where: {
@@ -244,6 +247,14 @@ export class UserSessionService {
         },
       });
       if (isSlotAvailable[0].Booking.length) {
+        return { error: { status: 422, message: 'Slot not available' } };
+      }
+      const isAvailable = checkcompanionSlotsAvailable(
+        isSlotAvailable[0].Companion[0].CompanionAvailability.availabletimeslot,
+        String(Number(bookingDetails.bookingend)),
+        sessionDetails.extentedhours,
+      );
+      if (!isAvailable) {
         return { error: { status: 422, message: 'Slot not available' } };
       }
       await this.prismaService.sessions.update({
@@ -306,6 +317,24 @@ export class UserSessionService {
       const isSlotAvailable = await this.prismaService.user.findMany({
         where: { id: companionuser.id, isCompanion: true },
         include: {
+          Companion: {
+            select: {
+              CompanionAvailability: {
+                where: {
+                  isAvailable: true,
+                },
+                select: {
+                  availabletimeslot: {
+                    select: {
+                      dayOfWeek: true,
+                      startTime: true,
+                      endTime: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           Booking: {
             where: {
               bookingstart: {
@@ -319,6 +348,14 @@ export class UserSessionService {
         },
       });
       if (isSlotAvailable[0].Booking.length) {
+        return { error: { status: 422, message: 'Slot not available' } };
+      }
+      const isAvailable = checkcompanionSlotsAvailable(
+        isSlotAvailable[0].Companion[0].CompanionAvailability.availabletimeslot,
+        String(bookingStart),
+        sessionDetails.extentedhours,
+      );
+      if (!isAvailable) {
         return { error: { status: 422, message: 'Slot not available' } };
       }
       await this.prismaService.booking.update({
