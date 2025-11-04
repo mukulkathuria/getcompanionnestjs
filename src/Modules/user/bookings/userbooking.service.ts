@@ -259,6 +259,8 @@ export class UserBookingsService {
                   isAvailable: true,
                 },
                 select: {
+                  startDate: true,
+                  endDate: true,
                   availabletimeslot: {
                     select: {
                       dayOfWeek: true,
@@ -299,7 +301,20 @@ export class UserBookingsService {
           }),
         );
       const filtereddata = filterSlotAvailability(userDetails.Booking);
-      return { data: { bookedslots: filtereddata, companionslots } };
+      return {
+        data: {
+          bookedslots: filtereddata,
+          companionslots,
+          validbookingdates: {
+            startDate: String(
+              userDetails.Companion[0].CompanionAvailability[0].startDate,
+            ),
+            endDate: String(
+              userDetails.Companion[0].CompanionAvailability[0].endDate,
+            ),
+          },
+        },
+      };
     } catch (error) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
