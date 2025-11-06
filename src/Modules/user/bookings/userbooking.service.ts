@@ -306,12 +306,12 @@ export class UserBookingsService {
         data: {
           bookedslots: filtereddata,
           companionslots,
-          validbookingdates: userDetails.Companion[0].CompanionAvailability[0]?.isAvailable ? {
+          validbookingdates: userDetails.Companion[0].CompanionAvailability?.isAvailable ? {
             startDate: String(
-              userDetails.Companion[0]?.CompanionAvailability[0]?.startDate,
+              userDetails.Companion[0]?.CompanionAvailability?.startDate,
             ),
             endDate: String(
-              userDetails.Companion[0]?.CompanionAvailability[0]?.endDate,
+              userDetails.Companion[0]?.CompanionAvailability?.endDate,
             ),
           } : null,
         },
