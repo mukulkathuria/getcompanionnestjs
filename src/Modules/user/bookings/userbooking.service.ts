@@ -306,7 +306,7 @@ export class UserBookingsService {
         data: {
           bookedslots: filtereddata,
           companionslots,
-          validbookingdates: userDetails.Companion[0].CompanionAvailability[0].isAvailable ? {
+          validbookingdates: userDetails.Companion[0].CompanionAvailability[0]?.isAvailable ? {
             startDate: String(
               userDetails.Companion[0]?.CompanionAvailability[0]?.startDate,
             ),
