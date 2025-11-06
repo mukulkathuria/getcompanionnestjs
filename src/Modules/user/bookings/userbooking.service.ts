@@ -259,6 +259,7 @@ export class UserBookingsService {
                   isAvailable: true,
                 },
                 select: {
+                  isAvailable: true,
                   startDate: true,
                   endDate: true,
                   availabletimeslot: {
@@ -305,14 +306,14 @@ export class UserBookingsService {
         data: {
           bookedslots: filtereddata,
           companionslots,
-          validbookingdates: {
+          validbookingdates: userDetails.Companion[0].CompanionAvailability[0].isAvailable ? {
             startDate: String(
-              userDetails.Companion[0].CompanionAvailability[0].startDate,
+              userDetails.Companion[0]?.CompanionAvailability[0]?.startDate,
             ),
             endDate: String(
-              userDetails.Companion[0].CompanionAvailability[0].endDate,
+              userDetails.Companion[0]?.CompanionAvailability[0]?.endDate,
             ),
-          },
+          } : null,
         },
       };
     } catch (error) {
