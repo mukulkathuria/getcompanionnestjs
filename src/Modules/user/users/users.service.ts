@@ -247,6 +247,7 @@ export class UsersService {
       await this.prismaService.companionupdaterequest.create({
         data: {
           ...user,
+          bookingrate: user.bookingrate,
           baselocations: { createMany: { data: user.baselocations } },
           paymentmethods: { createMany: { data: user.paymentmethods } },
           companiondetails: { connect: { id: userId } },

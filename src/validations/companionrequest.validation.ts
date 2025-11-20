@@ -175,6 +175,10 @@ export function validatecompanionupdaterequest(
         message: 'You cant add more than 4 payment method',
       },
     };
+  } else if (!userinfo.bookingrate || !userinfo.bookingrate.trim().length) {
+    return {
+      error: { status: 422, message: 'Booking rate is required' },
+    };
   }
   for (let i = 0; i < userinfo.baselocations.length; i += 1) {
     const { error } = bookingLocationValidation(userinfo.baselocations[i]);

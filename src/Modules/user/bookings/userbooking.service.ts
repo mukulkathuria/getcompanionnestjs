@@ -306,14 +306,17 @@ export class UserBookingsService {
         data: {
           bookedslots: filtereddata,
           companionslots,
-          validbookingdates: userDetails.Companion[0].CompanionAvailability?.isAvailable ? {
-            startDate: String(
-              userDetails.Companion[0]?.CompanionAvailability?.startDate,
-            ),
-            endDate: String(
-              userDetails.Companion[0]?.CompanionAvailability?.endDate,
-            ),
-          } : null,
+          validbookingdates: userDetails.Companion[0].CompanionAvailability
+            ?.isAvailable
+            ? {
+                startDate: String(
+                  userDetails.Companion[0]?.CompanionAvailability?.startDate,
+                ),
+                endDate: String(
+                  userDetails.Companion[0]?.CompanionAvailability?.endDate,
+                ),
+              }
+            : null,
         },
       };
     } catch (error) {
@@ -394,7 +397,9 @@ export class UserBookingsService {
       );
       const totalrefundamount = extendedBooking?.extendedHours
         ? extendedBooking.newRate * 0.7
-        : bookingDetails.finalRate * 0.7;
+        : timeofcancellation > 24
+          ? bookingDetails.finalRate
+          : bookingDetails.finalRate * 0.7;
       const cancelStatus =
         timeofcancellation > 24
           ? BookingStatusEnum.CANCELLEDREFUNDPENDING

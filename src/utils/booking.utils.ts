@@ -174,9 +174,9 @@ export function checkcompanionSlotsAvailable(
   const isAvailable = companionSlots.some((slot) => {
     return (
       slot.dayOfWeek === day &&
-      new Date(startTime).getHours() >=
+      new Date(startTime).getHours() >
         new Date(Number(slot.startTime)).getHours() &&
-      new Date(endDate).getHours() <= new Date(Number(slot.endTime)).getHours()
+      new Date(endDate).getHours() < new Date(Number(slot.endTime)).getHours()
     );
   });
   return isAvailable;

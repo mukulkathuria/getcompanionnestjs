@@ -156,6 +156,7 @@ export interface CompanionUpdateRequestInputDto {
   Images: string[];
   age: string;
   phoneno: string;
+  bookingrate: string;
   description: CompanionDescriptionEnum[];
   skintone: CompanionSkinToneEnum;
   baselocations: BookingMeetingLocationDto[];

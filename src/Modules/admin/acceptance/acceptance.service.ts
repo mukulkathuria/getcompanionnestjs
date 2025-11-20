@@ -164,6 +164,7 @@ export class AcceptanceService {
       });
       const user = bookingDetails.User.find((l) => !l.isCompanion);
       const companion = bookingDetails.User.find((l) => l.isCompanion);
+       if(bookingInput.approve){
       const {
         adminorcompanioncancellation: { subject, body },
       } = emailTemplate({
@@ -178,16 +179,17 @@ export class AcceptanceService {
       if (mailerror) {
         console.log('Error on send email to user');
       }
-      await this.prismaService.notification.create({
-        data: {
-          fromModule: NotificationFromModuleEnum.USER,
-          expiry: addHours(Notificationhours.getrating),
-          content: notificationTemplate({
-            companion_name: companion.firstname,
-          }).cancellationbyadmin,
-          User: { connect: { id: user.id } },
-        },
-      });
+        await this.prismaService.notification.create({
+          data: {
+            fromModule: NotificationFromModuleEnum.USER,
+            expiry: addHours(Notificationhours.getrating),
+            content: notificationTemplate({
+              companion_name: companion.firstname,
+            }).cancellationbyadmin,
+            User: { connect: { id: user.id } },
+          },
+        });
+      }
       return { success: true };
     } catch (error) {
       this.logger.error(error?.message || error);

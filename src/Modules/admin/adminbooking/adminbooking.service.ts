@@ -108,8 +108,8 @@ export class AdminBookingService {
         bookingstart: String(data.bookingstart),
         bookingend: String(data.bookingend),
         cancellationDetails:{
-          reason: cancellationDetails.comment,
-          cancelledAt: String(cancellationDetails.createdAt),
+          reason: cancellationDetails?.comment,
+          cancelledAt: String(cancellationDetails?.createdAt),
         },
         Transactions: data.transactionLedger.map((l) => ({
           ...l,

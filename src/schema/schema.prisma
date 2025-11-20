@@ -590,6 +590,7 @@ model companionupdaterequest {
   age              String
   phoneno          String
   height           String
+  bookingrate      String
   description      CompanionDescriptionEnum[]
   skintone         CompanionSkinToneEnum
   bodytype         CompanionBodyTypeEnum
