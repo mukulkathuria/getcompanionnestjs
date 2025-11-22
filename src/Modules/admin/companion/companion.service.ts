@@ -364,23 +364,19 @@ export class CompanionService {
         updateCompanionQuery,
         updateLocationquery,
         updatePaymentMethodquery,
+        createPaymentMethodQuery,
       } = getupdateCompanionDetailrawQuey(
         userinfo,
         user,
         baseids,
         paymentmethodids,
       );
-      console.log(
-        updateUserQuery,
-        updateCompanionQuery,
-        updateLocationquery,
-        updatePaymentMethodquery,
-      );
       await this.prismaService.$transaction([
         this.prismaService.$queryRawUnsafe(updateUserQuery),
         this.prismaService.$queryRawUnsafe(updateCompanionQuery),
         this.prismaService.$queryRawUnsafe(updateLocationquery),
         this.prismaService.$queryRawUnsafe(updatePaymentMethodquery),
+        this.prismaService.$queryRawUnsafe(createPaymentMethodQuery),
       ]);
       return { success: true };
     } catch (error) {

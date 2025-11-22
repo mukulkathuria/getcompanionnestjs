@@ -160,7 +160,8 @@ export const getupdateCompanionDetailrawQuey = (
     .join(' ');
   const nicknameCase = userinfo.paymentmethods
     .map(
-      (l, i) => `WHEN id = '${paymentmethodids[i]}' THEN '${l.nickname || null}'`,
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN '${l.nickname || null}'`,
     )
     .join(' ');
   const upiProviderCase = userinfo.paymentmethods
@@ -246,5 +247,41 @@ export const getupdateCompanionDetailrawQuey = (
           "accountType" = CASE ${accountTypeCase} ELSE "accountType" END
         WHERE id IN (${paymentmethodids.map((l) => `'${l}'`).join(', ')});
       `;
-  return { updateUserQuery, updateCompanionQuery, updateLocationquery, updatePaymentMethodquery };
+  let createPaymentMethodQuery = `SELECT id FROM "User" WHERE email = '${user.email}'`;
+  if (paymentmethodids.length !== userinfo.paymentmethods.length) {
+    const remainingpayments = userinfo.paymentmethods.slice(
+      paymentmethodids.length,
+    );
+    createPaymentMethodQuery = `
+          -- Create Payment Methods table
+          INSERT INTO "userpaymentmethods" (
+            userid,
+            type,
+            "recipientName",
+            nickname,
+            "ifscCode",
+            "upiId",
+            "walletIdentifier",
+            "accountNumber",
+            "accountHolderName",
+            "upiProvider",
+            "walletProvider",
+            "bankName",
+            "accountType",
+          )
+          VALUES
+          ${remainingpayments
+            .map(
+              (l) =>
+                `(SELECT id FROM "User" WHERE email = '${user.email}'), ${l.type}, ${l.recipientName}, ${l.nickname}, ${l.type === PaymentType.BANK_ACCOUNT ? l.ifscCode : null}, ${l.type === PaymentType.UPI ? l.upiId : null}, ${l.type === PaymentType.WALLET ? l.walletIdentifier : null}, ${l.type === PaymentType.BANK_ACCOUNT ? l.accountNumber : null}, ${l.type === PaymentType.BANK_ACCOUNT ? l.accountHolderName : null}, ${l.type === PaymentType.UPI ? l.upiProvider : null}, ${l.type === PaymentType.WALLET ? l.walletProvider : null}, ${l.type === PaymentType.BANK_ACCOUNT ? l.bankName : null}, ${l.type === PaymentType.BANK_ACCOUNT ? l.accountType : null}`,
+            )
+            .join(', ')}`;
+  }
+  return {
+    updateUserQuery,
+    updateCompanionQuery,
+    updateLocationquery,
+    updatePaymentMethodquery,
+    createPaymentMethodQuery,
+  };
 };
