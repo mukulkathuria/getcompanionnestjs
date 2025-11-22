@@ -213,6 +213,7 @@ export function validatecompanionupdaterequest(
     'eatinghabits',
     'drinkinghabits',
     'smokinghabits',
+    'bookingrate',
   ];
   const keyvalues = {};
   for (const key of values) {
