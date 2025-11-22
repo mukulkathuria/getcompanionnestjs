@@ -195,7 +195,9 @@ export class CompanionService {
         },
         orderBy: { createdAt: 'desc' },
       });
-      return { data };
+      return {
+        data: data.map((l) => ({ ...l, createdAt: String(l.createdAt) })),
+      };
     } catch (error) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
@@ -368,7 +370,12 @@ export class CompanionService {
         baseids,
         paymentmethodids,
       );
-      console.log(updateUserQuery, updateCompanionQuery, updateLocationquery, updatePaymentMethodquery);
+      console.log(
+        updateUserQuery,
+        updateCompanionQuery,
+        updateLocationquery,
+        updatePaymentMethodquery,
+      );
       await this.prismaService.$transaction([
         this.prismaService.$queryRawUnsafe(updateUserQuery),
         this.prismaService.$queryRawUnsafe(updateCompanionQuery),
