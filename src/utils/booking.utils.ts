@@ -164,13 +164,13 @@ export function checkcompanionSlotsAvailable(
   bookingdate: string,
   bookingduration: number,
 ) {
-  const startTime = new Date(bookingdate).setHours(
-    new Date(bookingdate).getHours(),
+  const startTime = new Date(Number(bookingdate)).setHours(
+    new Date(Number(bookingdate)).getHours(),
   );
-  const endDate = new Date(bookingdate).setHours(
-    new Date(bookingdate).getHours() + bookingduration,
+  const endDate = new Date(Number(bookingdate)).setHours(
+    new Date(Number(bookingdate)).getHours() + bookingduration,
   );
-  const day = new Date(bookingdate).getDay();
+  const day = new Date(Number(bookingdate)).getDay();
   const isAvailable = companionSlots.some((slot) => {
     return (
       slot.dayOfWeek === day &&

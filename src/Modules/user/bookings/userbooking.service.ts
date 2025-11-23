@@ -180,7 +180,7 @@ export class UserBookingsService {
       }
       const isAvailable = checkcompanionSlotsAvailable(
         isSlotAvailable[0].Companion[0].CompanionAvailability.availabletimeslot,
-        bookingDetails.bookingdate,
+        String(new Date(bookingDetails.bookingdate).getTime()),
         bookingDetails.bookingduration,
       );
       if (!isAvailable) {
@@ -193,7 +193,6 @@ export class UserBookingsService {
           isSlotAvailable[0].Companion[0],
         ),
       };
-      console.log('While creating Whats the rate', rates);
       // eslint-disable-next-line
       const data = await this.prismaService.booking.create({
         data: {

@@ -255,7 +255,7 @@ export class UserSessionService {
         sessionDetails.extentedhours,
       );
       if (!isAvailable) {
-        return { error: { status: 422, message: 'Slot not available' } };
+        return { error: { status: 422, message: 'Extend slot not available as companion not available at this time' } };
       }
       await this.prismaService.sessions.update({
         where: { id: bookingDetails.Sessions[0].id },
@@ -352,11 +352,11 @@ export class UserSessionService {
       }
       const isAvailable = checkcompanionSlotsAvailable(
         isSlotAvailable[0].Companion[0].CompanionAvailability.availabletimeslot,
-        String(bookingStart),
+        String(Number(bookingDetails.bookingend)),
         sessionDetails.extentedhours,
       );
       if (!isAvailable) {
-        return { error: { status: 422, message: 'Slot not available' } };
+        return { error: { status: 422, message: 'Extend slot not available as companion not available at this time' } };
       }
       await this.prismaService.booking.update({
         where: { id: sessionDetails.bookingid },
