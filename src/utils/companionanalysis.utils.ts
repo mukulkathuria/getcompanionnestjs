@@ -217,3 +217,85 @@ export function getearningofCompanionQuery(companionId: string) {
             penalty_charges pc;
 `
 }
+
+export function getCompanionDashboardQuery(companionId: string) {
+    return `
+       SELECT
+    -- 1. This Month Earning
+    COALESCE((
+        SELECT SUM("netAmount")
+        FROM "TransactionLedger"
+        WHERE "toCompanionId" = '${companionId}'
+        AND "transactionType" = 'PAYMENT_TO_COMPANION'
+        AND "status" = 'COMPLETED'
+        AND "createdAt" >= DATE_TRUNC('month', NOW())
+    ), 0) AS "thisMonthEarning",
+
+    -- 2. Total Pending Balance
+    COALESCE((
+        SELECT SUM("netAmount")
+        FROM "TransactionLedger"
+        WHERE "toCompanionId" = '${companionId}'
+        AND "isSettled" = false
+        AND "status" IN ('COMPLETED', 'UNDERPROCESSED')
+    ), 0) AS "totalPendingBalance",
+
+    -- 3. Bayesian Average Rating (m=5)
+    COALESCE((
+        WITH user_stats AS (
+        SELECT COUNT(*) as v, AVG("ratings") as R 
+        FROM "rating" 
+        WHERE "rateeId" = '${companionId}'
+        ),
+        global_stats AS (
+        SELECT AVG("ratings") as C 
+        FROM "rating"
+        )
+        SELECT 
+        CASE 
+            WHEN user_stats.v > 0 THEN
+            ((user_stats.v * user_stats.R) + (5 * COALESCE(global_stats.C, 0))) / (user_stats.v + 5)
+            ELSE 0 
+        END
+        FROM user_stats, global_stats
+    ), 0) AS "rating",
+
+    -- 4. Total Completed Bookings
+    (
+        SELECT COUNT(DISTINCT b.id)::int
+        FROM "Booking" b
+        JOIN "_BookingToUser" btu ON b.id = btu."A"
+        WHERE btu."B" = '${companionId}'
+        AND b."bookingstatus" = 'COMPLETED'
+    ) AS "totalCompletedBookings",
+
+    -- 5. Total Upcoming Bookings
+    (
+        SELECT COUNT(DISTINCT b.id)::int
+        FROM "Booking" b
+        JOIN "_BookingToUser" btu ON b.id = btu."A"
+        WHERE btu."B" = '${companionId}'
+        AND b."bookingstatus" IN ('ACCEPTED')
+        AND b."bookingstart" > (EXTRACT(EPOCH FROM NOW()) * 1000)::bigint
+    ) AS "totalUpcomingBookings",
+
+    COALESCE((
+        SELECT json_agg(row_to_json(upcoming_data))
+        FROM (
+        SELECT 
+            u."firstname" || ' ' || u."lastname" AS "name",
+            b."bookingstart" AS "startTime",
+            b."bookingend" AS "endTime"
+        FROM "Booking" b
+        JOIN "_BookingToUser" companion_link ON b.id = companion_link."A" AND companion_link."B" = '${companionId}'
+        JOIN "_BookingToUser" client_link ON b.id = client_link."A" AND client_link."B" != '${companionId}'
+        JOIN "User" u ON client_link."B" = u."id"
+        WHERE 
+            b."bookingstatus" IN ('ACCEPTED')
+            AND b."bookingstart" > (EXTRACT(EPOCH FROM NOW()) * 1000)::bigint
+        ORDER BY b."bookingstart" ASC
+        LIMIT 5
+        ) upcoming_data
+    ), '[]'::json) AS "upcomingBookingsList";
+    `;
+}

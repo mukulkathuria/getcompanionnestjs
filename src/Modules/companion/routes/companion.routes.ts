@@ -32,3 +32,8 @@ export const CompanionSettingInnerRoutes =  {
     companionupdatesetting: 'companionupdatesetting',
     companiongetsetting: 'companiongetsetting',
 }
+
+export const CompanionDashboardInnerRoutes =  {
+    baseUrl: CompanionRoute + '/dashboard',
+    companiondashboard: 'companiondashboard',
+}
