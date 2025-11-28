@@ -280,18 +280,17 @@ export function getCompanionDashboardQuery(companionId: string) {
     ) AS "totalUpcomingBookings",
 
     (
-        SELECT json_build_object(
-            'id', c.id,
-            'firstname', c.firstname,
-            'lastname', c.lastname,
-            'images', c."Images",
-            'isavailable', ca."isAvailable"
-        )
-        FROM "User" c
+    SELECT json_build_object( 
+        'id', c.id,
+        'firstname', c.firstname,
+        'lastname', c.lastname,
+        'images', c."Images",
+        'isavailable', ca."isAvailable"
+        ) as "companionDetails" FROM "User" c
         INNER JOIN "Companion" u ON c.id = u."userid"
         INNER JOIN "CompanionAvailability" ca ON u.id = ca."companionId"
         WHERE c.id = '${companionId}'
-    ) AS "companionDetails",
+        ) AS "companionDetails",
 
     COALESCE((
         SELECT json_agg(row_to_json(upcoming_data))
@@ -301,7 +300,7 @@ export function getCompanionDashboardQuery(companionId: string) {
             u."Images" AS "images",
             u.age AS "age",
             b."bookingstart" AS "startTime",
-            b."bookingend" AS "endTime", 
+            b."bookingend" AS "endTime"
         FROM "Booking" b
         JOIN "_BookingToUser" companion_link ON b.id = companion_link."A" AND companion_link."B" = '${companionId}'
         JOIN "_BookingToUser" client_link ON b.id = client_link."A" AND client_link."B" != '${companionId}'
