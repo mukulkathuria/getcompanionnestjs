@@ -299,6 +299,7 @@ export function getCompanionDashboardQuery(companionId: string) {
             u."firstname" || ' ' || u."lastname" AS "name",
             u."Images" AS "images",
             u.age AS "age",
+            b."id" AS "bookingId",
             b."bookingstart" AS "startTime",
             b."bookingend" AS "endTime"
         FROM "Booking" b
