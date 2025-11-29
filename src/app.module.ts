@@ -20,7 +20,9 @@ import { join } from 'path';
         limit: 40,
       },
     ]),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath:
