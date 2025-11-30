@@ -312,6 +312,27 @@ export function getCompanionDashboardQuery(companionId: string) {
         ORDER BY b."bookingstart" ASC
         LIMIT 5
         ) upcoming_data
-    ), '[]'::json) AS "upcomingBookingsList";
+    ), '[]'::json) AS "upcomingBookingsList",
+    
+    COALESCE((
+        SELECT json_agg(row_to_json(upcoming_data))
+        FROM (
+        SELECT 
+            u."firstname" || ' ' || u."lastname" AS "name",
+            u."Images" AS "images",
+            u.age AS "age",
+            b."id" AS "bookingId",
+            b."bookingstart" AS "startTime",
+            b."bookingend" AS "endTime"
+        FROM "Booking" b
+        JOIN "_BookingToUser" companion_link ON b.id = companion_link."A" AND companion_link."B" = '${companionId}'
+        JOIN "_BookingToUser" client_link ON b.id = client_link."A" AND client_link."B" != '${companionId}'
+        JOIN "User" u ON client_link."B" = u."id"
+        WHERE 
+            b."bookingstatus" IN ('UNDERREVIEW')
+            AND b."bookingstart" > (EXTRACT(EPOCH FROM NOW()) * 1000)::bigint
+        ORDER BY b."bookingstart" ASC
+        ) upcoming_data
+    ), '[]'::json) AS "upcomingBookingsRequestList";
     `;
 }
