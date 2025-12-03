@@ -144,7 +144,7 @@ export const getupdateCompanionDetailrawQuey = (
   const accountNumberCase = userinfo.paymentmethods
     .map(
       (l, i) =>
-        `WHEN id = '${paymentmethodids[i]}' THEN ${l.type === PaymentType.BANK_ACCOUNT ? l.accountNumber : null}`,
+        `WHEN id = '${paymentmethodids[i]}' THEN ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountNumber}'` : null}`,
     )
     .join(' ');
   const accountHolderNameCase = userinfo.paymentmethods
@@ -255,6 +255,7 @@ export const getupdateCompanionDetailrawQuey = (
     createPaymentMethodQuery = `
           -- Create Payment Methods table
           INSERT INTO "userpaymentmethods" (
+            id,
             userid,
             type,
             "recipientName",
@@ -268,12 +269,13 @@ export const getupdateCompanionDetailrawQuey = (
             "walletProvider",
             "bankName",
             "accountType",
+            "updatedAt"
           )
-          VALUES
+          VALUES 
           ${remainingpayments
             .map(
               (l) =>
-                `(SELECT id FROM "User" WHERE email = '${user.email}'), ${l.type}, ${l.recipientName}, ${l.nickname}, ${l.type === PaymentType.BANK_ACCOUNT ? l.ifscCode : null}, ${l.type === PaymentType.UPI ? l.upiId : null}, ${l.type === PaymentType.WALLET ? l.walletIdentifier : null}, ${l.type === PaymentType.BANK_ACCOUNT ? l.accountNumber : null}, ${l.type === PaymentType.BANK_ACCOUNT ? l.accountHolderName : null}, ${l.type === PaymentType.UPI ? l.upiProvider : null}, ${l.type === PaymentType.WALLET ? l.walletProvider : null}, ${l.type === PaymentType.BANK_ACCOUNT ? l.bankName : null}, ${l.type === PaymentType.BANK_ACCOUNT ? l.accountType : null}`,
+                `(gen_random_uuid(),(SELECT id FROM "User" WHERE email = '${user.email}'), '${l.type}', '${l.recipientName}', '${l.nickname}', ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.ifscCode}'` : "''"}, ${l.type === PaymentType.UPI ? `'${l.upiId}'` : "''"}, ${l.type === PaymentType.WALLET ? `'${l.walletIdentifier}'` : "''"}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountNumber}'` : "''"}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountHolderName}'` : "''"}, ${l.type === PaymentType.UPI ? `'${l.upiProvider}'` : "''"}, ${l.type === PaymentType.WALLET ? `'${l.walletProvider}'` : 'NULL'}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.bankName}'` : "''"}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountType}'` : 'NULL'}, now() )`,
             )
             .join(', ')}`;
   }
