@@ -24,6 +24,7 @@ import {
   getFinalRate,
 } from 'src/utils/booking.utils';
 import { addHours, convertToDateTime, createOTP } from 'src/utils/common.utils';
+import { getTxnId } from 'src/utils/uuid.utils';
 import {
   checkValidCancelBookngInputs,
   checkvalidrating,
@@ -292,7 +293,7 @@ export class UserBookingsService {
         return { error: { status: 422, message: 'Invalid User' } };
       }
       const companionslots =
-        userDetails.Companion[0].CompanionAvailability.availabletimeslot.map(
+        userDetails.Companion[0].CompanionAvailability?.availabletimeslot.map(
           (l) => ({
             dayOfWeek: l.dayOfWeek,
             startTime: String(l.startTime),
@@ -332,7 +333,11 @@ export class UserBookingsService {
       }
       const bookingDetails = await this.prismaService.booking.findUnique({
         where: { id: input.bookingid },
-        include: { User: true, Sessions: true, statusHistory: true },
+        include: {
+          User: { include: { Companion: true } },
+          Sessions: true,
+          statusHistory: true,
+        },
       });
       if (!bookingDetails || bookingDetails.bookingstart <= Date.now()) {
         return { error: { status: 404, message: 'No Bookings found' } };
@@ -366,8 +371,49 @@ export class UserBookingsService {
                 actionPerformedBy: 'COMPANION',
               },
             },
+            User: {
+              update: {
+                where: {
+                  id: companiondata.id,
+                },
+                data: {
+                  Companion: {
+                    update: {
+                      where: {
+                        userid: companiondata.id,
+                      },
+                      data: {
+                        noofcancelledbooking: {
+                          increment: 1,
+                        },
+                        lastcancelledBooking: new Date(),
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         });
+        if (
+          companiondata.Companion[0].lastcancelledBooking <=
+            dayjs().subtract(2, 'day').toDate() &&
+          companiondata.Companion[0].noofcancelledbooking > 1
+        ) {
+          await this.prismaService.transactionLedger.create({
+            data: {
+              Booking: { connect: { id: input.bookingid } },
+              netAmount: 100,
+              penaltyAmount: 100,
+              grossAmount: 100,
+              transactionType: 'CANCELLATION_PENALTY',
+              toParty: 'COMPANION',
+              fromParty: 'ADMIN',
+              ToPartyUser: { connect: { id: companiondata.id } },
+              txnId: getTxnId(),
+            },
+          });
+        }
         await this.prismaService.notification.create({
           data: {
             fromModule: NotificationFromModuleEnum.BOOKING,
@@ -583,9 +629,8 @@ export class UserBookingsService {
 
   async getRatingforUser(userId: string) {
     try {
-      const { getAverageRatingRawQuery } = await import(
-        '../../../utils/booking.utils'
-      );
+      const { getAverageRatingRawQuery } =
+        await import('../../../utils/booking.utils');
       const query = await getAverageRatingRawQuery(userId);
       const data = (await this.prismaService.$queryRawUnsafe(query)) as any;
       const values = data

@@ -337,6 +337,9 @@ model Companion {
   smokinghabits          CompanionSmokingHabitEnum
   account                AccountEnum                @default(REVIEWED)
   rejectedreason         String?
+  penatlyCharges         Int                        @default(0)
+  noofcancelledbooking   Int                        @default(0)
+  lastcancelledBooking   DateTime?
   baselocation           location[]
   companionupdaterequest companionupdaterequest[]
   usersvisited           User[]                     @relation("uservisited")
