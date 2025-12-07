@@ -396,7 +396,7 @@ export class UserBookingsService {
           },
         });
         if (
-          companiondata.Companion[0].lastcancelledBooking <=
+          companiondata.Companion[0].lastcancelledBooking >=
             dayjs().subtract(2, 'day').toDate() &&
           companiondata.Companion[0].noofcancelledbooking > 1
         ) {
