@@ -13,6 +13,7 @@ import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
 import { validateRequestInput } from 'src/validations/companionrequest.validation';
 import emailTemplate from 'src/templates/email.template';
 import { NodeMailerService } from 'src/Services/nodemailer.service';
+import { getTxnId } from 'src/utils/uuid.utils';
 
 @Injectable()
 export class AcceptanceService {
@@ -164,21 +165,21 @@ export class AcceptanceService {
       });
       const user = bookingDetails.User.find((l) => !l.isCompanion);
       const companion = bookingDetails.User.find((l) => l.isCompanion);
-       if(bookingInput.approve){
-      const {
-        adminorcompanioncancellation: { subject, body },
-      } = emailTemplate({
-        refundamount: String(bookingDetails.finalRate),
-        username: user.firstname,
-      });
-      const { error: mailerror } = await this.nodemailerService.sendMail({
-        to: user.email,
-        html: body,
-        subject,
-      });
-      if (mailerror) {
-        console.log('Error on send email to user');
-      }
+      if (bookingInput.approve) {
+        const {
+          adminorcompanioncancellation: { subject, body },
+        } = emailTemplate({
+          refundamount: String(bookingDetails.finalRate),
+          username: user.firstname,
+        });
+        const { error: mailerror } = await this.nodemailerService.sendMail({
+          to: user.email,
+          html: body,
+          subject,
+        });
+        if (mailerror) {
+          console.log('Error on send email to user');
+        }
         await this.prismaService.notification.create({
           data: {
             fromModule: NotificationFromModuleEnum.USER,
@@ -211,6 +212,12 @@ export class AcceptanceService {
               email: true,
               isCompanion: true,
               id: true,
+              Companion: {
+                select: {
+                  noofrejectedBooking: true,
+                  lastrejectedBooking: true,
+                },
+              },
             },
           },
         },
@@ -223,21 +230,77 @@ export class AcceptanceService {
       ) {
         return { error: { status: 404, message: 'Bookings Already Accepted' } };
       }
-      await this.prismaService.booking.update({
-        where: { id: bookingId },
-        data: {
-          bookingstatus: 'REJECTED',
-          statusHistory: {
-            create: {
-              actionType: 'REJECTED',
-              previousStatus: 'UNDERREVIEW',
-              newStatus: 'REJECTED',
-              actionPerformedBy: actionPerformedBy || 'ADMIN',
-              refundAmount: bookingDetails.finalRate,
+      if (actionPerformedBy === 'COMPANION') {
+        const companiondetails = bookingDetails.User.find((l) => l.isCompanion);
+        await this.prismaService.booking.update({
+          where: { id: bookingId },
+          data: {
+            bookingstatus: 'REJECTED',
+            statusHistory: {
+              create: {
+                actionType: 'REJECTED',
+                previousStatus: 'UNDERREVIEW',
+                newStatus: 'REJECTED',
+                actionPerformedBy: 'COMPANION',
+                refundAmount: bookingDetails.finalRate,
+              },
+            },
+            User: {
+              update: {
+                where: { id: companiondetails.id },
+                data: {
+                  Companion: {
+                    update: {
+                      where: { id: companiondetails.id },
+                      data: {
+                        noofrejectedBooking: {
+                          increment: 1,
+                        },
+                        lastrejectedBooking: new Date(),
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
-        },
-      });
+        });
+        if (
+          companiondetails.Companion[0].lastrejectedBooking >=
+            dayjs().subtract(2, 'day').toDate() &&
+          companiondetails.Companion[0].noofrejectedBooking > 1
+        ) {
+          await this.prismaService.transactionLedger.create({
+            data: {
+              Booking: { connect: { id: bookingId } },
+              netAmount: 200,
+              penaltyAmount: 200,
+              grossAmount: 200,
+              transactionType: 'REJECTED_PENALTY',
+              toParty: 'COMPANION',
+              fromParty: 'ADMIN',
+              ToPartyUser: { connect: { id: companiondetails.id } },
+              txnId: getTxnId(),
+            },
+          });
+        }
+      } else {
+        await this.prismaService.booking.update({
+          where: { id: bookingId },
+          data: {
+            bookingstatus: 'REJECTED',
+            statusHistory: {
+              create: {
+                actionType: 'REJECTED',
+                previousStatus: 'UNDERREVIEW',
+                newStatus: 'REJECTED',
+                actionPerformedBy: actionPerformedBy || 'ADMIN',
+                refundAmount: bookingDetails.finalRate,
+              },
+            },
+          },
+        });
+      }
       const userdata = bookingDetails.User.find((l) => !l.isCompanion);
       const companiondata = bookingDetails.User.find((l) => l.isCompanion);
 
