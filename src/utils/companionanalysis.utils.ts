@@ -189,7 +189,7 @@ export function getearningofCompanionQuery(companionId: string) {
         SELECT 
             COALESCE(SUM(tl."penaltyAmount"), 0) as total_penalty
         FROM "TransactionLedger" tl
-        WHERE tl."fromUserId" = '${companionId}' 
+        WHERE tl."toCompanionId" = '${companionId}' 
             AND tl."transactionType" IN ('CANCELLATION_PENALTY', 'REJECTED_PENALTY')
         )
 
