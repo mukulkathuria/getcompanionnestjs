@@ -201,6 +201,7 @@ export class AcceptanceService {
   async rejectBooking(
     bookingId: number,
     actionPerformedBy?: 'ADMIN' | 'COMPANION',
+    reason?: string,
   ): Promise<controllerReturnDto> {
     try {
       const bookingDetails = await this.prismaService.booking.findUnique({
@@ -242,6 +243,7 @@ export class AcceptanceService {
                 previousStatus: 'UNDERREVIEW',
                 newStatus: 'REJECTED',
                 actionPerformedBy: 'COMPANION',
+                comment: reason,
                 refundAmount: bookingDetails.finalRate,
               },
             },

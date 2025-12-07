@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { bookingIdDto } from 'src/dto/bookings.dto';
+import { bookingIdDto, cancelBookingInputDto } from 'src/dto/bookings.dto';
 import { AcceptanceService } from 'src/Modules/admin/acceptance/acceptance.service';
 import { PrismaService } from 'src/Services/prisma.service';
 
@@ -21,13 +21,18 @@ export class CompanionBookingService {
     );
   }
 
-  async rejectBooking(bookingparams: bookingIdDto) {
+  async rejectBooking(bookingparams: cancelBookingInputDto) {
     if (!bookingparams.bookingid) {
       return { error: { status: 422, message: 'bookingid is required' } };
+    } else if (!bookingparams.reason) {
+      return { error: { status: 422, message: 'Reason is required' } };
+    } else if (bookingparams.reason && !bookingparams.reason.trim().length) {
+      return { error: { status: 422, message: 'Reason must be valid' } };
     }
     return this.acceptanceService.rejectBooking(
       Number(bookingparams.bookingid),
       'COMPANION',
+      bookingparams.reason,
     );
   }
 
