@@ -191,7 +191,7 @@ export function getearningofCompanionQuery(companionId: string) {
         FROM "TransactionLedger" tl
         WHERE tl."fromUserId" = '${companionId}' 
             AND tl."transactionType" IN ('CANCELLATION_PENALTY', 'REJECTED_PENALTY')
-        ),
+        )
 
         SELECT 
         tbh.total_hours as total_booking_hours,
