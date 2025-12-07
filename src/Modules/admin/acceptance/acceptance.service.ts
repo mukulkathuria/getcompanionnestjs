@@ -251,7 +251,7 @@ export class AcceptanceService {
                 data: {
                   Companion: {
                     update: {
-                      where: { id: companiondetails.id },
+                      where: { userid: companiondetails.id },
                       data: {
                         noofrejectedBooking: {
                           increment: 1,
