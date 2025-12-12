@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, Query, Post } from '@nestjs/common';
 import { CompanionBookingInnerRoutes } from '../routes/companion.routes';
 import { bookingIdDto, cancelBookingInputDto } from 'src/dto/bookings.dto';
 import { CompanionBookingService } from './companionbooking.service';
@@ -36,8 +36,8 @@ export class CompanionBookingController {
     }
   }
 
-  @Get(CompanionBookingInnerRoutes.companionrejectbooking)
-  async companionrejectbooking(@Query() bookingparam: cancelBookingInputDto) {
+  @Post(CompanionBookingInnerRoutes.companionrejectbooking)
+  async companionrejectbooking(@Body() bookingparam: cancelBookingInputDto) {
     const { success, error } =
       await this.companionbookingservice.rejectBooking(bookingparam);
     if (success) {
