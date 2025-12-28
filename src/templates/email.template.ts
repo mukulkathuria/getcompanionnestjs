@@ -389,13 +389,16 @@ export default function (params: emailTemplateDto) {
                 <div class="container">
                     <div class="content">
                         <p>Dear User,</p>
-                        <p>To proceed with the verification of your email address for <strong>Zestful Amigos</strong>, please use the One-Time Password (OTP) provided below:</p>
+                        <p>We received a request to reset your password for your<strong>Zestful Amigos</strong>account. Please use the One-Time Password (OTP) provided below:</p>
                         <br />
                         <div class="otp-code"><strong>${params.otp}</strong></div>
                         <br />
                         <p><strong>Do not share this code with anyone.</strong></p>
                         <br />
-                        <p>If you did not request this verification, please disregard this email.</p>
+                        <p>If you did not request a password reset, you can safely ignore this email—your account will remain secure.</p>
+                        <br />
+                        <p>If you need any help, feel free to contact our support team.</p>
+                        <br />
                         <p>With appreciation,</p>
                         <br />
                         <p class="signature">Zestful Amigos Team</p>

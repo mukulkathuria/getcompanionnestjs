@@ -182,6 +182,12 @@ export const getupdateCompanionDetailrawQuey = (
         `WHEN id = '${paymentmethodids[i]}' THEN ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.bankName}'` : null}`,
     )
     .join(' ');
+  const branchNameCase = userinfo.paymentmethods
+    .map(
+      (l, i) =>
+        `WHEN id = '${paymentmethodids[i]}' THEN ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.branchName}'` : null}`,
+    )
+    .join(' ');
   const accountTypeCase = userinfo.paymentmethods
     .map(
       (l, i) =>
@@ -244,6 +250,7 @@ export const getupdateCompanionDetailrawQuey = (
           "upiProvider" = CASE ${upiProviderCase} ELSE "upiProvider" END,
           "walletProvider" = CASE ${walletProviderCase} ELSE "walletProvider" END,
           "bankName" = CASE ${bankNameCase} ELSE "bankName" END,
+          "branchName" = CASE ${branchNameCase} ELSE "branchName" END,
           "accountType" = CASE ${accountTypeCase} ELSE "accountType" END
         WHERE id IN (${paymentmethodids.map((l) => `'${l}'`).join(', ')});
       `;
@@ -268,6 +275,7 @@ export const getupdateCompanionDetailrawQuey = (
             "upiProvider",
             "walletProvider",
             "bankName",
+            "branchName",
             "accountType",
             "updatedAt"
           )
@@ -275,7 +283,7 @@ export const getupdateCompanionDetailrawQuey = (
           ${remainingpayments
             .map(
               (l) =>
-                `(gen_random_uuid(),(SELECT id FROM "User" WHERE email = '${user.email}'), '${l.type}', '${l.recipientName}', '${l.nickname}', ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.ifscCode}'` : "''"}, ${l.type === PaymentType.UPI ? `'${l.upiId}'` : "''"}, ${l.type === PaymentType.WALLET ? `'${l.walletIdentifier}'` : "''"}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountNumber}'` : "''"}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountHolderName}'` : "''"}, ${l.type === PaymentType.UPI ? `'${l.upiProvider}'` : "''"}, ${l.type === PaymentType.WALLET ? `'${l.walletProvider}'` : 'NULL'}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.bankName}'` : "''"}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountType}'` : 'NULL'}, now() )`,
+                `(gen_random_uuid(),(SELECT id FROM "User" WHERE email = '${user.email}'), '${l.type}', '${l.recipientName}', '${l.nickname}', ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.ifscCode}'` : "''"}, ${l.type === PaymentType.UPI ? `'${l.upiId}'` : "''"}, ${l.type === PaymentType.WALLET ? `'${l.walletIdentifier}'` : "''"}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountNumber}'` : "''"}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountHolderName}'` : "''"}, ${l.type === PaymentType.UPI ? `'${l.upiProvider}'` : "''"}, ${l.type === PaymentType.WALLET ? `'${l.walletProvider}'` : 'NULL'}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.bankName}'` : "''"}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.branchName}'` : "''"}, ${l.type === PaymentType.BANK_ACCOUNT ? `'${l.accountType}'` : 'NULL'}, now() )`,
             )
             .join(', ')}`;
   }

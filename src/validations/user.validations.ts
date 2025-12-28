@@ -214,6 +214,7 @@ export const validateCompanionSearch = (
   }
   const filterstosend = {
     where:{
+      gender: GenderEnum[userDetails.gender],
       Companion: { every: { account: 'ACCEPTED' as 'ACCEPTED', CompanionAvailability: { isAvailable: true } } },
     },
     include: {
@@ -228,6 +229,7 @@ export const validateCompanionSearch = (
   };
   if (filters.minAge || filters.maxAge) {
     filterstosend['where'] = {
+      gender: GenderEnum[userDetails.gender],
       Companion: { every: { account: 'ACCEPTED' as 'ACCEPTED', CompanionAvailability: { isAvailable: true } } },
     };
   }
