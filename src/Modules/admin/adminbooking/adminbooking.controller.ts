@@ -7,6 +7,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   AdminBookingInnerRoutes,
@@ -20,10 +21,12 @@ import {
   updateBookingStatusInputDto,
 } from 'src/dto/bookings.dto';
 import { ApiControllerTag } from 'src/swagger/decorators';
+import { BigIntSerializerInterceptor } from 'src/interceptors/bigint-serializer.interceptor';
 
 
 @ApiControllerTag('admin-adminbooking')
 @Controller(AdminUserBookingsRoute)
+@UseInterceptors(BigIntSerializerInterceptor)
 export class AdminBookingController {
   constructor(private readonly adminbookingservice: AdminBookingService) {}
 

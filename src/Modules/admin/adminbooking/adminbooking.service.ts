@@ -107,10 +107,10 @@ export class AdminBookingService {
         ...data,
         bookingstart: String(data.bookingstart),
         bookingend: String(data.bookingend),
-        cancellationDetails:{
+        cancellationDetails: cancellationDetails ? {
           reason: cancellationDetails?.comment,
           cancelledAt: String(cancellationDetails?.createdAt),
-        },
+        } : null,
         Transactions: data.transactionLedger.map((l) => ({
           ...l,
           transactionTime: String(l.settledAt),
