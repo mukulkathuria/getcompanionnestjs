@@ -430,7 +430,7 @@ export class UserBookingsService {
         return { success: 'Its under consideration. please contact admin' };
       }
       const timeofcancellation =
-        Number(bookingDetails.bookingstart) - Date.now() / (1000 * 60 * 60);
+        (Number(bookingDetails.bookingstart) - Date.now())/ (1000 * 60 * 60);
       if (timeofcancellation <= 0) {
         return {
           error: { status: 422, message: "You can't cancel past booking" },
@@ -441,10 +441,10 @@ export class UserBookingsService {
         (l) => l.actionType === 'EXTENDED',
       );
       const totalrefundamount = extendedBooking?.extendedHours
-        ? extendedBooking.newRate * 0.7
+        ? extendedBooking.extendedHours * bookingDetails.bookingrate * 0.7
         : timeofcancellation > 24
-          ? bookingDetails.finalRate
-          : bookingDetails.finalRate * 0.7;
+          ? bookingDetails.bookingrate
+          : bookingDetails.bookingrate * 0.7;
       const cancelStatus =
         timeofcancellation > 24
           ? BookingStatusEnum.CANCELLEDREFUNDPENDING
