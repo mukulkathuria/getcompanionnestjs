@@ -198,6 +198,18 @@ export function validatecompanionupdaterequest(
           },
         };
       }
+      let OneDefault = 0;
+      if (userinfo.paymentmethods[i].isDefault) {
+        OneDefault += 1;
+      }
+      if(i === userinfo.paymentmethods.length - 1 && OneDefault !== 1) {
+        return {
+          error: {
+            status: 422,
+            message: 'One payment method must be default',
+          },
+        };
+      }
     }
   const values = [
     'firstname',
