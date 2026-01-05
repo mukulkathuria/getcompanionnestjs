@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CompanionSettingDto } from 'src/dto/companionsetting.dto';
 import { PrismaService } from 'src/Services/prisma.service';
+import { addDays } from 'src/utils/common.utils';
 import { validateCompanionSettingDto } from 'src/validations/companionsetting.validation';
 
 @Injectable()
@@ -53,6 +54,20 @@ export class CompanionSettingService {
           userid: companionId,
         },
         select: {
+          User:{
+            select:{
+              Booking:{
+                where:{
+                  bookingstart: {
+                    gte: Date.now(),
+                  },
+                  bookingend: {
+                    lte: addDays(7).getTime(),
+                  },
+                }
+              }
+            }
+          },
           id: true,
           CompanionAvailability: {
             select: {
@@ -66,6 +81,9 @@ export class CompanionSettingService {
           },
         },
       });
+      if (availableslots.User.Booking.length > 0) {
+        return { error: 'Companion is booked for the next 7 days', status: 400 };
+      }
       if (availableslots.CompanionAvailability) {
         await this.prismaService.companionTimeSlot.deleteMany({
           where: {
