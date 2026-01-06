@@ -186,6 +186,7 @@ export function validatecompanionupdaterequest(
       return { error };
     }
   }
+  let OneDefault = 0;
     for (let i = 0; i < userinfo.paymentmethods.length; i += 1) {
       const { isValid, errors } = PaymentMethodValidator.validate(
         userinfo.paymentmethods[i],
@@ -198,9 +199,8 @@ export function validatecompanionupdaterequest(
           },
         };
       }
-      let OneDefault = 0;
-      if (userinfo.paymentmethods[i].isDefault) {
-        OneDefault += 1;
+      if (userinfo.paymentmethods[i].isDefault === true) {
+        OneDefault+=1;
       }
       if(i === userinfo.paymentmethods.length - 1 && OneDefault !== 1) {
         return {
