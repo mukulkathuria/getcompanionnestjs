@@ -219,6 +219,9 @@ export default function (params: emailTemplateDto) {
                 <div class="content">
                     <p>Dear ${params.username},</p>
                     <p>We’re sorry to see your plans change. Your booking with ${params.companion_name} has been canceled as requested. If life brings you back our way, we’d love nothing more than to make it up to you with an even better experience.</p>
+                    <br />
+                    <p>Your refund for the booking with ${params.companion_name} of the amount ${params.refundamount} has been processed and reflect within 5 business days. If you have any questions or need further assistance, please don’t hesitate to reach out to us.</p>
+                    <br />
                     <p>Should you wish to reconnect, our doors are always open!</p>
                 </div>
                 <div class="footer">

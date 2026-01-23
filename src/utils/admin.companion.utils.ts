@@ -118,11 +118,17 @@ export const getupdateCompanionDetailrawQuey = (
       (l) => `WHEN id = ${l.id} THEN '${JSON.stringify(l.googleplaceextra)}'`,
     )
     .join(' ');
+  let removablePaymentMethodquery = '';
+  // if payment method greater than user payment method then throw error
+  if (paymentmethodids.length > userinfo.paymentmethods.length) {
+    const removeableId = paymentmethodids.slice(userinfo.paymentmethods.length);
+    removablePaymentMethodquery = `DELETE FROM "userpaymentmethods" WHERE (SELECT id FROM "User" WHERE email = '${user.email}') AND id IN (${removeableId.map((id) => `'${id}'`).join(',')})`;
+  }
 
   const paymentTypeCase = userinfo.paymentmethods
     .map((l, i) => `WHEN id = '${paymentmethodids[i]}' THEN '${l.type}'`)
     .join(' ');
-    const isDefaultCase = userinfo.paymentmethods
+  const isDefaultCase = userinfo.paymentmethods
     .map(
       (l, i) =>
         `WHEN id = '${paymentmethodids[i]}' THEN ${l.isDefault ? 'TRUE' : 'FALSE'}`,
@@ -300,5 +306,6 @@ export const getupdateCompanionDetailrawQuey = (
     updateLocationquery,
     updatePaymentMethodquery,
     createPaymentMethodQuery,
+    removablePaymentMethodquery,
   };
 };

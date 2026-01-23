@@ -445,10 +445,7 @@ export class UserBookingsService {
         : timeofcancellation > 24
           ? bookingDetails.bookingrate
           : bookingDetails.bookingrate * 0.7;
-      const cancelStatus =
-        timeofcancellation > 24
-          ? BookingStatusEnum.CANCELLEDREFUNDPENDING
-          : BookingStatusEnum.CANCELLED;
+      const cancelStatus = BookingStatusEnum.CANCELLEDREFUNDPENDING;
       await this.prismaService.booking.update({
         where: { id: input.bookingid },
         data: {

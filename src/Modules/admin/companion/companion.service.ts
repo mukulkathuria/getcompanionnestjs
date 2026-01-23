@@ -365,6 +365,7 @@ export class CompanionService {
         updateLocationquery,
         updatePaymentMethodquery,
         createPaymentMethodQuery,
+        removablePaymentMethodquery,
       } = getupdateCompanionDetailrawQuey(
         userinfo,
         user,
@@ -377,6 +378,7 @@ export class CompanionService {
         this.prismaService.$queryRawUnsafe(updateLocationquery),
         this.prismaService.$queryRawUnsafe(updatePaymentMethodquery),
         this.prismaService.$queryRawUnsafe(createPaymentMethodQuery),
+        this.prismaService.$queryRawUnsafe(removablePaymentMethodquery),
       ]);
       return { success: true };
     } catch (error) {
