@@ -376,9 +376,9 @@ export class CompanionService {
         this.prismaService.$queryRawUnsafe(updateUserQuery),
         this.prismaService.$queryRawUnsafe(updateCompanionQuery),
         this.prismaService.$queryRawUnsafe(updateLocationquery),
+        this.prismaService.$queryRawUnsafe(removablePaymentMethodquery),
         this.prismaService.$queryRawUnsafe(updatePaymentMethodquery),
         this.prismaService.$queryRawUnsafe(createPaymentMethodQuery),
-        this.prismaService.$queryRawUnsafe(removablePaymentMethodquery),
       ]);
       return { success: true };
     } catch (error) {

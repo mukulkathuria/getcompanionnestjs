@@ -122,7 +122,8 @@ export const getupdateCompanionDetailrawQuey = (
   // if payment method greater than user payment method then throw error
   if (paymentmethodids.length > userinfo.paymentmethods.length) {
     const removeableId = paymentmethodids.slice(userinfo.paymentmethods.length);
-    removablePaymentMethodquery = `DELETE FROM "userpaymentmethods" WHERE (SELECT id FROM "User" WHERE email = '${user.email}') AND id IN (${removeableId.map((id) => `'${id}'`).join(',')})`;
+    removablePaymentMethodquery = `DELETE FROM "userpaymentmethods" WHERE id IN (${removeableId.map((id) => `'${id}'`).join(',')})`;
+    paymentmethodids = paymentmethodids.filter((id) => !removeableId.includes(id));
   }
 
   const paymentTypeCase = userinfo.paymentmethods
