@@ -8,7 +8,7 @@ import { controllerReturnDto } from 'src/dto/common.dto';
 import { PrismaService } from 'src/Services/prisma.service';
 import notificationTemplate from 'src/templates/notification.template';
 import { addHours, convertToDateTime } from 'src/utils/common.utils';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { statusUpdateInputDto } from 'src/dto/admin.module.dto';
 import { validateRequestInput } from 'src/validations/companionrequest.validation';
 import emailTemplate from 'src/templates/email.template';
@@ -52,7 +52,7 @@ export class AcceptanceService {
       ) {
         return { error: { status: 404, message: 'Bookings Already Accepted' } };
       }
-      // eslint-disable-next-line
+       
       const data = await this.prismaService.booking.update({
         where: { id: bookingId },
         data: {
@@ -112,7 +112,7 @@ export class AcceptanceService {
         console.log('Error on send email to user');
       }
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -192,7 +192,7 @@ export class AcceptanceService {
         });
       }
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
     }
@@ -331,7 +331,7 @@ export class AcceptanceService {
         console.log('Error on send email to user');
       }
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error);
       return {
         error: { status: 500, message: 'Server error' },

@@ -73,7 +73,7 @@ export class CompanionBookingService {
         })),
       };
       return { data: value };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error);
       return {
         error: { status: 500, message: 'Server error' },

@@ -51,7 +51,7 @@ export class AdminAccountsService {
         transactionTime: String(l.settledAt),
       }));
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
     }

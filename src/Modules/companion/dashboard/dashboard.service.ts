@@ -12,7 +12,7 @@ export class CompanionDashboardService {
       const query = getCompanionDashboardQuery(companionId);
       const data = await this.prismaService.$queryRawUnsafe(query);
       return { data };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error);
       return {
         error: { status: 500, message: 'Server error' },

@@ -8,182 +8,187 @@ export enum TransactionStatusEnum {
   DECLINED = 'DECLINED',
 }
 
+/**
+ * Razorpay payment method codes.
+ * Reference: https://razorpay.com/docs/payments/payment-methods/
+ */
 export enum PaymentmethodEnum {
-  UPI = 'UPI',
-  DC = 'DEBITCARD',
-  CC = 'CREDITCARD',
-  WALLET = 'WALLET',
-  NB = 'NETBANKING',
-  EMI = 'EMI',
-  BNPL = 'BNPL',
-  NEFTRTGS = 'NEFTRTGS',
-  QR = 'QR',
+  UPI = 'upi',
+  DC = 'card', // debit card — differentiated via card.type in payload
+  // CC = 'card',           // credit card — differentiated via card.type in payload
+  WALLET = 'wallet',
+  NB = 'netbanking',
+  EMI = 'emi',
+  BNPL = 'paylater',
+  NEFTRTGS = 'bank_transfer',
+  // QR = 'upi',            // QR-based UPI
 }
 
+/**
+ * Razorpay card network codes.
+ * Reference: https://razorpay.com/docs/payments/payment-methods/cards/
+ */
 export enum CardTypeEnum {
-  VISA = 'VISA',
-  MAST = 'Mastercard',
-  AMEX = 'AMEX',
-  SMAE = 'SBI Maestro',
+  VISA = 'Visa',
+  MAST = 'MasterCard',
+  AMEX = 'American Express',
   MAES = 'Maestro',
-  DINR = 'Diners',
+  DINR = 'Diners Club',
   JCB = 'JCB',
-  RUPAY = 'Rupay',
-  RUPAYCC = 'Rupay Credit Card',
+  RUPAY = 'RuPay',
+  RUPAYCC = 'RuPay Credit Card',
+  UNKNOWN = 'Unknown',
 }
 
+/**
+ * Razorpay UPI app identifiers surfaced in vpa / method metadata.
+ */
 export enum UPIBanksEnum {
   'Amazon Pay' = 'Amazon Pay',
   BHIM = 'BHIM',
-  'BHIM BOI UPI' = 'BHIM BOI UPI',
-  'BHIM Canara' = 'BHIM Canara',
-  'BHIM DLB UPI' = 'BHIM DLB UPI',
-  'BHIM Indus Pay' = 'BHIM Indus Pay',
-  'BHIM PNB' = 'BHIM PNB',
-  'BHIM SBI Pay' = 'BHIM SBI Pay',
-  'DBS Digibank App' = 'DBS Digibank App',
-  Fampay = 'Fampay',
   'Google Pay' = 'Google Pay',
   Groww = 'Groww',
-  'ICICI iMobile' = 'ICICI iMobile',
-  Jupiter = 'Jupiter',
   Mobikwik = 'Mobikwik',
-  'MyJio UPI' = 'MyJio UPI',
-  OkCredit = 'OkCredit',
   Paytm = 'Paytm',
-  PayZapp = 'PayZapp',
   PhonePe = 'PhonePe',
-  Slash = 'Slash',
   Slice = 'Slice',
   TataNeu = 'TataNeu',
-  Zomoto = 'Zomoto',
+  Jupiter = 'Jupiter',
+  Fampay = 'Fampay',
 }
 
+/**
+ * Razorpay wallet provider codes.
+ * Reference: https://razorpay.com/docs/payments/payment-methods/wallets/
+ */
 export enum WalletBankEnum {
-  PAYTM = 'PayTM',
-  FREC = 'Freecharge',
-  AMZPAY = 'Amazon Pay',
-  AMON = 'Airtel Money',
-  OXYCASH = 'Oxigen',
-  OLAM = 'Ola Money',
-  JIOM = 'Jio Money',
-  ITZC = 'ItzCash',
-  PAYZP = 'HDFC PayZapp',
-  YESW = 'Yes Bank',
-  mobikwik = 'MobiKwik',
-  PHONEPE = 'PhonePe',
+  PAYTM = 'paytm',
+  FREECHARGE = 'freecharge',
+  AMAZONPAY = 'amazonpay',
+  AIRTELMONEY = 'airtelmoney',
+  JIOMONEY = 'jiomoney',
+  PHONEPE = 'phonepe',
+  OLAMONEY = 'olamoney',
+  MOBIKWIK = 'mobikwik',
 }
 
+/**
+ * Razorpay net-banking bank codes.
+ * Reference: https://razorpay.com/docs/payments/payment-methods/netbanking/
+ */
 export enum NetBankingNamesEnum {
-  AIRNB = 'Airtel Payments Bank',
-  AUSFNB = 'AU Small Finance Bank',
-  AUSFCNB = 'AU Small Finance Bank - Corporate',
-  AXIB = 'AXIS Bank',
-  AXISCNB = 'Axis Corporate Netbanking',
-  BBRB = 'Bank of Baroda',
-  BOIB = 'Bank of India',
-  BOMB = 'Bank of Maharashtra',
-  CABB = 'Canara Bank',
-  SYNDB = 'Canara Bank (Erstwhile - Syndicate Bank)',
-  CSFBC = 'Capital Small Finance Bank Corporate',
-  CSFBR = 'Capital Small Finance Bank Retail',
-  CSBN = 'Catholic Syrian Bank',
-  CBIB = 'Central Bank Of India',
-  CUBB = 'City Union Bank',
-  CSMSNB = 'Cosmos Bank',
-  DCBB = 'DCB Bank',
-  DSHB = 'Deutsche Bank',
-  DLNBCORP = 'Dhanlaxmi Bank - Corporate',
-  DLSB = 'Dhanlaxmi Bank - Retail',
-  FEDB = 'Federal Bank',
-  FEDCORP = 'Federal Bank Corporate',
-  HDFB = 'HDFC Bank',
-  HDFCCONB = 'HDFC Bank - Corporate Banking',
-  ICIB = 'ICICI Bank',
-  ICICICNB = 'ICICI Corporate Netbanking',
-  IDBB = 'IDBI Bank',
-  IDBICORP = 'IDBI Corp Netbanking',
-  IDFCNB = 'IDFC FIRST Bank',
-  INDB = 'Indian Bank',
-  ALLB = 'Indian Bank (Erstwhile Allahabad Bank)',
-  INOB = 'Indian Overseas Bank',
-  INIB = 'IndusInd Bank',
-  JAKB = 'Jammu & Kashmir Bank',
-  JANANB = 'Jana Small Finance Bank',
-  JSBNB = 'Janata Sahakari Bank Pune',
-  KRKB = 'Karnataka Bank',
-  KRVBC = 'Karur Vysya - Corporate Banking',
-  KRVB = 'Karur Vysya Bank',
-  '162B' = 'Kotak Mahindra Bank',
-  KTKBCORP = 'Kotak Mahindra Bank - Corp Net Banking',
-  KVBNBTPV = 'KVB NB TPV',
-  PAYTMNB = 'Paytm Payments Bank',
-  OBCB = 'PNB (Erstwhile -Oriental Bank of Commerce)',
-  UNIB = 'PNB (Erstwhile-United Bank of India)',
-  INDPOST = 'Post Office Savings Bank (POSB)',
-  PMEC = 'Prime Co Op Bank Ltd',
-  PSBNB = 'Punjab & Sind Bank',
-  PNBB = 'Punjab National Bank',
-  CPNB = 'Punjab National Bank - Corporate Banking',
-  RBLNB = 'RBL Bank',
-  RBLCNB = 'RBL Corporate Netbanking',
-  SRSWT = 'Saraswat Bank',
-  SHIVANB = 'Shivalik Small Finance Bank',
-  SOIB = 'South Indian Bank',
-  SCBNB = 'Standard Chartered Bank',
-  SBIB = 'State Bank of India',
-  SBNCORP = 'State Bank of India (Corporate)',
-  SVCNB = 'SVC Co-operative Bank Ltd.',
-  TMBB = 'Tamilnad Mercantile Bank',
-  UCOB = 'UCO Bank',
-  UCOCNB = 'UCO Corporate',
-  UBIB = 'Union Bank of India',
-  ADBB = 'Union Bank of India (Erstwhile Andhra Bank)',
-  CRPB = 'Union Bank of India (Erstwhile Corporation Bank)',
-  UBIBC = 'Union Bank OLT - Corporate Banking',
+  HDFC = 'HDFC Bank',
+  ICIC = 'ICICI Bank',
+  SBIN = 'State Bank of India',
+  UTIB = 'Axis Bank',
+  PUNB = 'Punjab National Bank',
+  BARB = 'Bank of Baroda',
+  BKID = 'Bank of India',
+  CNRB = 'Canara Bank',
+  IOBA = 'Indian Overseas Bank',
+  INDB = 'IndusInd Bank',
+  FDRL = 'Federal Bank',
   YESB = 'Yes Bank',
+  KVBL = 'Karur Vysya Bank',
+  AUBL = 'AU Small Finance Bank',
+  IDFB = 'IDFC FIRST Bank',
+  KKBK = 'Kotak Mahindra Bank',
+  RATN = 'RBL Bank',
+  DCBL = 'DCB Bank',
+  SIBL = 'South Indian Bank',
+  CITI = 'Citibank',
+  SCBL = 'Standard Chartered Bank',
+  UBIN = 'Union Bank of India',
+  IDIB = 'Indian Bank',
+  UCBA = 'UCO Bank',
+  MAHB = 'Bank of Maharashtra',
+  PSIB = 'Punjab & Sind Bank',
+  JAKA = 'Jammu & Kashmir Bank',
+  TMBL = 'Tamilnad Mercantile Bank',
+  COSB = 'Cosmos Bank',
+  JSBL = 'Janata Sahakari Bank',
 }
 
-export interface payUTransactionDetailsDto {
-  PG_TYPE?: string;
-  addedon?: string;
-  amount: string;
-  bank_ref_num?: string;
-  bankcode?: string;
-  cardCategory?: string;
-  cardnum?: string;
-  city?: string;
-  country?: string;
-  discount?: string;
-  email?: string;
-  error?: string;
-  error_Message?: string;
-  firstname?: string;
-  hash?: string;
-  key?: string;
-  lastname?: string;
-  mode: string;
-  net_amount_debit: string;
-  pa_name?: string;
-  payment_source?: string;
-  phone?: string;
-  productinfo?: string;
-  state: string;
-  status?: string;
+// ---------------------------------------------------------------------------
+// Razorpay-specific DTOs
+// ---------------------------------------------------------------------------
+
+/**
+ * Payload sent to our server after the Razorpay checkout is completed.
+ * The client receives these three fields from Razorpay's handler callback.
+ */
+export interface RazorpayVerifyPaymentDto {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+  /** Internal transaction id stored in the Razorpay order receipt. */
   txnid: string;
-  undefinedmihpayid?: string;
-  vpa?: string;
-  field1?: string;
-  field2?: string;
-  field3?: string;
-  field4?: string;
-  field5?: string;
-  field6?: string;
-  field7?: string;
-  field8?: string;
-  field9?: string;
-  unmappedstatus?: string;
 }
+
+/**
+ * Shape of the payment object returned by Razorpay's Payments API.
+ * Only the fields we actually use are typed here; the rest are covered by the
+ * index signature so unexpected fields don't cause TS errors.
+ */
+export interface RazorpayPaymentDetailsDto {
+  [key: string]: unknown;
+  id: string;
+  entity: string;
+  amount: number;
+  currency: string;
+  status: string;
+  order_id: string;
+  method: string; // 'card' | 'netbanking' | 'wallet' | 'upi' | 'emi' | 'paylater'
+  amount_refunded: number;
+  captured: boolean;
+  email: string;
+  contact: string;
+  created_at: number; // UNIX timestamp
+  // Card fields (present when method === 'card')
+  card?: {
+    id: string;
+    name: string;
+    network: string; // 'Visa' | 'MasterCard' | 'RuPay' etc.
+    type: string; // 'credit' | 'debit'
+    issuer: string;
+    international: boolean;
+    emi: boolean;
+    last4: string;
+  };
+  // Net-banking fields
+  bank?: string; // bank code e.g. 'HDFC'
+  // Wallet fields
+  wallet?: string; // wallet name e.g. 'paytm'
+  // UPI fields
+  vpa?: string; // virtual payment address
+  // EMI fields
+  emi?: boolean;
+  emi_months?: number;
+  error_code?: string;
+  error_description?: string;
+}
+
+/**
+ * What we send back to the client after creating a Razorpay order.
+ * The client uses orderId + keyId to open the Razorpay checkout.
+ */
+export interface RazorpayOrderResponseDto {
+  orderId: string;
+  amount: number; // in paise
+  currency: string;
+  receipt: string; // our internal txnId
+  keyId: string;
+  prefill: {
+    name: string;
+    email: string;
+    contact: string;
+  };
+  notes: Record<string, string>;
+}
+
+// ---------------------------------------------------------------------------
+// Shared / common DTOs (unchanged public contracts)
+// ---------------------------------------------------------------------------
 
 export interface BookingTransactionReturnDto extends errorDto {
   data?: TransactionLedger[];
@@ -203,10 +208,15 @@ export interface initiatePaymentInputDto extends getHashInputDto {
   bookingId: number;
 }
 
+/**
+ * Normalised payment details stored in the `metadata` column of
+ * `TransactionLedger`.  Derived from `RazorpayPaymentDetailsDto` by
+ * `makePaymentdetailsjson` in transactions.utils.ts.
+ */
 export interface paymentdetailsDto {
-  [key: string]: any;
+  [key: string]: unknown;
   paymentId: string;
-  paymentMethod: PaymentmethodEnum;
+  paymentMethod: string;
   cardType?: CardTypeEnum;
   cardNumber?: string;
   cardCategory?: string;

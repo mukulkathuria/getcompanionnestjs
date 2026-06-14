@@ -13,7 +13,7 @@ export class CompanionAnalysisService {
       const rawQuery = getearningofCompanionQuery(companionId);
       const data = await this.prismaService.$queryRawUnsafe(rawQuery);
       return { data: data[0] || {} };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error('Error in getCompanionOverallAnalysis:', error);
       return { error: { status: 500, message: 'Internal server error' } };
     }
@@ -65,7 +65,7 @@ export class CompanionAnalysisService {
         earnings: items,
       };
       return { data: finalvalue };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error('Error in getallcompanioncompletedearnings:', error);
       return { error: { status: 500, message: 'Internal server error' } };
     }
@@ -117,7 +117,7 @@ export class CompanionAnalysisService {
         earnings: items,
       };
       return { data: finalvalue };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error('Error in getallcompanioncompletedearnings:', error);
       return { error: { status: 500, message: 'Internal server error' } };
     }

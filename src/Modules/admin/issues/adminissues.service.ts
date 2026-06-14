@@ -34,7 +34,7 @@ export class AdminIssuesServices {
         return { error: { status: 404, message: 'No active issues' } };
       }
       return { data };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -83,7 +83,7 @@ export class AdminIssuesServices {
         })),
       };
       return { data: converted };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -127,7 +127,7 @@ export class AdminIssuesServices {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -181,7 +181,7 @@ export class AdminIssuesServices {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -204,7 +204,7 @@ export class AdminIssuesServices {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
     }

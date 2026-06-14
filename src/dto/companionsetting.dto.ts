@@ -6,8 +6,8 @@ export interface AvailableTimeSlot {
 
 export interface AvailableTimeSlotBigInt {
   dayOfWeek: number;
-  startTime:  BigInt;
-  endTime: BigInt;
+  startTime:  bigint;
+  endTime: bigint;
 }
 
 export interface CompanionSettingDto {

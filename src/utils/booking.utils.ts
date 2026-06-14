@@ -1,5 +1,5 @@
 import { Booking, Companion } from '@prisma/client';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import {
   companionslotsavailabilityDto,
   userBookingBodyDto,
@@ -48,31 +48,31 @@ export const filterSlotAvailability = (
 export const getAverageRatingRawQuery = (companionId: string) => {
   return `
   WITH product_stats AS (
-    SELECT 
+    SELECT
         r."rateeId",
-        AVG(r.ratings) AS avg_rating,  
-        COUNT(r.ratings) AS rating_count, 
-        SUM(r.ratings) AS total_ratings, 
-        MAX(r."createdAt") AS last_rating_time,  
-        (SELECT r2.ratings 
-         FROM rating r2 
-         WHERE r2."rateeId" = r."rateeId"  
-         ORDER BY r2."createdAt" DESC 
-         LIMIT 1) AS last_rating  
+        AVG(r.ratings) AS avg_rating,
+        COUNT(r.ratings) AS rating_count,
+        SUM(r.ratings) AS total_ratings,
+        MAX(r."createdAt") AS last_rating_time,
+        (SELECT r2.ratings
+         FROM rating r2
+         WHERE r2."rateeId" = r."rateeId"
+         ORDER BY r2."createdAt" DESC
+         LIMIT 1) AS last_rating
     FROM rating r
-    WHERE r."rateeId" = '${companionId}' 
-    GROUP BY r."rateeId" 
+    WHERE r."rateeId" = '${companionId}'
+    GROUP BY r."rateeId"
 ),
 global_stats AS (
-    SELECT 
-        AVG(r.ratings) AS global_avg,  
-        COUNT(r.ratings) AS global_rating_count  
+    SELECT
+        AVG(r.ratings) AS global_avg,
+        COUNT(r.ratings) AS global_rating_count
     FROM rating r
 )
-SELECT 
+SELECT
     ps."rateeId",
-    ps.avg_rating, 
-    ps.last_rating,  
+    ps.avg_rating,
+    ps.last_rating,
 	  ps.rating_count,
     (gs.global_avg * gs.global_rating_count + ps.total_ratings) / (gs.global_rating_count + ps.rating_count) AS bayesian_avg
 FROM product_stats ps, global_stats gs
@@ -92,7 +92,7 @@ export const getCompanionDetailsQueryforupdateRate = (companionId: string) => {
     l."state",
     comp."bookingrate",
     COALESCE(
-          json_agg(row_to_json(pay)) FILTER (WHERE pay.id IS NOT NULL), 
+          json_agg(row_to_json(pay)) FILTER (WHERE pay.id IS NOT NULL),
           '[]'::json
       ) AS user_payment_methods,
       -- Total Booking Hours (in hours)
@@ -129,7 +129,7 @@ export const getCompanionDetailsQueryforupdateRate = (companionId: string) => {
     LEFT JOIN "Companion" comp ON comp."userid" = c."id"
     LEFT JOIN "location" l ON l."userid" = comp."id"
 	  LEFT JOIN "userpaymentmethods" pay ON c."id" = pay."userid"
-    WHERE c.id = '${companionId}' AND 
+    WHERE c.id = '${companionId}' AND
     (b.bookingstatus = 'ACCEPTED' OR b.bookingstatus = 'COMPLETED')
     GROUP BY c."id", l."city", l."state",comp."bookingrate";
   `;
@@ -137,20 +137,20 @@ export const getCompanionDetailsQueryforupdateRate = (companionId: string) => {
 
 export function generateStimeSlots(startMs: number, endMs: number) {
   let startTime = new Date(startMs).getHours();
-  let endTime = new Date(endMs).getHours();
-  let times = [];
+  const endTime = new Date(endMs).getHours();
+  const times = [];
   console.log('function generateStimeSlots ', { startTime, endTime });
   while (startTime < endTime) {
     let starthours = startTime;
-    let startampm = starthours >= 12 ? 'PM' : 'AM';
+    const startampm = starthours >= 12 ? 'PM' : 'AM';
     starthours = starthours % 12;
     starthours = starthours ? starthours : 12;
-    let formattedstartTime = starthours + ':' + '00' + ' ' + startampm;
+    const formattedstartTime = starthours + ':' + '00' + ' ' + startampm;
     let endhours = startTime + 1;
-    let endampm = endhours >= 12 ? 'PM' : 'AM';
+    const endampm = endhours >= 12 ? 'PM' : 'AM';
     endhours = endhours % 12;
     endhours = endhours ? endhours : 12;
-    let formattedendTime = endhours + ':' + '00' + ' ' + endampm;
+    const formattedendTime = endhours + ':' + '00' + ' ' + endampm;
     times.push(`${formattedstartTime} - ${formattedendTime}`);
     // startTime.setHours(startTime.getHours() + 1);
     startTime++;

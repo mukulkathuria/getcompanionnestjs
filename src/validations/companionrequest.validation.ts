@@ -63,7 +63,7 @@ export function validatecompanionupdaterequest(
         ? tempdesc.map((l) => l.trim())
         : [];
     }
-  } catch (error) {
+  } catch (error:any) {
     console.log('Error JSON in description', error, userinfo.description);
     return {
       error: { status: 422, message: 'Companion description is not valid' },

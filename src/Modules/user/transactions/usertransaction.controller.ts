@@ -7,17 +7,19 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { UserTransactionInnerRoute, UserTransactionsRoute } from '../routes/user.routes';
+import {
+  UserTransactionInnerRoute,
+  UserTransactionsRoute,
+} from '../routes/user.routes';
 import { UserTransactionService } from './usertransaction.service';
 import {
   BookingTransactionReturnDto,
   getHashInputDto,
   initiatePaymentInputDto,
-  payUTransactionDetailsDto,
+  RazorpayVerifyPaymentDto,
 } from 'src/dto/transactions.dto';
 import { AuthGuard } from 'src/guards/jwt.guard';
 import { ApiControllerTag } from 'src/swagger/decorators';
-
 
 @ApiControllerTag('user-usertransaction')
 @Controller(UserTransactionsRoute)
@@ -73,7 +75,7 @@ export class UserTransactionController {
   @UseGuards(AuthGuard)
   @Post(UserTransactionInnerRoute.onsuccesspayment)
   @HttpCode(200)
-  async successPayment(@Body() userInputs: payUTransactionDetailsDto) {
+  async successPayment(@Body() userInputs: RazorpayVerifyPaymentDto) {
     const { success, error } =
       await this.usertransactionservice.onsuccessfullPayment(userInputs);
     if (success) {
@@ -89,7 +91,7 @@ export class UserTransactionController {
   @UseGuards(AuthGuard)
   @Post(UserTransactionInnerRoute.onfailurepayment)
   @HttpCode(200)
-  async onfailurePayment(@Body() userInputs: payUTransactionDetailsDto) {
+  async onfailurePayment(@Body() userInputs: RazorpayVerifyPaymentDto) {
     const { success, error } =
       await this.usertransactionservice.onFailedPayment(userInputs);
     if (success) {
@@ -105,9 +107,13 @@ export class UserTransactionController {
   @UseGuards(AuthGuard)
   @Post(UserTransactionInnerRoute.onsuccesspaymentofextension)
   @HttpCode(200)
-  async successPaymentofExtensionController(@Body() userInputs: payUTransactionDetailsDto) {
+  async successPaymentofExtensionController(
+    @Body() userInputs: RazorpayVerifyPaymentDto,
+  ) {
     const { success, error } =
-      await this.usertransactionservice.onsuccessfullPaymentofExtension(userInputs);
+      await this.usertransactionservice.onsuccessfullPaymentofExtension(
+        userInputs,
+      );
     if (success) {
       return {
         success: true,
@@ -121,7 +127,9 @@ export class UserTransactionController {
   @UseGuards(AuthGuard)
   @Post(UserTransactionInnerRoute.onfailurepaymentofextension)
   @HttpCode(200)
-  async onfailurePaymentofExtensionController(@Body() userInputs: payUTransactionDetailsDto) {
+  async onfailurePaymentofExtensionController(
+    @Body() userInputs: RazorpayVerifyPaymentDto,
+  ) {
     const { success, error } =
       await this.usertransactionservice.onFailedPaymentofExtension(userInputs);
     if (success) {

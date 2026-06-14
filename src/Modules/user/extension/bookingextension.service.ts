@@ -55,7 +55,7 @@ export class BookingExtentionService {
         })),
       };
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -82,7 +82,7 @@ export class BookingExtentionService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -113,7 +113,7 @@ export class BookingExtentionService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
@@ -138,13 +138,13 @@ export class BookingExtentionService {
       const extensionbooking = data.statusHistory.find(
         (l) => l.actionType === 'EXTENDED',
       );
-      let bookingdata = {
+      const bookingdata = {
        statusHistory: {
             update: {
               where: { id: extensionbooking.id },
               data: {
                 extendedHours: extensionbooking.extendedHours,
-                actionType: 'EXTENDED' as 'EXTENDED',
+                actionType: 'EXTENDED' as const,
                 newRate: extensionbooking.newRate,
               },
             },
@@ -176,7 +176,7 @@ export class BookingExtentionService {
         data: bookingdata,
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

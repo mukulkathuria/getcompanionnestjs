@@ -53,7 +53,7 @@ export class CompanionFindService {
         return { data: filteredData };
       }
       return { data: [] };
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };

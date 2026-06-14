@@ -28,7 +28,7 @@ export class ChatService {
       });
 
       return { data };
-    } catch (error) {
+    } catch (error:any) {
       return { error: { status: 500, message: 'Server error' } };
     }
   }
@@ -52,7 +52,7 @@ export class ChatService {
   //       )
   //       .select('chatroomid users createdBy messages');
   //     return { data };
-  //   } catch (error) {
+  //   } catch (error:any) {
   //     return { error: { status: 500, message: 'Server error' } };
   //   }
   // }
@@ -81,7 +81,7 @@ export class ChatService {
       });
       const updatedMessges = error ? [...data] : [...data, AddMessageChat];
       return { userData: updatedMessges };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -134,7 +134,7 @@ export class ChatService {
   //       );
   //     }
   //     return { userData: user };
-  //   } catch (error) {
+  //   } catch (error:any) {
   //     return { error: { status: 500, message: 'Server issue' } };
   //   }
   // }

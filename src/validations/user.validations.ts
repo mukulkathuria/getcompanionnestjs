@@ -76,8 +76,8 @@ export const isvalidComanioninputs = (
         ? tempdesc.map((l) => l.trim())
         : [];
     }
-    // eslint-disable-next-line
-  } catch (error) {
+     
+  } catch (error:any) {
     return { error: { status: 422, message: 'Invalid Description' } };
   }
   const validsusers = ['firstname', 'lastname', 'gender'];
@@ -215,7 +215,7 @@ export const validateCompanionSearch = (
   const filterstosend = {
     where:{
       gender: GenderEnum[userDetails.gender],
-      Companion: { every: { account: 'ACCEPTED' as 'ACCEPTED', CompanionAvailability: { isAvailable: true } } },
+      Companion: { every: { account: 'ACCEPTED' as const, CompanionAvailability: { isAvailable: true } } },
     },
     include: {
       Companion: {
@@ -230,7 +230,7 @@ export const validateCompanionSearch = (
   if (filters.minAge || filters.maxAge) {
     filterstosend['where'] = {
       gender: GenderEnum[userDetails.gender],
-      Companion: { every: { account: 'ACCEPTED' as 'ACCEPTED', CompanionAvailability: { isAvailable: true } } },
+      Companion: { every: { account: 'ACCEPTED' as const, CompanionAvailability: { isAvailable: true } } },
     };
   }
   if (filters.skintone || filters.bodytype) {

@@ -1,4 +1,4 @@
-type errorMsgDto = {
+export type errorMsgDto = {
   status: number;
   message: string;
 };
@@ -7,7 +7,7 @@ export interface errorDto {
   error?: errorMsgDto;
 }
 
-export interface successReturnDto{
+export interface successReturnDto {
   success?: boolean;
   message?: string;
 }

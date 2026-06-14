@@ -1,14 +1,19 @@
-import { bookingIdDto } from "./bookings.dto";
-import { payUTransactionDetailsDto } from "./transactions.dto";
+import { bookingIdDto } from './bookings.dto';
+import { RazorpayVerifyPaymentDto } from './transactions.dto';
+
+export interface AmountDto {
+  amount: number;
+}
 
 export interface statusUpdateInputDto {
-    id: string;
-    approve?: boolean;
-    reject?: boolean;
+  id: string;
+  approve?: boolean;
+  reject?: boolean;
 }
 
 export interface updateCompanionPriceInputDto {
-    updatedprice: number;
+  updatedprice: number;
 }
 
-export interface refundAmountInputDto extends payUTransactionDetailsDto, bookingIdDto{}
+export interface refundAmountInputDto
+  extends RazorpayVerifyPaymentDto, bookingIdDto, AmountDto {}

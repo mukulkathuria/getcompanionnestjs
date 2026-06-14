@@ -77,7 +77,7 @@ async function addApiControllerTagToFile(filePath) {
     // Write the modified content back to the file
     await writeFileAsync(filePath, modifiedContent, 'utf8');
     console.log(`Updated ${filePath}`);
-  } catch (error) {
+  } catch (error:any) {
     console.error(`Error processing ${filePath}:`, error);
   }
 }
@@ -93,7 +93,7 @@ async function main() {
     }
     
     console.log('Done!');
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error:', error);
   }
 }

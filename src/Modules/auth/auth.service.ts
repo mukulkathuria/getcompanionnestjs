@@ -154,7 +154,7 @@ export class AuthService {
       return {
         success: true,
       };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.warn(error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -198,7 +198,7 @@ export class AuthService {
         refresh_token,
         anybookingdone: isUserExists.anybookingdone,
       };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.warn(error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -283,8 +283,8 @@ export class AuthService {
       } else {
         return { error: sendmailerror };
       }
-      // eslint-disable-next-line
-    } catch (error) {
+       
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: {
@@ -317,8 +317,8 @@ export class AuthService {
       if (updateuser) {
         return { success: true };
       }
-      // eslint-disable-next-line
-    } catch (error) {
+       
+    } catch (error:any) {
       return {
         error: {
           status: 422,
@@ -356,7 +356,7 @@ export class AuthService {
         access_token,
         refresh_token,
       };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.warn(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -403,7 +403,7 @@ export class AuthService {
         access_token,
         refresh_token,
       };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.warn(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -431,8 +431,8 @@ export class AuthService {
       if (updateuser) {
         return { success: true };
       }
-      // eslint-disable-next-line
-    } catch (error) {
+       
+    } catch (error:any) {
       return {
         error: {
           status: 422,
@@ -459,7 +459,7 @@ export class AuthService {
   //         success: false,
   //       };
   //     }
-  //   } catch (error) {
+  //   } catch (error:any) {
   //     return {
   //       error: {
   //         status: 422,

@@ -1,5 +1,5 @@
-import * as dayjs from 'dayjs';
-import * as customParseFormat from 'dayjs/plugin/customParseFormat';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {
   BookingDurationUnitEnum,
   BookingMeetingLocationDto,
@@ -142,7 +142,6 @@ export const validateUserAgentlocation = (
     return getErrorMessage(422, 'Latitude is required');
   } else if (typeof input.lng !== 'number') {
     return getErrorMessage(422, 'Longitude is required');
-  } 
+  }
   return { success: true };
 };
-

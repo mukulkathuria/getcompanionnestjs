@@ -85,7 +85,7 @@ export function validateregisterCompanion(
         : [];
       userinfo.paymentmethods = temppayment;
     }
-  } catch (error) {
+  } catch (error:any) {
     console.log('Error JSON in description', error, userinfo.description);
     return {
       error: { status: 422, message: 'Companion description is not valid' },
@@ -328,7 +328,7 @@ export const validatepreviousImages = (images) => {
     }
     const previousImages = JSON.parse(images);
     return { images: previousImages };
-  } catch (error) {
+  } catch (error:any) {
     return { error: { status: 422, message: 'Previous images are not valid' } };
   }
 };

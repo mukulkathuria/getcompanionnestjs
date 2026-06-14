@@ -27,7 +27,7 @@ export class S3Service {
       const command = new GetObjectCommand(input);
       const response = await this.s3client.send(command);
       return { data: response };
-    } catch (error) {
+    } catch (error:any) {
       return {
         error: {
           status: 500,
@@ -54,7 +54,7 @@ export class S3Service {
       return {
         data: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${pathfilename}`,
       };
-    } catch (error) {
+    } catch (error:any) {
       return {
         error: {
           status: 500,
@@ -73,7 +73,7 @@ export class S3Service {
       const command = new DeleteObjectCommand(input);
       const response = await this.s3client.send(command);
       return { data: response };
-    } catch (error) {
+    } catch (error:any) {
       return {
         error: {
           status: 500,

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/Services/prisma.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import {
   SessionExtendBodyParamsDto,
   SessionIdBodyParamsDto,
@@ -58,7 +58,7 @@ export class UserSessionService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -166,7 +166,7 @@ export class UserSessionService {
           this.logger.log(`Email sent to: ${user.email}`);
         });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -255,7 +255,13 @@ export class UserSessionService {
         sessionDetails.extentedhours,
       );
       if (!isAvailable) {
-        return { error: { status: 422, message: 'Extend slot not available as companion not available at this time' } };
+        return {
+          error: {
+            status: 422,
+            message:
+              'Extend slot not available as companion not available at this time',
+          },
+        };
       }
       await this.prismaService.sessions.update({
         where: { id: bookingDetails.Sessions[0].id },
@@ -271,7 +277,7 @@ export class UserSessionService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -356,7 +362,13 @@ export class UserSessionService {
         sessionDetails.extentedhours,
       );
       if (!isAvailable) {
-        return { error: { status: 422, message: 'Extend slot not available as companion not available at this time' } };
+        return {
+          error: {
+            status: 422,
+            message:
+              'Extend slot not available as companion not available at this time',
+          },
+        };
       }
       await this.prismaService.booking.update({
         where: { id: sessionDetails.bookingid },
@@ -376,7 +388,7 @@ export class UserSessionService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }

@@ -9,7 +9,8 @@ import {
   BookingTransactionReturnDto,
   getHashInputDto,
   initiatePaymentInputDto,
-  payUTransactionDetailsDto,
+  RazorpayPaymentDetailsDto,
+  RazorpayVerifyPaymentDto,
   TransactionStatusEnum,
 } from 'src/dto/transactions.dto';
 import { PaymentService } from 'src/Services/payment.service';
@@ -39,7 +40,7 @@ export class AdminTransactionService {
         where: { bookingId },
       });
       return { data: transactions };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -79,7 +80,7 @@ export class AdminTransactionService {
         all_companions: allcompanions,
       };
       return { data: finalvalue };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -94,7 +95,7 @@ export class AdminTransactionService {
         },
       });
       return { data: userDetails.transactionfromParty };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -111,7 +112,7 @@ export class AdminTransactionService {
         return { data };
       }
       return { error: { status: 422, message: 'Server Error' } };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -143,17 +144,24 @@ export class AdminTransactionService {
         return { data };
       }
       return { error: { status: 422, message: 'Server Error' } };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
   }
 
-  async onsuccessfullPayment(userInput: payUTransactionDetailsDto) {
+  async onsuccessfullPayment(userInput: RazorpayVerifyPaymentDto) {
     try {
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
-      const { data } = makePaymentdetailsjson(userInput);
+      const isValidSignature =
+        this.paymentService.verifyPaymentSignature(userInput);
+      if (!isValidSignature) {
+        this.logger.warn(
+          `Invalid Razorpay signature for payment ${userInput.razorpay_payment_id}`,
+        );
+        return { error: { status: 403, message: 'Invalid payment signature' } };
+      }
       const previousbookings =
         await this.prismaService.transactionLedger.findUnique({
           where: { txnId: userInput.txnid },
@@ -167,37 +175,67 @@ export class AdminTransactionService {
       ) {
         return { error: { status: 422, message: 'Invalid transaction' } };
       }
+
+      const { data: razorpayPayment, error: fetchError } =
+        await this.paymentService.getPaymentDetails(
+          userInput.razorpay_payment_id,
+        );
+
+      if (fetchError || !razorpayPayment) {
+        this.logger.error(
+          `Failed to fetch payment details for ${userInput.razorpay_payment_id}`,
+          fetchError,
+        );
+        return {
+          error: fetchError ?? {
+            status: 500,
+            message: 'Failed to fetch payment details',
+          },
+        };
+      }
+      const { data: paymentDetailsJson } =
+        makePaymentdetailsjson(razorpayPayment);
       await this.prismaService.transactionLedger.update({
         where: { txnId: userInput.txnid },
         data: {
           status: TransactionStatusEnum.COMPLETED,
-          paymentGatewayTxnId: userInput.undefinedmihpayid,
-          metadata: data || {},
-          settledAt: new Date(userInput.addedon).getTime(),
+          paymentGatewayTxnId: userInput.razorpay_payment_id,
+          metadata: paymentDetailsJson ?? {},
+          paymentMethod: paymentDetailsJson?.paymentMethod ?? 'UNKNOWN',
+          settledAt: razorpayPayment.created_at
+            ? razorpayPayment.created_at * 1000 // Razorpay returns UNIX seconds
+            : new Date().getTime(),
           Booking: {
             update: { data: { bookingstatus: BookingStatusEnum.UNDERREVIEW } },
           },
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
   }
 
-  async onFailedPayment(userInput: payUTransactionDetailsDto) {
+  async onFailedPayment(
+    userInput: Pick<RazorpayVerifyPaymentDto, 'razorpay_order_id' | 'txnid'> & {
+      error_code?: string;
+      error_description?: string;
+    },
+  ) {
     try {
       const { error } = validateFailurePaymentStatus(userInput);
       if (error) return { error };
-      const { data } = makePaymentdetailsjson(userInput);
       await this.prismaService.transactionLedger.update({
         where: { txnId: userInput.txnid },
         data: {
           status: TransactionStatusEnum.DECLINED,
-          paymentGatewayTxnId: userInput.undefinedmihpayid,
-          settledAt: new Date(userInput.addedon).getTime(),
-          metadata: data ? { ...data, content: userInput.field9 } : {},
+          paymentGatewayTxnId: userInput.razorpay_order_id,
+          settledAt: new Date().getTime(),
+          metadata: {
+            error_code: userInput.error_code ?? null,
+            error_description: userInput.error_description ?? null,
+          },
           Booking: {
             update: {
               data: { bookingstatus: BookingStatusEnum.TRANSACTIONPENDING },
@@ -206,7 +244,7 @@ export class AdminTransactionService {
         },
       });
       return { success: 'true' };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -219,22 +257,49 @@ export class AdminTransactionService {
     try {
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
+      const isValidSignature =
+        this.paymentService.verifyPaymentSignature(userInput);
+      if (!isValidSignature) {
+        this.logger.warn(
+          `Invalid Razorpay signature for payment ${userInput.razorpay_payment_id}`,
+        );
+        return { error: { status: 403, message: 'Invalid payment signature' } };
+      }
       if (!userInput.bookingid || typeof userInput.bookingid !== 'number') {
         return { error: { status: 422, message: 'Booking id required' } };
       }
-      const { data } = makePaymentdetailsjson(userInput);
+      const { data: razorpayPayment, error: fetchError } =
+        await this.paymentService.getPaymentDetails(
+          userInput.razorpay_payment_id,
+        );
+      if (fetchError || !razorpayPayment) {
+        this.logger.error(
+          `Failed to fetch extension payment details for ${userInput.razorpay_payment_id}`,
+          fetchError,
+        );
+        return {
+          error: fetchError ?? {
+            status: 500,
+            message: 'Failed to fetch payment details',
+          },
+        };
+      }
+      const { data: paymentDetailsJson } =
+        makePaymentdetailsjson(razorpayPayment);
       await this.prismaService.$transaction([
         this.prismaService.transactionLedger.create({
           data: {
             status: TransactionStatusEnum.REFUNDED,
-            paymentGatewayTxnId: userInput.undefinedmihpayid,
+            paymentGatewayTxnId: userInput.razorpay_payment_id,
             transactionType: 'REFUND_TO_USER',
-            metadata: data || {},
+            metadata: paymentDetailsJson ?? {},
             txnId: userInput.txnid,
-            paymentMethod: data.paymentMethod,
-            netAmount: Number(userInput.amount),
-            grossAmount: Number(userInput.amount),
-            settledAt: new Date(userInput.addedon).getTime(),
+            paymentMethod: paymentDetailsJson.paymentMethod,
+            netAmount: Number(razorpayPayment.amount),
+            grossAmount: Number(razorpayPayment.amount),
+            settledAt: razorpayPayment.created_at
+              ? razorpayPayment.created_at * 1000
+              : new Date().getTime(),
             ToPartyUser: { connect: { id: userId } },
             fromParty: 'ADMIN',
             toParty: 'USER',
@@ -253,36 +318,47 @@ export class AdminTransactionService {
         }),
       ]);
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
   }
 
-  async onFailedRefundPayment(userInput: refundAmountInputDto, userId: string) {
+  async onFailedRefundPayment(
+    userInput: Pick<
+      refundAmountInputDto,
+      'razorpay_order_id' | 'txnid' | 'amount' | 'bookingid'
+    > & {
+      error_code?: string;
+      error_description?: string;
+    },
+    userId: string,
+  ) {
     try {
       const { error } = validateFailurePaymentStatus(userInput);
       if (error) return { error };
-      const { data } = makePaymentdetailsjson(userInput);
       await this.prismaService.transactionLedger.create({
         data: {
           status: TransactionStatusEnum.DECLINED,
-          paymentGatewayTxnId: userInput.undefinedmihpayid,
+          paymentGatewayTxnId: userInput.razorpay_order_id,
           transactionType: 'REFUND_TO_USER',
           fromParty: 'ADMIN',
           toParty: 'USER',
-          metadata: data || {},
+          metadata: {
+            error_code: userInput.error_code ?? null,
+            error_description: userInput.error_description ?? null,
+          },
           txnId: userInput.txnid,
           paymentMethod: 'CASH',
           grossAmount: Number(userInput.amount),
           netAmount: Number(userInput.amount),
-          settledAt: new Date(userInput.addedon).getTime(),
+          settledAt: new Date().getTime(),
           FromPartyUser: { connect: { id: userId } },
           Booking: { connect: { id: userInput.bookingid } },
         },
       });
       return { success: 'true' };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -298,7 +374,7 @@ export class AdminTransactionService {
         return { error };
       }
       const { data: paymentdata } = makePaymentdetailsjson(
-        updateparams.metadata as unknown as payUTransactionDetailsDto,
+        updateparams.metadata as unknown as RazorpayPaymentDetailsDto,
       );
       const allTxIds = updateparams.ids.split(',');
       const transactiondata =
@@ -334,6 +410,6 @@ export class AdminTransactionService {
         },
       });
       return { data: { totalAmountPaid: allamounts } };
-    } catch (error) {}
+    } catch (error:any) {}
   }
 }

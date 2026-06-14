@@ -11,7 +11,7 @@ export function validateCompanionSettingDto(
       );
       companionSettingDto.availabletimeslot = tempslots;
     }
-  } catch (error) {
+  } catch (error:any) {
     console.log(
       'Error JSON in availabletimeslot',
       error,

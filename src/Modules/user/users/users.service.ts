@@ -25,13 +25,13 @@ export class UsersService {
 
   async deleteUser(userId: string): Promise<successErrorReturnDto> {
     try {
-      // eslint-disable-next-line
+       
       const updateUser = await this.prismaService.user.update({
         where: { id: userId },
         data: { isDeleted: true, expiryDate: getdeletedUserexpirydate() },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -77,7 +77,7 @@ export class UsersService {
         Images: userDetails.Images,
       };
       return { data: sendData };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -97,7 +97,7 @@ export class UsersService {
       }
       const finaldata = filterCompanionDetailsbyuser(data.Companion[0], data);
       return { data: finaldata };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -127,7 +127,7 @@ export class UsersService {
       const filtered = { ...data, phoneno: String(data.phoneno) };
       // const finaldata = filterCompanionDetailsbyuser(data.Companion[0], data);
       return { data: filtered };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -204,7 +204,7 @@ export class UsersService {
         })),
       };
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -253,7 +253,7 @@ export class UsersService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -317,7 +317,7 @@ export class UsersService {
         });
       }
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }

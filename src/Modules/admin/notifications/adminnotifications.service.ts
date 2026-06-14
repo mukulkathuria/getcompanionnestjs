@@ -15,7 +15,7 @@ export class AdminNotificationServices {
       });
       const values = data.map((l) => ({ ...l, expiry: String(l.expiry) }));
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }

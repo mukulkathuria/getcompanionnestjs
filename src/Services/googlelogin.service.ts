@@ -22,7 +22,7 @@ export class GoogleService {
       });
       const data = payload.getPayload();
       return { data };
-    } catch (error) {
+    } catch (error:any) {
       return {
         error: {
           status: 500,

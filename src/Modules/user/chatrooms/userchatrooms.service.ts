@@ -55,7 +55,7 @@ export class UserChatRoomsService {
         },
       }));
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -75,7 +75,7 @@ export class UserChatRoomsService {
         orderBy: { createdAt: 'asc' },
       });
       return { data };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }

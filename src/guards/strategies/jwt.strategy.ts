@@ -36,8 +36,8 @@ export const validateToken = (token: string | undefined) => {
         return { error: { status: 403, message: 'Not a Authorised User' } };
       }
       return { data };
-      // eslint-disable-next-line
-    } catch (error) {
+       
+    } catch (error:any) {
       return { error: { status: 403, message: 'Not a Authorised User' } };
     }
   }
@@ -54,7 +54,7 @@ export const decodeRefreshToken = (token: string) => {
       process.env[RefreshTokenSecret],
     ) as RefreshTokenDto;
     return { data };
-    // eslint-disable-next-line
+     
   } catch (err) {
     return { error: 'Not valid Token' };
   }
@@ -70,7 +70,7 @@ export const decodeAccessToken = (token: string) => {
       process.env[AccessTokenSecret],
     ) as AccessTokenDto;
     return { data };
-    // eslint-disable-next-line
+     
   } catch (err) {
     return { error: 'Not valid Token' };
   }
@@ -85,7 +85,7 @@ export const decodeExpressRequest = (req: Request) => {
         process.env[AccessTokenSecret],
       ) as AccessTokenDto;
       return { data };
-      // eslint-disable-next-line
+       
     } catch (err) {
       return { error: 'Not valid Token' };
     }

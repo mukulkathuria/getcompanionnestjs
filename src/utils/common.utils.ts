@@ -1,4 +1,4 @@
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { CompanionDistanceDto } from 'src/dto/companionfind.dto';
 import { coordinatesDto } from 'src/dto/location.dto';
 
@@ -98,7 +98,7 @@ export function sortCompanion(
 export function addHours(
   hour: number,
   hourorminute?: dayjs.ManipulateType,
-  unixTimeStamp?: BigInt,
+  unixTimeStamp?: bigint,
 ) {
   return unixTimeStamp
     ? dayjs(parseInt(String(unixTimeStamp)))

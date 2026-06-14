@@ -38,7 +38,7 @@ export class AdminBookingService {
         bookingstart: String(l.bookingstart),
       }));
       return { data: filtereddata };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -119,7 +119,7 @@ export class AdminBookingService {
       };
       delete values.transactionLedger;
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -166,7 +166,7 @@ export class AdminBookingService {
         bookings: values,
       };
       return { data: finalvalue };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -196,7 +196,7 @@ export class AdminBookingService {
         bookingstart: String(l.bookingstart),
       }));
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -230,7 +230,7 @@ export class AdminBookingService {
         bookingstart: String(l.bookingstart),
       }));
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -263,7 +263,7 @@ export class AdminBookingService {
         updatedAt: timeAgo(l.updatedAt.toISOString()),
       }));
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -284,7 +284,7 @@ export class AdminBookingService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -339,7 +339,7 @@ export class AdminBookingService {
         )?.refundAmount,
       }));
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -398,7 +398,7 @@ export class AdminBookingService {
         bookings: values,
       };
       return { data: finalvalue };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },

@@ -33,7 +33,7 @@ export class CompanionSettingService {
         },
       });
       return { data };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error.message, error.stack);
       return { error: 'Server Error', status: 500 };
     }
@@ -126,7 +126,7 @@ export class CompanionSettingService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error.message, error.stack);
       return { error: 'Server Error', status: 500 };
     }
@@ -155,7 +155,7 @@ export class CompanionSettingService {
        }
       });
       return { data };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error.message, error.stack);
       return { error: 'Server Error', status: 500 };
     }

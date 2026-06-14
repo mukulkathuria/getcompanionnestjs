@@ -61,7 +61,7 @@ export class CompanionRequestService {
       };
       await this.prismaService.companionrequests.create({ data: userdata });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -151,7 +151,7 @@ export class CompanionRequestService {
       return {
         success: true,
       };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },

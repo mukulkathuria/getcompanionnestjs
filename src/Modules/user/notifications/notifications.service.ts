@@ -43,7 +43,7 @@ export class UserNotificationServices {
         finalResults.push(data[i]);
       }
       return { data: finalResults.filter((l) => l) };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -61,7 +61,7 @@ export class UserNotificationServices {
         data: { expiry: Date.now() },
       });
       return { success: true, message: 'Notification cleared' };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }

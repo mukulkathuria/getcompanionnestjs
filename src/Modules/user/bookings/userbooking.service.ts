@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { Notificationhours } from 'src/constants/common.constants';
 import {
   BookingDurationUnitEnum,
@@ -53,7 +53,7 @@ export class UserBookingsService {
         return { error: { status: 404, message: 'No Bookings are available' } };
       }
       return { data };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -107,7 +107,7 @@ export class UserBookingsService {
         bookings: filtervalues.slice((pageNo - 1) * 5, pageNo * 5),
       };
       return { data: finalvalue };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -194,7 +194,7 @@ export class UserBookingsService {
           isSlotAvailable[0].Companion[0],
         ),
       };
-      // eslint-disable-next-line
+       
       const data = await this.prismaService.booking.create({
         data: {
           User: {
@@ -238,7 +238,7 @@ export class UserBookingsService {
         },
       });
       return { success: true, bookingid: data.id };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -319,7 +319,7 @@ export class UserBookingsService {
             : null,
         },
       };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -430,7 +430,7 @@ export class UserBookingsService {
         return { success: 'Its under consideration. please contact admin' };
       }
       const timeofcancellation =
-        (Number(bookingDetails.bookingstart) - Date.now())/ (1000 * 60 * 60);
+        (Number(bookingDetails.bookingstart) - Date.now()) / (1000 * 60 * 60);
       if (timeofcancellation <= 0) {
         return {
           error: { status: 422, message: "You can't cancel past booking" },
@@ -505,7 +505,7 @@ export class UserBookingsService {
         // cancel booking transaction pending
       }
       return { success: `Successfully cancelled the booking` };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -547,7 +547,7 @@ export class UserBookingsService {
           User: data.User.map((l) => ({ ...l, phoneno: String(l.phoneno) })),
         },
       };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -584,7 +584,7 @@ export class UserBookingsService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -618,7 +618,7 @@ export class UserBookingsService {
           bookingend: String(data.bookingend),
         },
       };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -640,7 +640,7 @@ export class UserBookingsService {
           }))
         : [];
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -718,7 +718,7 @@ export class UserBookingsService {
         bookings: filtervalues.slice((pageNo - 1) * 5, pageNo * 5),
       };
       return { data: finalvalue };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -768,7 +768,7 @@ export class UserBookingsService {
         })),
       }));
       return { data: filtervalues };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -845,7 +845,7 @@ export class UserBookingsService {
         bookings: filtervalues.slice((pageNo - 1) * 5, pageNo * 5),
       };
       return { data: finalvalue };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -889,7 +889,7 @@ export class UserBookingsService {
           : null,
       };
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -934,7 +934,7 @@ export class UserBookingsService {
         });
       }
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }

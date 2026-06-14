@@ -37,7 +37,7 @@ export class NodeMailerService {
           },
         };
       }
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
       return {
         error: {

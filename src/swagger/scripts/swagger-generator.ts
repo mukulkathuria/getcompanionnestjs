@@ -225,7 +225,7 @@ async function processControllers() {
     console.log('Note: This script only analyzes controllers. You need to manually add the decorators.');
     console.log('Use the output above as a guide for adding decorators to each controller method.');
     
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error processing controllers:', error);
   }
 }

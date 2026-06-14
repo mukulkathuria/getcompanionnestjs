@@ -21,7 +21,7 @@ export class Tokenmiddleware implements NestMiddleware {
             console.log("Decoded Token", decodedToken)
           req = updatedReq;
         }
-      } catch (error) {
+      } catch (error:any) {
         console.error('Invalid token', error);
       }
     }

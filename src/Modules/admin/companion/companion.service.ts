@@ -120,7 +120,7 @@ export class CompanionService {
       return {
         success: true,
       };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -153,7 +153,7 @@ export class CompanionService {
           error: { status: 422, message: 'Images more than 4 is not allowed' },
         };
       }
-      // eslint-disable-next-line
+       
       const updateuser = await this.prismaService.user.update({
         where: { id },
         data: {
@@ -176,7 +176,7 @@ export class CompanionService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
     }
@@ -198,7 +198,7 @@ export class CompanionService {
       return {
         data: data.map((l) => ({ ...l, createdAt: String(l.createdAt) })),
       };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
     }
@@ -299,7 +299,7 @@ export class CompanionService {
         },
       };
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
     }
@@ -381,7 +381,7 @@ export class CompanionService {
         this.prismaService.$queryRawUnsafe(createPaymentMethodQuery),
       ]);
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
     }
@@ -402,7 +402,7 @@ export class CompanionService {
         data: { status: companioninput.approve ? 'ACCEPTED' : 'REJECTED' },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
     }
@@ -450,7 +450,7 @@ export class CompanionService {
         totalRatings: l.ratingsReceived.length,
       }));
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -519,7 +519,7 @@ export class CompanionService {
           }
         : null;
       return { data: value };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -554,7 +554,7 @@ export class CompanionService {
       // }));
       const values = data.map((l) => l.User);
       return { data: values };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -570,7 +570,7 @@ export class CompanionService {
         return { error };
       }
       return { data };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -596,7 +596,7 @@ export class CompanionService {
         data: { bookingrate: inputs.updatedprice },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return {
         error: { status: 500, message: 'Server error' },
@@ -621,7 +621,7 @@ export class CompanionService {
         },
       });
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.error(error?.message || error);
       return { error: { status: 500, message: 'Something went wrong' } };
     }

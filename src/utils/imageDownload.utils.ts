@@ -63,7 +63,7 @@ export async function handleImageInStorage(
       }
     }
     return imageUrls;
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error handling image in storage:', error);
   }
 }

@@ -1,73 +1,121 @@
-import { errorDto } from 'src/dto/common.dto';
+import { errorMsgDto } from 'src/dto/common.dto';
 import {
   CardTypeEnum,
   NetBankingNamesEnum,
   paymentdetailsDto,
-  PaymentmethodEnum,
-  payUTransactionDetailsDto,
+  RazorpayPaymentDetailsDto,
   WalletBankEnum,
 } from 'src/dto/transactions.dto';
 import { UPIBanksData } from 'src/validations/data/transaction.validationdata';
 
-interface payUTransactionDetailsJsonReturnDto {
+interface RazorpayPaymentDetailsJsonReturnDto {
   data?: paymentdetailsDto;
-  error?: errorDto;
+  error?: errorMsgDto;
 }
 
+/**
+ * Resolves the UPI app name from a virtual payment address (VPA).
+ * Looks up each entry in UPIBanksData — which maps app names to
+ * comma-separated VPA handle substrings — and returns the first match.
+ */
+const resolveUPIBank = (vpa: string): string | undefined => {
+  if (!vpa) return undefined;
+  const upibankKeys = Object.keys(UPIBanksData);
+  for (const key of upibankKeys) {
+    const handles = UPIBanksData[key].split(',').map((h: string) => h.trim());
+    if (handles.some((handle: string) => vpa.includes(handle))) {
+      return key;
+    }
+  }
+  return undefined;
+};
+
+/**
+ * Maps a raw Razorpay payment object to the normalised `paymentdetailsDto`
+ * shape that is stored in `TransactionLedger.metadata`.
+ *
+ * Razorpay method values:
+ *   'card' | 'netbanking' | 'wallet' | 'upi' | 'emi' | 'paylater' | 'bank_transfer'
+ */
 export const makePaymentdetailsjson = (
-  userInput: payUTransactionDetailsDto,
-): payUTransactionDetailsJsonReturnDto => {
-  const paymentMethod =
-    PaymentmethodEnum[userInput?.mode as keyof typeof PaymentmethodEnum];
-  const cardDetails = {};
-  switch (true) {
-    case paymentMethod === PaymentmethodEnum.DC ||
-      paymentMethod === PaymentmethodEnum.CC:
-      cardDetails['cardType'] =
-        CardTypeEnum[userInput.bankcode as keyof typeof CardTypeEnum];
-      cardDetails['cardNumber'] = userInput.cardnum;
-      break;
-    case paymentMethod === PaymentmethodEnum.WALLET:
-      cardDetails['walletBank'] =
-        WalletBankEnum[userInput.bankcode as keyof typeof WalletBankEnum];
-      break;
-    case paymentMethod === PaymentmethodEnum.UPI: {
-      cardDetails['UPIid'] = userInput.vpa;
-      const upibankKeys = Object.keys(UPIBanksData);
-      for (let i = 0; i < upibankKeys.length; i++) {
-        if (
-          UPIBanksData[upibankKeys[i]]
-            .split(',')
-            .some((l) => userInput.vpa.includes(l.trim()))
-        ) {
-          cardDetails['UPIBank'] = upibankKeys[i];
-          break;
-        }
+  razorpayPayment: RazorpayPaymentDetailsDto,
+): RazorpayPaymentDetailsJsonReturnDto => {
+  if (!razorpayPayment) {
+    return { error: { status: 422, message: 'Payment details are missing' } };
+  }
+
+  const method = razorpayPayment.method;
+  const methodDetails: Partial<paymentdetailsDto> = {};
+
+  switch (method) {
+    case 'card': {
+      const card = razorpayPayment.card;
+      if (card) {
+        // Normalise network name against our enum; fall back to UNKNOWN
+        const networkKey = Object.keys(CardTypeEnum).find(
+          (k) =>
+            CardTypeEnum[k as keyof typeof CardTypeEnum].toLowerCase() ===
+            card.network?.toLowerCase(),
+        );
+        methodDetails.cardType = networkKey
+          ? CardTypeEnum[networkKey as keyof typeof CardTypeEnum]
+          : CardTypeEnum.UNKNOWN;
+
+        // Store only last 4 digits — never the full PAN
+        methodDetails.cardNumber = card.last4 ? `****${card.last4}` : undefined;
+        // 'credit' | 'debit' — maps to our CardTypeEnum concept of "category"
+        methodDetails.cardCategory = card.type;
       }
       break;
     }
-    case paymentMethod === PaymentmethodEnum.NB:
-      cardDetails['bankDetails'] =
-        NetBankingNamesEnum[
-          userInput.bankcode as keyof typeof NetBankingNamesEnum
-        ];
-      cardDetails['netBanking'] =
-        NetBankingNamesEnum[
-          userInput.bankcode as keyof typeof NetBankingNamesEnum
-        ];
+
+    case 'wallet': {
+      const walletCode = razorpayPayment.wallet;
+      if (walletCode) {
+        const walletKey = Object.keys(WalletBankEnum).find(
+          (k) =>
+            WalletBankEnum[k as keyof typeof WalletBankEnum].toLowerCase() ===
+            walletCode.toLowerCase(),
+        );
+        methodDetails.walletBank = walletKey
+          ? WalletBankEnum[walletKey as keyof typeof WalletBankEnum]
+          : undefined;
+      }
       break;
+    }
+
+    case 'upi': {
+      const vpa = razorpayPayment.vpa;
+      methodDetails.UPIid = vpa;
+      methodDetails.UPIBank = resolveUPIBank(vpa);
+      break;
+    }
+
+    case 'netbanking': {
+      const bankCode = razorpayPayment.bank;
+      if (bankCode) {
+        const nbKey = Object.keys(NetBankingNamesEnum).find(
+          (k) => k === bankCode,
+        );
+        const resolvedBank = nbKey
+          ? NetBankingNamesEnum[nbKey as keyof typeof NetBankingNamesEnum]
+          : bankCode; // fall back to the raw code if not in our enum
+        methodDetails.bankDetails = resolvedBank;
+        methodDetails.netBanking = resolvedBank as NetBankingNamesEnum;
+      }
+      break;
+    }
+
+    // emi, paylater, bank_transfer — no extra fields to map currently
     default:
       break;
   }
-  const data = {
-    paymentId: userInput.undefinedmihpayid || new Date().getTime().toString(),
-    paymentMethod:
-      PaymentmethodEnum[userInput.mode as keyof typeof PaymentmethodEnum],
-    mappedstatus: userInput.unmappedstatus,
-    ...cardDetails,
+
+  const data: paymentdetailsDto = {
+    paymentId: razorpayPayment.id,
+    paymentMethod: method,
+    ...methodDetails,
   };
-  if (userInput.cardCategory) {
-    data['cardCategory'] = userInput.cardCategory;
-  }
+
   return { data };
 };

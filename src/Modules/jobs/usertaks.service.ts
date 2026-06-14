@@ -37,7 +37,7 @@ export class UserTasksService {
       });
       this.logger.log('CompanionAvailability updated successfully');
       return { success: true };
-    } catch (error) {
+    } catch (error:any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
