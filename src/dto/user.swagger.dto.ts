@@ -100,9 +100,9 @@ export class UpdateUserProfileDto {
 export class CompanionUpdateRequestDto {
   @ApiProperty({
     description: 'Companion ID',
-    example: '123e4567-e89b-12d3-a456-426614174001'
+    example: 1
   })
-  companionId: string;
+  companionId: number;
 
   @ApiProperty({
     description: 'Hourly rate',
@@ -129,9 +129,9 @@ export class CompanionUpdateRequestDto {
 export class CompanionDetailsQueryDto {
   @ApiProperty({
     description: 'Companion ID',
-    example: '123e4567-e89b-12d3-a456-426614174001'
+    example: 1
   })
-  companionId: string;
+  companionId: number;
 }
 
 export class UserProfileResponseDto {

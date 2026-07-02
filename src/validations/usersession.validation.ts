@@ -25,7 +25,7 @@ export const checkValidStartSessionData = (
 export const checkValidEndSessionData = (
   sessiondetails: SessionIdBodyParamsDto,
 ): controllerReturnDto => {
-  if (!sessiondetails.sessionid || !sessiondetails.sessionid.trim().length) {
+  if (!sessiondetails.sessionid || typeof sessiondetails.sessionid !== 'number') {
     return { error: { status: 422, message: 'Session Id is required' } };
   }
   return { success: true };

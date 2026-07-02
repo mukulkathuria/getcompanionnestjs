@@ -87,7 +87,7 @@ export class CompanionController {
     const { success, error } = await this.companionservice.updateUserProfile(
       userinfo,
       images,
-      id.id,
+      Number(id.id),
     );
     if (success) {
       return {
@@ -149,7 +149,7 @@ export class CompanionController {
       await this.companionservice.updateCompanionDetails(
         userinfo,
         images,
-        id.id,
+        Number(id.id),
       );
     if (success) {
       return {
@@ -244,7 +244,7 @@ export class CompanionController {
     }
     const { data, error } =
       await this.companionservice.getnewCompanionRequestDetails(
-        queryparams.companionId,
+        Number(queryparams.companionId),
       );
     if (data) {
       return {
@@ -266,7 +266,7 @@ export class CompanionController {
       throw new HttpException('Invalid User', 422);
     }
     const { success, error } =
-      await this.companionservice.updateCompanionBasePrice(inputs, id.id);
+      await this.companionservice.updateCompanionBasePrice(inputs, Number(id.id));
     if (success) {
       return {
         success,

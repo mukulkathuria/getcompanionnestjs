@@ -39,15 +39,8 @@ export const validatePaymentInitiation = (
   if (error) {
     return { error };
   }
-  if (!userinputs.surl) {
-    return { error: { status: 422, message: 'Surl is required' } };
-  } else if (!userinputs.surl.trim().length) {
-    return { error: { status: 422, message: 'Surl is not valid' } };
-  } else if (!userinputs.furl) {
-    return { error: { status: 422, message: 'Furl is required' } };
-  } else if (!userinputs.furl.trim().length) {
-    return { error: { status: 422, message: 'Furl is not valid' } };
-  } else if (!userinputs.productinfo) {
+
+  if (!userinputs.productinfo) {
     return { error: { status: 422, message: 'Product Info is required' } };
   } else if (!userinputs.productinfo.trim().length) {
     return { error: { status: 422, message: 'Product Info is not valid' } };
@@ -105,7 +98,9 @@ export const validateadmincompaniontransaction = (
   data: updatependingtransactionforcompanionDto,
 ): successErrorDto => {
   if (!data.txId) {
-    return { error: { status: 422, message: 'Razorpay Transaction id is required' } };
+    return {
+      error: { status: 422, message: 'Razorpay Transaction id is required' },
+    };
   } else if (!data.ids) {
     return { error: { status: 422, message: 'Transaction ids is required' } };
   } else if (!data.ids.split(',').filter(Boolean).length) {

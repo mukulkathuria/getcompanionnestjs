@@ -263,7 +263,7 @@ export function validateRequestInput(
   idString: string,
 ) {
   const { id, approve, reject } = requestInput;
-  if (!id || !id.trim().length) {
+  if (!id || typeof id !== 'number') {
     return { error: { status: 422, message: `${idString} Id is required` } };
   } else if (!approve && !reject) {
     return { error: { status: 422, message: 'Approve or reject is required' } };

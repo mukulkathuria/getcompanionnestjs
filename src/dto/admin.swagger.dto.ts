@@ -34,10 +34,10 @@ export class AdminResponseDto {
 export class CompanionApprovalDto {
   @ApiProperty({
     description: 'Companion ID to approve',
-    example: '60d21b4667d0d8992e610c85',
-    type: String,
+    example: 60,
+    type: Number,
   })
-  companionId: string;
+  companionId: number;
 
   @ApiProperty({
     description: 'Approval status',
@@ -50,10 +50,10 @@ export class CompanionApprovalDto {
 export class BookingStatusUpdateDto {
   @ApiProperty({
     description: 'Booking ID to update',
-    example: '60d21b4667d0d8992e610c85',
-    type: String,
+    example: 56,
+    type: Number,
   })
-  bookingId: string;
+  bookingId: number;
 
   @ApiProperty({
     description: 'New booking status',
@@ -115,5 +115,5 @@ export class AdminIssueResponseDto {
     example: '60d21b4667d0d8992e610c86',
     type: String,
   })
-  userId: string;
+  userId: Number;
 }

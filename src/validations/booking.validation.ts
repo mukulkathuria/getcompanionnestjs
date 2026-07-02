@@ -18,9 +18,9 @@ export function isUserBookingValid(
   userinfo: userBookingBodyDto,
 ): userBookingReturnDto {
   dayjs.extend(customParseFormat);
-  if (!userinfo.companionId || !userinfo.companionId?.trim().length) {
+  if (!userinfo.companionId || typeof userinfo.companionId !== 'number') {
     return { error: { status: 422, message: 'Companion Id is required' } };
-  } else if (!userinfo.userId || !userinfo.userId?.trim().length) {
+  } else if (!userinfo.userId || typeof userinfo.userId !== 'number') {
     return { error: { status: 422, message: 'User Id is required' } };
   } else if (
     !userinfo.bookingdate ||
@@ -70,7 +70,7 @@ export function isUserBookingValid(
 
 export function checkValidCancelBookngInputs(
   cancelInputs: cancelBookingInputDto,
-  userId: string,
+  userId: number,
 ): successErrorDto {
   if (!userId) {
     return { error: { status: 422, message: 'User Id is required' } };

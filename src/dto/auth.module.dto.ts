@@ -85,7 +85,7 @@ export interface loginUserDto extends successErrorDto, userTokenDto {
 
 export interface logoutParamsDto {
   email: string;
-  reId: string;
+  reId: number;
 }
 
 export type refreshTokenParamsDto = {

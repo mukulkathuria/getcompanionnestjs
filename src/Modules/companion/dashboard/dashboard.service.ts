@@ -7,7 +7,7 @@ export class CompanionDashboardService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(CompanionDashboardService.name);
 
-  async getCompanionDashboard(companionId: string) {
+  async getCompanionDashboard(companionId: number) {
     try {
       const query = getCompanionDashboardQuery(companionId);
       const data = await this.prismaService.$queryRawUnsafe(query);

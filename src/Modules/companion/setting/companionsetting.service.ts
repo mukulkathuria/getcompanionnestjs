@@ -9,7 +9,7 @@ export class CompanionSettingService {
   constructor(private readonly prismaService: PrismaService) {}
   readonly logger = new Logger(CompanionSettingService.name);
 
-  async getCompanionSetting(companionId: string) {
+  async getCompanionSetting(companionId: number) {
     try {
       const data = await this.prismaService.companion.findUnique({
         where: {
@@ -40,7 +40,7 @@ export class CompanionSettingService {
   }
 
   async updateCompanionSetting(
-    companionId: string,
+    companionId: number,
     companionSetting: CompanionSettingDto,
   ) {
     try {

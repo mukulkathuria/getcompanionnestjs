@@ -222,7 +222,7 @@ model notification {
   id                 Int                        @id @default(autoincrement())
   expiry             BigInt
   content            String
-  foruser            String?
+  foruser            Int?
   isGobal            Boolean                    @default(false)
   reminders          String[]                   @default([])
   fromModule         NotificationFromModuleEnum @default(GLOBAL)
@@ -231,11 +231,13 @@ model notification {
   User               User?                      @relation(fields: [foruser], references: [id])
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
+
+  @@index([foruser], type: Hash)
 }
 
 model location {
   id                    Int                  @id @default(autoincrement())
-  userid                String?
+  userid                Int?
   User                  Companion?           @relation(fields: [userid], references: [id])
   city                  String?
   zipcode               Int?
@@ -252,11 +254,14 @@ model location {
   Booking               Booking?             @relation(fields: [bookingid], references: [id])
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
+
+  @@index([userid], type: Hash)
+  @@index([bookingid], type: Hash)
 }
 
 model livelocation {
   id        Int      @id @default(autoincrement())
-  userid    String
+  userid    Int
   booking   Int
   Booking   Booking  @relation(fields: [booking], references: [id])
   User      User     @relation(fields: [userid], references: [id])
@@ -267,11 +272,14 @@ model livelocation {
   lng       Float?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userid], type: Hash)
+  @@index([booking], type: Hash)
 }
 
 model companionsearchlocations {
   id            Int      @id @default(autoincrement())
-  userid        String
+  userid        Int
   User          User     @relation(fields: [userid], references: [id])
   city          String?
   zipcode       Int?
@@ -282,10 +290,12 @@ model companionsearchlocations {
   remoteAddress String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([userid], type: Hash)
 }
 
 model User {
-  id                       String                     @id @default(uuid())
+  id                       Int                        @id @default(autoincrement())
   firstname                String
   lastname                 String
   email                    String                     @unique
@@ -321,11 +331,13 @@ model User {
   transactiontoParty       TransactionLedger[]        @relation("TransactionToParty")
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
+
+  @@index([email], type: Hash)
 }
 
 model Companion {
-  id                     String                     @id @default(uuid())
-  userid                 String                     @unique
+  id                     Int                        @id @default(autoincrement())
+  userid                 Int                        @unique
   User                   User                       @relation(fields: [userid], references: [id])
   bookingrate            Int
   bookingrateunit        CompanionBookingUnitEnum
@@ -347,6 +359,8 @@ model Companion {
   companionupdaterequest companionupdaterequest[]
   usersvisited           User[]                     @relation("uservisited")
   CompanionAvailability  CompanionAvailability?
+
+  @@index([userid], type: Hash)
 }
 
 model Booking {
@@ -373,17 +387,19 @@ model Booking {
   rating              rating[]
   statusHistory       BookingStatusHistory[]
   transactionLedger   TransactionLedger[]
+
+  @@index([id])
 }
 
 model BookingStatusHistory {
-  id                  String                @id @default(uuid())
+  id                  Int                   @id @default(autoincrement())
   bookingId           Int
   Booking             Booking               @relation(fields: [bookingId], references: [id])
   actionType          BookingActionTypeEnum
   previousStatus      BookingStatus?
   newStatus           BookingStatus
   actionPerformedBy   ActionPerformedByEnum
-  actionPerformedById String?
+  actionPerformedById Int?
   ActionUser          User?                 @relation("ActionPerformedByUser", fields: [actionPerformedById], references: [id])
   comment             String?
   previousRate        Float?
@@ -395,13 +411,15 @@ model BookingStatusHistory {
   metadata            Json? // Store additional data like reasons, calculations, etc.
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
+
+  @@index([bookingId], type: Hash)
 }
 
 model Transactions {
-  id              String            @id @default(uuid())
+  id              Int               @id @default(autoincrement())
   txnid           String            @unique
   payurefid       String
-  userid          String
+  userid          Int
   User            User              @relation(fields: [userid], references: [id])
   bookingid       Int
   Bookings        Booking           @relation(fields: [bookingid], references: [id])
@@ -412,19 +430,21 @@ model Transactions {
   paymentdetails  Json?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+
+  @@index([txnid], type: Hash)
 }
 
 model TransactionLedger {
-  id                     String               @id @default(uuid())
+  id                     Int                  @id @default(autoincrement())
   txnId                  String               @unique
   bookingId              Int
   Booking                Booking              @relation(fields: [bookingId], references: [id])
   transactionType        TransactionTypeEnum
   fromParty              TransactionPartyEnum
   toParty                TransactionPartyEnum
-  fromUserId             String?
+  fromUserId             Int?
   FromPartyUser          User?                @relation("TransactionfromParty", fields: [fromUserId], references: [id])
-  toCompanionId          String?
+  toCompanionId          Int?
   ToPartyUser            User?                @relation("TransactionToParty", fields: [toCompanionId], references: [id])
   grossAmount            Float
   platformFee            Float                @default(0)
@@ -442,10 +462,12 @@ model TransactionLedger {
   settledAt              BigInt?
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
+
+  @@index([txnId], type: Hash)
 }
 
 model AdminAccountBook {
-  id              String              @id @default(uuid())
+  id              Int                 @id @default(autoincrement())
   bookingId       Int
   transactionType TransactionTypeEnum
   description     String
@@ -464,12 +486,13 @@ model AdminAccountBook {
 
   @@index([month, year])
   @@index([transactionType])
+  @@index([bookingId], type: Hash)
 }
 
 model rating {
   id        Int      @id @default(autoincrement())
-  raterId   String
-  rateeId   String
+  raterId   Int
+  rateeId   Int
   ratings   Int
   comment   String?
   bookingId Int
@@ -478,10 +501,13 @@ model rating {
   ratee     User     @relation("Ratee", fields: [rateeId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([raterId, rateeId])
+  @@index([bookingId], type: Hash)
 }
 
 model ChatRoom {
-  id        String    @id @default(uuid())
+  id        Int    @id @default(autoincrement())
   bookingid Int
   Bookings  Booking   @relation(fields: [bookingid], references: [id])
   User      User[]
@@ -489,23 +515,28 @@ model ChatRoom {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   message   message[]
+
+  @@index([bookingid], type: Hash)
 }
 
 model message {
   id         Int      @id @default(autoincrement())
-  senderid   String
+  senderid   Int
   User       User     @relation(fields: [senderid], references: [id])
-  chatroomid String
+  chatroomid Int
   ChatRoom   ChatRoom @relation(fields: [chatroomid], references: [id])
   body       String
   isHide     Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([chatroomid], type: Hash)
+  @@index([senderid], type: Hash)
 }
 
 model userpaymentmethods {
-  id                String           @id @default(uuid())
-  userid            String
+  id                Int              @id @default(autoincrement())
+  userid            Int
   User              User             @relation(fields: [userid], references: [id])
   nickname          String?
   type              PaymentType
@@ -529,11 +560,11 @@ model userpaymentmethods {
   @@unique([userid, accountNumber, ifscCode])
   @@unique([userid, upiId])
   @@unique([userid, walletProvider, walletIdentifier])
-  @@index([userid, isActive])
+  @@index([userid], type: Hash)
 }
 
 model Sessions {
-  id               String   @id @default(uuid())
+  id               Int      @id @default(autoincrement())
   bookingid        Int
   Bookings         Booking  @relation(fields: [bookingid], references: [id])
   sessionStartTime BigInt
@@ -543,14 +574,16 @@ model Sessions {
   isExtended       Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([bookingid], type: Hash)
 }
 
 model userissues {
-  id          String               @id @default(uuid())
+  id          Int                  @id @default(autoincrement())
   issueId     String               @unique
   subject     String
   explanation String
-  userid      String
+  userid      Int
   User        User                 @relation(references: [id], fields: [userid])
   status      UserIssuesStatusEnum @default(ACTIVE)
   resolvedBy  String?
@@ -559,19 +592,25 @@ model userissues {
   comments    issuescomments[]
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
+
+  @@index([userid], type: Hash)
+  @@index([issueId], type: Hash)
 }
 
 model issuescomments {
   id          Int        @id @default(autoincrement())
-  issueid     String
+  issueid     Int
   UserIssue   userissues @relation(fields: [issueid], references: [id])
   comment     String
-  userid      String
+  userid      Int
   created     BigInt
   screenshots String[]   @default([])
   User        User       @relation(references: [id], fields: [userid])
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+
+  @@index([userid], type: Hash)
+  @@index([issueid], type: Hash)
 }
 
 model companionrequests {
@@ -589,7 +628,7 @@ model companionrequests {
 
 model companionupdaterequest {
   id               Int                         @id @default(autoincrement())
-  companionid      String
+  companionid      Int
   firstname        String
   lastname         String
   Images           String[]
@@ -609,6 +648,8 @@ model companionupdaterequest {
   status           AccountEnum                 @default(REVIEWED)
   createdAt        DateTime                    @default(now())
   updatedAt        DateTime                    @updatedAt
+
+  @@index([companionid], type: Hash)
 }
 
 model requestlocation {
@@ -631,7 +672,7 @@ model requestlocation {
 }
 
 model requestuserpaymentmethods {
-  id                 String                  @id @default(uuid())
+  id                 Int                     @id @default(autoincrement())
   companionrequestid Int?
   companionrequests  companionupdaterequest? @relation(fields: [companionrequestid], references: [id])
   nickname           String?
@@ -656,7 +697,7 @@ model requestuserpaymentmethods {
 
 model CompanionAvailability {
   id                Int                  @id @default(autoincrement())
-  companionId       String               @unique
+  companionId       Int               @unique
   Companion         Companion?           @relation(fields:[companionId], references: [id])
   isAvailable       Boolean              @default(false) // Whether the companion is available for the next 3 days
   startDate         BigInt // Start date of the availability period
@@ -664,6 +705,8 @@ model CompanionAvailability {
   availabletimeslot CompanionTimeSlot[]
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
+
+  @@index([companionId], type: Hash)
 }
 
 model CompanionTimeSlot {
@@ -675,4 +718,6 @@ model CompanionTimeSlot {
   endTime               BigInt // End time of the slot (e.g., "17:00")
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
+
+  @@index([availabilityId], type: Hash)
 }

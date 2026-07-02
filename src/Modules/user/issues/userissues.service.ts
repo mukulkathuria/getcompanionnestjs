@@ -22,7 +22,7 @@ export class UserIssuesServices {
   ) {}
   private readonly logger = new Logger(UserIssuesServices.name);
 
-  async getAllActiveIssues(userId: string) {
+  async getAllActiveIssues(userId: number) {
     try {
       const data = await this.prismaService.userissues.findMany({
         where: { status: 'ACTIVE', userid: userId },
@@ -90,7 +90,7 @@ export class UserIssuesServices {
   async createUserIssue(
     issueinput: createIssueInputDto,
     images: Express.Multer.File[],
-    userId: string,
+    userId: number,
   ): Promise<successErrorReturnDto> {
     try {
       const { error } = validateCreateIssueInput(issueinput, userId);
@@ -120,7 +120,7 @@ export class UserIssuesServices {
 
   async addCommentonIssue(
     commentInput: addCommentonIssueInputDto,
-    userId: string,
+    userId: number,
     images: Express.Multer.File[],
   ): Promise<successErrorReturnDto> {
     try {

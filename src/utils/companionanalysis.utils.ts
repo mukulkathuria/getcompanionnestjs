@@ -1,4 +1,4 @@
-export function getearningofCompanionQuery(companionId: string) {
+export function getearningofCompanionQuery(companionId: number) {
     return `
         WITH companion_bookings AS (
         SELECT 
@@ -217,7 +217,7 @@ export function getearningofCompanionQuery(companionId: string) {
 `
 }
 
-export function getCompanionDashboardQuery(companionId: string) {
+export function getCompanionDashboardQuery(companionId: number) {
     return `
        SELECT
     -- 1. This Month Earning

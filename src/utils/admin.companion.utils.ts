@@ -54,7 +54,7 @@ export const getupdateCompanionDetailrawQuey = (
   userinfo: registerCompanionBodyDto,
   user: registerCompanionBodyDto,
   baseids: number[],
-  paymentmethodids: string[],
+  paymentmethodids: number[],
 ) => {
   const location = userinfo.baselocations.map((l, i) => ({
     id: baseids[i],

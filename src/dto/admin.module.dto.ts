@@ -6,7 +6,7 @@ export interface AmountDto {
 }
 
 export interface statusUpdateInputDto {
-  id: string;
+  id: number;
   approve?: boolean;
   reject?: boolean;
 }

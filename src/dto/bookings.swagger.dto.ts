@@ -55,15 +55,15 @@ export class BookingLocationDto implements BookingMeetingLocationDto {
 export class CreateBookingDto {
   @ApiProperty({ 
     description: 'User ID',
-    example: '123e4567-e89b-12d3-a456-426614174000'
+    example: '12'
   })
-  userId: string;
+  userId: Number;
 
   @ApiProperty({ 
     description: 'Companion ID',
-    example: '123e4567-e89b-12d3-a456-426614174001'
+    example: '123'
   })
-  companionId: string;
+  companionId: Number;
 
   @ApiProperty({ 
     description: 'Booking date in ISO format',

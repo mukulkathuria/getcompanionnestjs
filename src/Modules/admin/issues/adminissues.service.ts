@@ -92,7 +92,7 @@ export class AdminIssuesServices {
   async createUserIssue(
     issueinput: createIssueInputDto,
     images: Express.Multer.File[],
-    userId: string,
+    userId: number,
   ): Promise<successErrorReturnDto> {
     try {
       const { error } = validateCreateIssueInput(issueinput, userId);
@@ -135,7 +135,7 @@ export class AdminIssuesServices {
 
   async addCommentonIssue(
     commentInput: addCommentonIssueInputDto,
-    userId: string,
+    userId: number,
     images: Express.Multer.File[],
   ): Promise<successErrorReturnDto> {
     try {
@@ -190,7 +190,7 @@ export class AdminIssuesServices {
   async updateIssueStatus(issueId: statusUpdateInputDto) {
     try {
       const id = issueId.id;
-      if (!id || !id.trim().length) {
+      if (!id || typeof id !== 'number') {
         return { error: { status: 422, message: 'Invalid Issue search' } };
       }
       const { error } = validateRequestInput(issueId, 'Issue');

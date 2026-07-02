@@ -209,7 +209,7 @@ export class AuthService {
     if (!email || !email.trim().length) {
       return { error: { status: 422, message: 'email is required' } };
     }
-    const { error } = Jwt.removeToken(reId);
+    const { error } = Jwt.removeToken(String(reId));
     if (error) {
       return { error: { status: 403, message: 'Invalid Token' } };
     }

@@ -7,23 +7,25 @@ export class JoinRoomDto implements joinedRoomDto {
     example: '60d21b4667d0d8992e610c85',
     type: String,
   })
-  roomid: string;
+  roomid: number;
+
+
 
   @ApiProperty({
     description: 'The unique identifier of the user joining the room',
-    example: '60d21b4667d0d8992e610c86',
-    type: String,
+    example: 60,
+    type: Number,
   })
-  userid: string;
+  userid: number;
 }
 
 export class MessageContentDto implements messageContentType {
   @ApiProperty({
     description: 'The unique identifier of the message sender',
     example: '60d21b4667d0d8992e610c86',
-    type: String,
+    type: Number,
   })
-  sender: string;
+  sender: number;
 
   @ApiProperty({
     description: 'The content of the message',

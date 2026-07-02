@@ -37,7 +37,7 @@ export class UserBookingController {
 
   @UseGuards(AuthGuard)
   @Get(UserBookingInnerRoute.upcomingbooking)
-  async getAllUpcomingBookingController(@Query() userId: string) {
+  async getAllUpcomingBookingController(@Query() userId: number) {
     const { data, error } =
       await this.userbookingservice.getAllBookingsForUser(userId);
     if (data) {
@@ -99,7 +99,7 @@ export class UserBookingController {
   ) {
     const { data, error } =
       await this.userbookingservice.checkBookedSlotsforCompanion(
-        companionId.companionId,
+        Number(companionId.companionId),
       );
     if (data) {
       return {
@@ -141,7 +141,7 @@ export class UserBookingController {
   @Get(UserBookingInnerRoute.getBookingDetailsforUser)
   async getBookingDetailsController(@Query() bookingid: bookingIdDto) {
     const { data, error } = await this.userbookingservice.getUserBookingDetails(
-      String(bookingid?.bookingid),
+      Number(bookingid?.bookingid),
     );
     if (data) {
       return {
@@ -186,7 +186,7 @@ export class UserBookingController {
   async getBookingDetailsforAllController(@Query() bookingid: bookingIdDto) {
     const { data, error } =
       await this.userbookingservice.getBookingforAllService(
-        String(bookingid?.bookingid),
+        Number(bookingid?.bookingid),
       );
     if (data) {
       return {

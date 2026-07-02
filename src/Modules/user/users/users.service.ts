@@ -23,7 +23,7 @@ export class UsersService {
   ) {}
   private readonly logger = new Logger(UsersService.name);
 
-  async deleteUser(userId: string): Promise<successErrorReturnDto> {
+  async deleteUser(userId: number): Promise<successErrorReturnDto> {
     try {
        
       const updateUser = await this.prismaService.user.update({
@@ -40,7 +40,7 @@ export class UsersService {
   async updateUserProfile(
     userinputs: UpdateUserProfileBodyDto,
     images: Express.Multer.File[],
-    id: string,
+    id: number,
   ) {
     try {
       const isUserExists = await this.prismaService.user.findUnique({
@@ -83,9 +83,9 @@ export class UsersService {
     }
   }
 
-  async getCompanionDetails(companionId: string) {
+  async getCompanionDetails(companionId: number) {
     try {
-      if (!companionId || typeof companionId !== 'string') {
+      if (!companionId || typeof companionId !== 'number') {
         return { error: { status: 422, message: 'Invalid companion search' } };
       }
       const data = await this.prismaService.user.findUnique({
@@ -103,9 +103,9 @@ export class UsersService {
     }
   }
 
-  async getUserDetails(userId: string) {
+  async getUserDetails(userId: number) {
     try {
-      if (!userId || typeof userId !== 'string') {
+      if (!userId || typeof userId !== 'number') {
         return { error: { status: 422, message: 'Invalid user search' } };
       }
       const data = await this.prismaService.user.findUnique({
@@ -133,9 +133,9 @@ export class UsersService {
     }
   }
 
-  async getfullCompanionDetails(userId: string) {
+  async getfullCompanionDetails(userId: number) {
     try {
-      if (!userId || typeof userId !== 'string') {
+      if (!userId || typeof userId !== 'number') {
         return { error: { status: 422, message: 'Invalid companion search' } };
       }
       const data = await this.prismaService.user.findUnique({
@@ -213,7 +213,7 @@ export class UsersService {
   async updatecompanionrequest(
     userinfo: CompanionUpdateRequestInputDto,
     images: Express.Multer.File[],
-    userId: string,
+    userId: number,
   ) {
     try {
       const { user, error } = validatecompanionupdaterequest(userinfo);
@@ -262,7 +262,7 @@ export class UsersService {
   async getUserOtherDetails(
     req: Request,
     bodyParams: UserlocationProfileDto,
-    userId: string,
+    userId: number,
   ): Promise<successErrorReturnDto> {
     try {
       const { error } = validateUserAgentlocation(bodyParams);

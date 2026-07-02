@@ -10,7 +10,7 @@ export const joinedRoomValidation = (roomdata: joinedRoomDto) => {
   const { roomid, userid } = roomdata;
   if (!roomid) {
     return { error: { status: 422, message: 'Chat Room is required' } };
-  } else if (!userid || !userid.trim().length) {
+  } else if (!userid || typeof userid !== 'number') {
     return { error: { status: 422, message: 'userid is required' } };
   }
   return { user: roomdata };
@@ -20,7 +20,7 @@ export const messageRoomValidation = (roomdata: messageRoomDto) => {
   const { roomid, userid, message } = roomdata;
   if (!roomid) {
     return { error: { status: 422, message: 'Chat Room is required' } };
-  } else if (!userid || !userid.trim().length) {
+  } else if (!userid || typeof userid !== 'number') {
     return { error: { status: 422, message: 'userid is required' } };
   } else if (message && (!message?.sender || !message?.content)) {
     return { error: { status: 422, message: 'Message Type is required' } };
@@ -32,7 +32,7 @@ export const fileSendValidation = (roomdata: sendFileDto) => {
   const { roomid, userid, file, mimeType } = roomdata;
   if (!roomid) {
     return { error: { status: 422, message: 'Chat Room is required' } };
-  } else if (!userid || !userid.trim().length) {
+  } else if (!userid || typeof userid !== 'number') {
     return { error: { status: 422, message: 'userid is required' } };
   } else if (!file) {
     return { error: { status: 422, message: 'File is required' } };

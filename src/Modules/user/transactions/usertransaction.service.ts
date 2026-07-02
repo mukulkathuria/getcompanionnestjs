@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { BookingStatusEnum } from 'src/dto/bookings.dto';
 import {
   BookingTransactionReturnDto,
@@ -43,7 +44,7 @@ export class UserTransactionService {
     }
   }
 
-  async getPreviousTransactions(userId: string) {
+  async getPreviousTransactions(userId: number) {
     try {
       const userDetails = await this.prismaService.user.findUnique({
         where: { id: userId },
@@ -226,8 +227,9 @@ export class UserTransactionService {
         data: {
           status: TransactionStatusEnum.COMPLETED,
           paymentGatewayTxnId: userInput.razorpay_payment_id,
-          metadata: paymentDetailsJson ?? {},
+          metadata: paymentDetailsJson as unknown as Prisma.InputJsonValue ?? {},
           paymentMethod: paymentDetailsJson?.paymentMethod ?? 'UNKNOWN',
+          paymentGatewayResponse: razorpayPayment as { [key: string]: any },
           settledAt: razorpayPayment.created_at
             ? razorpayPayment.created_at * 1000 // Razorpay returns UNIX seconds
             : new Date().getTime(),
@@ -256,7 +258,7 @@ export class UserTransactionService {
    * the order receipt) to look up and decline the pending transaction.
    */
   async onFailedPayment(
-    userInput: Pick<RazorpayVerifyPaymentDto, 'razorpay_order_id' | 'txnid'> & {
+    userInput: RazorpayVerifyPaymentDto & {
       error_code?: string;
       error_description?: string;
     },
@@ -269,11 +271,12 @@ export class UserTransactionService {
         where: { txnId: userInput.txnid },
         data: {
           status: TransactionStatusEnum.DECLINED,
-          paymentGatewayTxnId: userInput.razorpay_order_id,
+          paymentGatewayTxnId: userInput.razorpay_payment_id,
           settledAt: new Date().getTime(),
           metadata: {
             error_code: userInput.error_code ?? null,
             error_description: userInput.error_description ?? null,
+            order_id: userInput.razorpay_order_id ?? null,
           },
           Booking: {
             update: {
@@ -368,8 +371,9 @@ export class UserTransactionService {
         data: {
           status: TransactionStatusEnum.COMPLETED,
           paymentGatewayTxnId: userInput.razorpay_payment_id,
-          metadata: paymentDetailsJson ?? {},
+          metadata: paymentDetailsJson as unknown as Prisma.InputJsonValue ?? {},
           paymentMethod: paymentDetailsJson?.paymentMethod ?? 'UNKNOWN',
+          paymentGatewayResponse: razorpayPayment as { [key: string]: any },
           settledAt: razorpayPayment.created_at
             ? razorpayPayment.created_at * 1000
             : new Date().getTime(),
@@ -406,7 +410,7 @@ export class UserTransactionService {
       });
 
       return { success: true };
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.error('onsuccessfullPaymentofExtension', error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -417,7 +421,7 @@ export class UserTransactionService {
   // ---------------------------------------------------------------------------
 
   async onFailedPaymentofExtension(
-    userInput: Pick<RazorpayVerifyPaymentDto, 'razorpay_order_id' | 'txnid'> & {
+    userInput: RazorpayVerifyPaymentDto & {
       error_code?: string;
       error_description?: string;
     },
@@ -430,11 +434,12 @@ export class UserTransactionService {
         where: { txnId: userInput.txnid },
         data: {
           status: TransactionStatusEnum.DECLINED,
-          paymentGatewayTxnId: userInput.razorpay_order_id,
+          paymentGatewayTxnId: userInput.razorpay_payment_id,
           settledAt: new Date().getTime(),
           metadata: {
             error_code: userInput.error_code ?? null,
             error_description: userInput.error_description ?? null,
+            order_id: userInput.razorpay_order_id ?? null,
           },
           Booking: {
             update: {

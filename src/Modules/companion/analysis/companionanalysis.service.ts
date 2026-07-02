@@ -8,7 +8,7 @@ export class CompanionAnalysisService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(CompanionAnalysisService.name);
 
-  async getCompanionOverallAnalysis(companionId: string) {
+  async getCompanionOverallAnalysis(companionId: number) {
     try {
       const rawQuery = getearningofCompanionQuery(companionId);
       const data = await this.prismaService.$queryRawUnsafe(rawQuery);
@@ -20,7 +20,7 @@ export class CompanionAnalysisService {
   }
 
   async getallcompanioncompletedearnings(
-    companionId: string,
+    companionId: number,
     params: pageNoQueryDto,
   ) {
     try {
@@ -72,7 +72,7 @@ export class CompanionAnalysisService {
   }
 
   async getallcompanionpendingearnings(
-    companionId: string,
+    companionId: number,
     params: pageNoQueryDto,
   ) {
     try {

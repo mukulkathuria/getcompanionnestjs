@@ -6,7 +6,7 @@ export interface CompanionFindReturnDto extends errorDto {
   data?: Companion[];
 }
 export interface CompanionDistanceDto extends coordinatesDto {
-  id: string;
+  id: number;
   companiondata: Companion;
   images: string[];
   firstname: string;
@@ -29,5 +29,5 @@ export interface userCompanionFindLocationInputDto {
 }
 
 export interface companionDetailsQuery {
-  companionId: string;
+  companionId: number;
 }

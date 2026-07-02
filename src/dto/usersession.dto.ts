@@ -4,7 +4,7 @@ export interface StartBookingBodyparamsDto {
 } 
 
 export interface SessionIdBodyParamsDto {
-    sessionid: string;
+    sessionid: number;
 }
 
 export interface SessionExtendBodyParamsDto {

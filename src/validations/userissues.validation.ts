@@ -6,11 +6,11 @@ import {
 
 export function validateCreateIssueInput(
   input: createIssueInputDto,
-  userId: string
+  userId: number
 ): successErrorReturnDto {
   const trimmedExplanation = input?.explanation?.trim();
   const trimmedSubject = input?.subject?.trim();
-  const trimmedUserid = userId?.trim();
+  const trimmedUserid = userId;
 
   if (!trimmedExplanation) {
     return {
@@ -30,11 +30,11 @@ export function validateCreateIssueInput(
     };
   }
 
-  if (!trimmedUserid) {
+  if (!trimmedUserid || typeof trimmedUserid !== 'number') {
     return {
       error: {
         status: 422,
-        message: 'User ID cannot be empty.',
+        message: 'User ID must be a number.',
       },
     };
   }
@@ -44,13 +44,11 @@ export function validateCreateIssueInput(
 
 export function validateAddCommentonIssueInput(
   input: addCommentonIssueInputDto,
-  userId: string
+  userId: number
 ): successErrorReturnDto {
-  const trimmedUserId = userId.trim();
-  const trimmedIssueId = input?.issueId?.trim();
   const trimmedComment = input?.comment?.trim();
 
-  if (!trimmedUserId) {
+  if (!userId) {
     return {
       error: {
         status: 422,
@@ -59,11 +57,11 @@ export function validateAddCommentonIssueInput(
     };
   }
 
-  if (!trimmedIssueId) {
+  if (!input?.issueId || typeof input?.issueId !== 'number') {
     return {
       error: {
         status: 422,
-        message: 'Issue ID cannot be empty.',
+        message: 'Issue ID must be a number.',
       },
     };
   }

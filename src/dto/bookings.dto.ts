@@ -42,8 +42,8 @@ export interface BookingMeetingLocationDto {
 }
 
 export interface userBookingBodyDto {
-  userId: string;
-  companionId: string;
+  userId: number;
+  companionId: number;
   bookingdate: string;
   bookingduration: number;
   bookingdurationUnit: BookingDurationUnitEnum;
@@ -76,7 +76,7 @@ export interface ratingInputDto {
 }
 
 export interface userRatingDto extends ratingInputDto {
-  userId: string;
+  userId: number;
 }
 
 export interface updateextensionbokingInputDto {

@@ -6,7 +6,7 @@ export class UserNotificationServices {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(UserNotificationServices.name);
 
-  async getNotificationforUser(userId: string) {
+  async getNotificationforUser(userId: number) {
     try {
       const data = await this.prismaService.notification.findMany({
         where: {

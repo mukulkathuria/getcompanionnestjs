@@ -131,7 +131,7 @@ export class CompanionService {
   async updateUserProfile(
     userinputs: UpdateCompanionProfileBodyDto,
     images: Express.Multer.File[],
-    id: string,
+    id: number,
   ) {
     try {
       const isUserExists = await this.prismaService.user.findUnique({
@@ -308,7 +308,7 @@ export class CompanionService {
   async updateCompanionDetails(
     userinfo: registerCompanionBodyDto & previousImagesDto,
     images: Express.Multer.File[],
-    id: string,
+    id: number,
   ): Promise<successErrorDto> {
     const { user, error } = validateregisterCompanion(userinfo, true);
     if (error) {
@@ -458,7 +458,7 @@ export class CompanionService {
     }
   }
 
-  async getCompanionDetailsforupdateRate(id: string) {
+  async getCompanionDetailsforupdateRate(id: number) {
     try {
       const { getCompanionDetailsQueryforupdateRate } = await import(
         '../../../utils/booking.utils'
@@ -562,7 +562,7 @@ export class CompanionService {
     }
   }
 
-  async getnewCompanionRequestDetails(id: string) {
+  async getnewCompanionRequestDetails(id: number) {
     try {
       const { data, error } =
         await this.userservice.getfullCompanionDetails(id);
@@ -580,10 +580,10 @@ export class CompanionService {
 
   async updateCompanionBasePrice(
     inputs: updateCompanionPriceInputDto,
-    id: string,
+    id: number,
   ): Promise<successErrorDto> {
     try {
-      if (!id || !id.trim().length) {
+      if (typeof id !== 'number') {
         return { error: { status: 422, message: 'Companion Id is required' } };
       } else if (
         !inputs.updatedprice ||
@@ -606,11 +606,11 @@ export class CompanionService {
 
   async updatebeCompanionRequestStatus(bookingInput: statusUpdateInputDto) {
     try {
-      const id = bookingInput.id;
-      if (!id || typeof id !== 'string') {
+      const id = Number(bookingInput.id);
+      if (!id || typeof id !== 'number') {
         return { error: { status: 422, message: 'Invalid companion search' } };
       }
-      const { error } = validateRequestInput(bookingInput, 'Companion');
+      const { error } = validateRequestInput({ ...bookingInput, id }, 'Companion');
       if (error) {
         return { error };
       }

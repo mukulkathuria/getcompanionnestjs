@@ -7,7 +7,7 @@ export class UserChatRoomsService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(UserChatRoomsService.name);
 
-  async getAllChatRooms(userId: string): Promise<ChatRoomReturnDto> {
+  async getAllChatRooms(userId: number): Promise<ChatRoomReturnDto> {
     try {
       const data = await this.prismaService.chatRoom.findMany({
         where: {

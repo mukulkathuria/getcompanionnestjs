@@ -350,8 +350,8 @@ export class PaymentMethodValidator {
 
 export class PaymentMethodService {
   prisma: PrismaClient;
-  userid: string;
-  constructor(prisma?: PrismaClient, userid?: string) {
+  userid: number;
+  constructor(prisma?: PrismaClient, userid?: number) {
     this.prisma = prisma;
     this.userid = userid;
   }

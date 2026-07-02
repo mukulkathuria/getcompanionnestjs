@@ -46,8 +46,8 @@ export class ChatController {
       const { data, error: serverErr } =
         await this.eventService.adduserchatroom(roomdata);
       if (data) {
-        client.join(roomdata.roomid);
-        this.server.to(roomdata.roomid).emit('joinedUser', data);
+        client.join(String(roomdata.roomid));
+        this.server.to(String(roomdata.roomid)).emit('joinedUser', data);
       } else if (serverErr) {
         throw new WsException(serverErr);
       }
@@ -85,7 +85,7 @@ export class ChatController {
     if (!error) {
       const { userData } = await this.eventService.sendMessageRoom(data);
       if (userData) {
-        this.server.to(data.roomid).emit('message', userData); // room id has to be added
+        this.server.to(String(data.roomid)).emit('message', userData); // room id has to be added
       } else {
         throw new WsException('Chat room not available');
       }

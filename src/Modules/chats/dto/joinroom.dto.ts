@@ -5,12 +5,12 @@ export enum ImageMimeType {
   }
   
   export type joinedRoomDto = {
-    roomid: string;
-    userid: string;
+    roomid: number;
+    userid: number;
   };
   
   export interface messageContentType {
-    sender: string;
+    sender: number;
     content: string;
   }
 

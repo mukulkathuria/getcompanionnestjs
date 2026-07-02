@@ -45,7 +45,7 @@ export const filterSlotAvailability = (
   return bookings;
 };
 
-export const getAverageRatingRawQuery = (companionId: string) => {
+export const getAverageRatingRawQuery = (companionId: number) => {
   return `
   WITH product_stats AS (
     SELECT
@@ -79,7 +79,7 @@ FROM product_stats ps, global_stats gs
 ORDER BY ps."rateeId"`;
 };
 
-export const getCompanionDetailsQueryforupdateRate = (companionId: string) => {
+export const getCompanionDetailsQueryforupdateRate = (companionId: number) => {
   return `
      SELECT
   	c.id,

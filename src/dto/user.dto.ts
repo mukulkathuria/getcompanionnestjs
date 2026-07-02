@@ -126,7 +126,7 @@ export interface UserProfileParamsDto {
 }
 
 export interface CompanionDetailsDto {
-  id: string;
+  id: number;
   bookingrate: number;
   bookingrateunit: string;
   description: string[];

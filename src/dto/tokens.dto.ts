@@ -1,5 +1,5 @@
 export type tokenDto = {
-  userId: string;
+  userId: number;
   isCompanion: boolean;
   Images: string[];
   name: string;
@@ -11,11 +11,11 @@ export type tokenDto = {
 };
 
 export interface AccessTokenDto extends tokenDto {
-  reId: string;
+  reId: number;
 }
 
 export interface RefreshTokenDto extends tokenDto {
-  id: string;
+  id: number;
 }
 
 export type refreshTokenObjDto = {
@@ -23,7 +23,7 @@ export type refreshTokenObjDto = {
 };
 
 export type authTokenDto = {
-  id: string;
+  id: number;
   isCompanion: boolean;
   email: string;
   role: string;
@@ -35,6 +35,6 @@ export type authTokenDto = {
 
 export interface requestTokenDto {
   email: string;
-  reId: string;
+  reId: number;
   role: string;
 }

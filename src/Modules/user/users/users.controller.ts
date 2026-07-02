@@ -56,7 +56,7 @@ export class DeleteUsersController {
   @ApiSuccessResponse('User deleted successfully', ApiSuccessResponseDto)
   @ApiUnauthorizedResponse('Unauthorized access', ApiErrorResponseDto)
   @ApiBadRequestResponse('Invalid user ID', ApiErrorResponseDto)
-  async deleteUsersController(@Query() userId: string) {
+  async deleteUsersController(@Query() userId: number) {
     const { error, success, message } =
       await this.userservice.deleteUser(userId);
     if (success) {
@@ -87,7 +87,7 @@ export class DeleteUsersController {
     @UploadedFiles(new FileSizeValidationPipe())
     images: Express.Multer.File[],
   ) {
-    if (!id.id || typeof id.id !== 'string') {
+    if (!id.id || typeof id.id !== 'number') {
       throw new HttpException('Invalid User', 422);
     }
     const { data, error } = await this.userservice.updateUserProfile(
@@ -109,7 +109,7 @@ export class DeleteUsersController {
   @Get(UserprofileInnerRoute.usertocompaniondetails)
   async getCompanionDetails(@Query() companionDetails: companionDetailsQuery) {
     const { error, data } = await this.userservice.getCompanionDetails(
-      companionDetails.companionId,
+      Number(companionDetails.companionId),
     );
     if (data) {
       return {
@@ -184,7 +184,7 @@ export class DeleteUsersController {
     const { success, error } = await this.userservice.updatecompanionrequest(
       userinfo,
       images,
-      id.id,
+      Number(id.id),
     );
     if (success) {
       return {

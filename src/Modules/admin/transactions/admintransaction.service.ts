@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { refundAmountInputDto } from 'src/dto/admin.module.dto';
 import {
   BookingStatusEnum,
@@ -86,7 +87,7 @@ export class AdminTransactionService {
     }
   }
 
-  async getPreviousTransactions(userId: string) {
+  async getPreviousTransactions(userId: number) {
     try {
       const userDetails = await this.prismaService.user.findUnique({
         where: { id: userId },
@@ -200,7 +201,7 @@ export class AdminTransactionService {
         data: {
           status: TransactionStatusEnum.COMPLETED,
           paymentGatewayTxnId: userInput.razorpay_payment_id,
-          metadata: paymentDetailsJson ?? {},
+          metadata: paymentDetailsJson as unknown as Prisma.InputJsonValue ?? {} as Prisma.InputJsonValue,
           paymentMethod: paymentDetailsJson?.paymentMethod ?? 'UNKNOWN',
           settledAt: razorpayPayment.created_at
             ? razorpayPayment.created_at * 1000 // Razorpay returns UNIX seconds
@@ -252,7 +253,7 @@ export class AdminTransactionService {
 
   async onsuccessfullRefundPayment(
     userInput: refundAmountInputDto,
-    userId: string,
+    userId: number,
   ) {
     try {
       const { error } = validatePaymentStatus(userInput);
@@ -292,7 +293,7 @@ export class AdminTransactionService {
             status: TransactionStatusEnum.REFUNDED,
             paymentGatewayTxnId: userInput.razorpay_payment_id,
             transactionType: 'REFUND_TO_USER',
-            metadata: paymentDetailsJson ?? {},
+            metadata: paymentDetailsJson as unknown as Prisma.InputJsonValue ?? {} as Prisma.InputJsonValue,
             txnId: userInput.txnid,
             paymentMethod: paymentDetailsJson.paymentMethod,
             netAmount: Number(razorpayPayment.amount),
@@ -332,7 +333,7 @@ export class AdminTransactionService {
       error_code?: string;
       error_description?: string;
     },
-    userId: string,
+    userId: number,
   ) {
     try {
       const { error } = validateFailurePaymentStatus(userInput);
@@ -366,7 +367,7 @@ export class AdminTransactionService {
 
   async payPendingAmountToCompanion(
     updateparams: updatependingtransactionforcompanionDto,
-    userId: string,
+    userId: number,
   ) {
     try {
       const { error } = validateadmincompaniontransaction(updateparams);
@@ -405,7 +406,7 @@ export class AdminTransactionService {
           isSettled: true,
           fromUserId: userId,
           paymentMethod: (paymentdata && paymentdata.paymentMethod) || 'CASH',
-          metadata: paymentdata || {},
+          metadata: paymentdata as unknown as Prisma.InputJsonValue || {} as Prisma.InputJsonValue,
           settledAt: Date.now(),
         },
       });

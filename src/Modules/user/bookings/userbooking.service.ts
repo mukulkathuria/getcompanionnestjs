@@ -40,7 +40,7 @@ export class UserBookingsService {
   ) {}
   private readonly logger = new Logger(UserBookingsService.name);
 
-  async getAllBookingsForUser(userId: string): Promise<UserBookingReturnDto> {
+  async getAllBookingsForUser(userId: number): Promise<UserBookingReturnDto> {
     try {
       if (!userId) {
         return { error: { status: 422, message: 'userId is required' } };
@@ -59,7 +59,7 @@ export class UserBookingsService {
     }
   }
 
-  async getpreviousBookingsForUser(userId: string, params: pageNoQueryDto) {
+  async getpreviousBookingsForUser(userId: number, params: pageNoQueryDto) {
     try {
       if (!userId) {
         return { error: { status: 422, message: 'userId is required' } };
@@ -244,7 +244,7 @@ export class UserBookingsService {
     }
   }
 
-  async checkBookedSlotsforCompanion(companionId: string) {
+  async checkBookedSlotsforCompanion(companionId: number) {
     try {
       if (!companionId) {
         return { error: { status: 422, message: 'companionid is required' } };
@@ -325,7 +325,7 @@ export class UserBookingsService {
     }
   }
 
-  async cancelBooking(input: cancelBookingInputDto, userId: string) {
+  async cancelBooking(input: cancelBookingInputDto, userId: number) {
     try {
       const { error } = checkValidCancelBookngInputs(input, userId);
       if (error) {
@@ -511,7 +511,7 @@ export class UserBookingsService {
     }
   }
 
-  async getUserBookingDetails(bookingid: string) {
+  async getUserBookingDetails(bookingid: number) {
     try {
       const booking = Number(bookingid);
       if (isNaN(booking) || !bookingid) {
@@ -590,7 +590,7 @@ export class UserBookingsService {
     }
   }
 
-  async getBookingforAllService(bookingid: string) {
+  async getBookingforAllService(bookingid: number) {
     try {
       const booking = Number(bookingid);
       if (isNaN(booking) || !bookingid) {
@@ -624,7 +624,7 @@ export class UserBookingsService {
     }
   }
 
-  async getRatingforUser(userId: string) {
+  async getRatingforUser(userId: number) {
     try {
       const { getAverageRatingRawQuery } =
         await import('../../../utils/booking.utils');
@@ -647,7 +647,7 @@ export class UserBookingsService {
   }
 
   async getUpcomingBookingsForCompanion(
-    userId: string,
+    userId: number,
     params: pageNoQueryDto,
   ) {
     try {
@@ -724,7 +724,7 @@ export class UserBookingsService {
     }
   }
 
-  async getUpcomingBookingsForUser(userId: string) {
+  async getUpcomingBookingsForUser(userId: number) {
     try {
       if (!userId) {
         return { error: { status: 422, message: 'userId is required' } };
@@ -775,7 +775,7 @@ export class UserBookingsService {
   }
 
   async getpreviousBookingsForCompanion(
-    userId: string,
+    userId: number,
     params: pageNoQueryDto,
   ) {
     try {
@@ -851,7 +851,7 @@ export class UserBookingsService {
     }
   }
 
-  async getLiveLocationforBooking(bookingid: number, userid: string) {
+  async getLiveLocationforBooking(bookingid: number, userid: number) {
     try {
       if (!bookingid || typeof bookingid !== 'number') {
         return { error: { status: 422, message: 'Booking Id is required' } };
@@ -898,7 +898,7 @@ export class UserBookingsService {
   async updateLiveLocation(
     bookingid: number,
     bodyParams: UserlocationProfileDto,
-    userid: string,
+    userid: number,
   ) {
     try {
       if (!bookingid || typeof bookingid !== 'number') {

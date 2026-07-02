@@ -1,12 +1,12 @@
 export interface createIssueInputDto {
   explanation: string;
   subject: string;
-  userid: string;
+  userid: Number;
 }
 
 export interface addCommentonIssueInputDto {
-  userId: string;
-  issueId: string;
+  userId: number;
+  issueId: number;
   comment: string;
 }
 export interface getIssueDetailsQueryDto {

@@ -6,7 +6,7 @@ export interface ChatRoomReturnDto extends errorDto {
 }
 
 export interface ChatRoomIdDto {
-    chatroomid: string
+    chatroomid: number
 }
 
 export interface UserChatMessagesReturnDto extends errorDto{
