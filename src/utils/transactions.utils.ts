@@ -114,6 +114,7 @@ export const makePaymentdetailsjson = (
   const data: paymentdetailsDto = {
     paymentId: razorpayPayment.id,
     paymentMethod: method,
+    orderId: razorpayPayment.order_id,
     ...methodDetails,
   };
 

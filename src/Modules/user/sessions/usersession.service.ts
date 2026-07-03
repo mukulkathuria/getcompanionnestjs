@@ -54,11 +54,12 @@ export class UserSessionService {
           bookingid: sessionDetails.bookingid,
           sessionStartTime: new Date().getTime(),
           sessionEndTime: checkBookingandOTP.bookingend,
+          sessionstartedAt: new Date().getTime(),
           isExtended: false,
         },
       });
       return { success: true };
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -134,7 +135,7 @@ export class UserSessionService {
               }, //bookingend: Date.now()
             },
           },
-          sessionEndTime: Date.now(),
+          sessionendedAt: Date.now(),
         },
       });
       const user = userdata.Bookings.User.find((l) => !l.isCompanion);
@@ -166,7 +167,7 @@ export class UserSessionService {
           this.logger.log(`Email sent to: ${user.email}`);
         });
       return { success: true };
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -277,7 +278,7 @@ export class UserSessionService {
         },
       });
       return { success: true };
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }
@@ -388,7 +389,7 @@ export class UserSessionService {
         },
       });
       return { success: true };
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.debug(error?.message || error);
       return { error: { status: 500, message: 'Server error' } };
     }

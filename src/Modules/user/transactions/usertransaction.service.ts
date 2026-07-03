@@ -26,10 +26,6 @@ export class UserTransactionService {
   ) {}
   private readonly logger = new Logger(UserTransactionService.name);
 
-  // ---------------------------------------------------------------------------
-  // Queries
-  // ---------------------------------------------------------------------------
-
   async getAllTransactionForBooking(
     bookingId: number,
   ): Promise<BookingTransactionReturnDto> {
@@ -59,15 +55,6 @@ export class UserTransactionService {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Step 1 — Hash / token generation (kept for API compatibility)
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Returns a new internal txnId.  In the Razorpay flow the "hash" is no
-   * longer a client-side concern; this method remains for API compatibility
-   * and can be used to pre-generate a txnId before calling initiatePayment.
-   */
   async getHashforTransaction(userInput: getHashInputDto) {
     try {
       const { error } = validatehashGeneration(userInput);
@@ -85,15 +72,6 @@ export class UserTransactionService {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Step 2 — Create Razorpay order + pending transaction record
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Creates a Razorpay order and a corresponding UNDERPROCESSED transaction
-   * in our DB.  Returns the Razorpay order details the UI needs to open the
-   * checkout (orderId, amount, currency, keyId, prefill).
-   */
   async initiatePayment(userInput: initiatePaymentInputDto) {
     try {
       const { error } = validatePaymentInitiation(userInput);
@@ -115,7 +93,6 @@ export class UserTransactionService {
         return { error: { status: 422, message: 'Server Error' } };
       }
 
-      // Resolve the user by email to get the DB id
       const userDetails = await this.prismaService.user.findUnique({
         where: { email: userInput.email },
       });
@@ -124,20 +101,22 @@ export class UserTransactionService {
         return { error: { status: 404, message: 'User not found' } };
       }
 
-      // Persist the pending transaction so we can update it on callback
+      const bookingdata = await this.prismaService.booking.findUnique({
+        where: { id: userInput.bookingId },
+      });
       await this.prismaService.transactionLedger.create({
         data: {
           txnId: values.txnid,
           FromPartyUser: { connect: { id: userDetails.id } },
           Booking: { connect: { id: userInput.bookingId } },
-          netAmount: Number(userInput.amount),
-          grossAmount: Number(userInput.amount),
-          taxAmount: Number(userInput.amount) * 0.05,
+          netAmount: Number(bookingdata.finalRate),
+          grossAmount: Number(bookingdata.finalRate),
+          taxAmount: Number(bookingdata.finalRate) * 0.05,
+          platformFee: Number(bookingdata.finalRate) * 0.1,
           status: TransactionStatusEnum.UNDERPROCESSED,
           toParty: 'ADMIN',
           fromParty: 'USER',
           transactionType: 'BOOKING_PAYMENT',
-          // Will be replaced with the real Razorpay payment id on success callback
           paymentGatewayTxnId: values.orderId,
           paymentMethod: 'PENDING',
           settledAt: new Date().getTime(),
@@ -150,28 +129,10 @@ export class UserTransactionService {
       return { error: { status: 500, message: 'Server error' } };
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // Step 3a — Success callback: verify signature → fetch details → update DB
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Handles the Razorpay success callback for a booking payment.
-   *
-   * Flow:
-   *  1. Validate payload fields.
-   *  2. Verify HMAC-SHA256 signature — reject immediately if invalid.
-   *  3. Look up the pending transaction by txnid.
-   *  4. Fetch full payment details from Razorpay.
-   *  5. Map to our DB shape and update both TransactionLedger + Booking.
-   */
   async onsuccessfullPayment(userInput: RazorpayVerifyPaymentDto) {
     try {
-      // 1. Field validation
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
-
-      // 2. Signature verification — critical security step
       const isValidSignature =
         this.paymentService.verifyPaymentSignature(userInput);
       if (!isValidSignature) {
@@ -180,8 +141,6 @@ export class UserTransactionService {
         );
         return { error: { status: 403, message: 'Invalid payment signature' } };
       }
-
-      // 3. Look up pending transaction
       const previousTransaction =
         await this.prismaService.transactionLedger.findUnique({
           where: { txnId: userInput.txnid },
@@ -199,7 +158,6 @@ export class UserTransactionService {
         return { error: { status: 422, message: 'Invalid transaction' } };
       }
 
-      // 4. Fetch authoritative payment details from Razorpay
       const { data: razorpayPayment, error: fetchError } =
         await this.paymentService.getPaymentDetails(
           userInput.razorpay_payment_id,
@@ -217,8 +175,6 @@ export class UserTransactionService {
           },
         };
       }
-
-      // 5. Map to DB shape
       const { data: paymentDetailsJson } =
         makePaymentdetailsjson(razorpayPayment);
 
@@ -227,7 +183,8 @@ export class UserTransactionService {
         data: {
           status: TransactionStatusEnum.COMPLETED,
           paymentGatewayTxnId: userInput.razorpay_payment_id,
-          metadata: paymentDetailsJson as unknown as Prisma.InputJsonValue ?? {},
+          metadata:
+            (paymentDetailsJson as unknown as Prisma.InputJsonValue) ?? {},
           paymentMethod: paymentDetailsJson?.paymentMethod ?? 'UNKNOWN',
           paymentGatewayResponse: razorpayPayment as { [key: string]: any },
           settledAt: razorpayPayment.created_at
@@ -248,15 +205,6 @@ export class UserTransactionService {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Step 3b — Failure callback: mark transaction as declined
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Handles the Razorpay failure callback for a booking payment.
-   * On failure Razorpay returns the order_id; we use our txnid (stored as
-   * the order receipt) to look up and decline the pending transaction.
-   */
   async onFailedPayment(
     userInput: RazorpayVerifyPaymentDto & {
       error_code?: string;
@@ -293,21 +241,10 @@ export class UserTransactionService {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Extension payment — success
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Handles Razorpay success callback for a booking extension payment.
-   * Same signature-verification + fetch-details pattern as the base flow.
-   */
   async onsuccessfullPaymentofExtension(userInput: RazorpayVerifyPaymentDto) {
     try {
-      // 1. Field validation
       const { error } = validatePaymentStatus(userInput);
       if (error) return { error };
-
-      // 2. Signature verification
       const isValidSignature =
         this.paymentService.verifyPaymentSignature(userInput);
       if (!isValidSignature) {
@@ -316,8 +253,6 @@ export class UserTransactionService {
         );
         return { error: { status: 403, message: 'Invalid payment signature' } };
       }
-
-      // 3. Look up pending transaction + booking + sessions
       const previousTransaction =
         await this.prismaService.transactionLedger.findUnique({
           where: { txnId: userInput.txnid },
@@ -339,8 +274,6 @@ export class UserTransactionService {
           error: { status: 422, message: 'Extension record not found' },
         };
       }
-
-      // 4. Fetch authoritative payment details from Razorpay
       const { data: razorpayPayment, error: fetchError } =
         await this.paymentService.getPaymentDetails(
           userInput.razorpay_payment_id,
@@ -358,12 +291,9 @@ export class UserTransactionService {
           },
         };
       }
-
-      // 5. Map to DB shape
       const { data: paymentDetailsJson } =
         makePaymentdetailsjson(razorpayPayment);
 
-      // Amount paid via Razorpay is in paise — convert back to INR for the DB
       const amountPaidInRupees = razorpayPayment.amount / 100;
 
       await this.prismaService.transactionLedger.update({
@@ -371,7 +301,8 @@ export class UserTransactionService {
         data: {
           status: TransactionStatusEnum.COMPLETED,
           paymentGatewayTxnId: userInput.razorpay_payment_id,
-          metadata: paymentDetailsJson as unknown as Prisma.InputJsonValue ?? {},
+          metadata:
+            (paymentDetailsJson as unknown as Prisma.InputJsonValue) ?? {},
           paymentMethod: paymentDetailsJson?.paymentMethod ?? 'UNKNOWN',
           paymentGatewayResponse: razorpayPayment as { [key: string]: any },
           settledAt: razorpayPayment.created_at
@@ -415,10 +346,6 @@ export class UserTransactionService {
       return { error: { status: 500, message: 'Server error' } };
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // Extension payment — failure
-  // ---------------------------------------------------------------------------
 
   async onFailedPaymentofExtension(
     userInput: RazorpayVerifyPaymentDto & {

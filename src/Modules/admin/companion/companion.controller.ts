@@ -37,7 +37,6 @@ import { companionDetailsQuery } from 'src/dto/companionfind.dto';
 import { ApiControllerTag } from 'src/swagger/decorators';
 import { BigIntSerializerInterceptor } from 'src/interceptors/bigint-serializer.interceptor';
 
-
 @ApiControllerTag('admin-companion')
 @Controller(AdminUserProfileRoute)
 @UseInterceptors(BigIntSerializerInterceptor)
@@ -206,7 +205,7 @@ export class CompanionController {
     }
     const { data, error } =
       await this.companionservice.getCompanionDetailsforupdateRate(
-        queryparams.companionId,
+        Number(queryparams.companionId),
       );
     if (data || data === null) {
       return {
@@ -266,7 +265,10 @@ export class CompanionController {
       throw new HttpException('Invalid User', 422);
     }
     const { success, error } =
-      await this.companionservice.updateCompanionBasePrice(inputs, Number(id.id));
+      await this.companionservice.updateCompanionBasePrice(
+        inputs,
+        Number(id.id),
+      );
     if (success) {
       return {
         success,

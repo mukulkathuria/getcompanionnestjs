@@ -60,7 +60,7 @@ export const getAverageRatingRawQuery = (companionId: number) => {
          ORDER BY r2."createdAt" DESC
          LIMIT 1) AS last_rating
     FROM rating r
-    WHERE r."rateeId" = '${companionId}'
+    WHERE r."rateeId" = ${companionId}
     GROUP BY r."rateeId"
 ),
 global_stats AS (
@@ -129,7 +129,7 @@ export const getCompanionDetailsQueryforupdateRate = (companionId: number) => {
     LEFT JOIN "Companion" comp ON comp."userid" = c."id"
     LEFT JOIN "location" l ON l."userid" = comp."id"
 	  LEFT JOIN "userpaymentmethods" pay ON c."id" = pay."userid"
-    WHERE c.id = '${companionId}' AND
+    WHERE c.id = ${companionId} AND
     (b.bookingstatus = 'ACCEPTED' OR b.bookingstatus = 'COMPLETED')
     GROUP BY c."id", l."city", l."state",comp."bookingrate";
   `;

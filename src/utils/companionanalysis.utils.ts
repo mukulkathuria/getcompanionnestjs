@@ -1,7 +1,7 @@
 export function getearningofCompanionQuery(companionId: number) {
-    return `
+  return `
         WITH companion_bookings AS (
-        SELECT 
+        SELECT
             b.*,
             u.firstname,
             u.lastname,
@@ -14,13 +14,13 @@ export function getearningofCompanionQuery(companionId: number) {
             SELECT 1 FROM "Companion" c WHERE c.userid = '${companionId}'
         )
         AND b.bookingstatus IN ('COMPLETED', 'ACCEPTED', 'UNDERREVIEW', 'TRANSACTIONPENDING', 'UNDEREXTENSION')
-        AND u.id != '${companionId}' -- This gets the user (customer), not the companion
+        AND u.id != ${companionId} -- This gets the user (customer), not the companion
         ),
 
         total_bookings_hours AS (
-        SELECT 
+        SELECT
             COALESCE(SUM(
-            CASE 
+            CASE
                 WHEN companion_bookings."bookingdurationUnit" = 'HOUR' THEN (companion_bookings."bookingend" / 1000 - companion_bookings."bookingstart" / 1000) / 3600
                 WHEN companion_bookings."bookingdurationUnit" = 'MINUTE' THEN (companion_bookings."bookingend" / 1000 - companion_bookings."bookingstart" / 1000 / 3600) / 60.0
                 ELSE 0
@@ -30,8 +30,8 @@ export function getearningofCompanionQuery(companionId: number) {
         ),
 
         average_rating AS (
-        SELECT 
-            CASE 
+        SELECT
+            CASE
             WHEN COUNT(r.ratings) > 0 THEN
                 -- Bayesian average: (v * R + m * C) / (v + m)
                 -- where v = number of votes, R = average rating, m = minimum votes needed (5), C = mean rating across platform (3.5)
@@ -43,26 +43,26 @@ export function getearningofCompanionQuery(companionId: number) {
         ),
 
         total_earnings AS (
-        SELECT 
+        SELECT
             COALESCE(SUM(tl."netAmount"), 0) as total_earning
         FROM "TransactionLedger" tl
-        WHERE tl."toCompanionId" = '${companionId}' 
+        WHERE tl."toCompanionId" = ${companionId}
             AND tl."transactionType" = 'PAYMENT_TO_COMPANION'
             AND tl.status = 'COMPLETED'
         ),
 
         last_week_earnings AS (
-        SELECT 
+        SELECT
             COALESCE(SUM(tl."netAmount"), 0) as last_week_earning
         FROM "TransactionLedger" tl
-        WHERE tl."toCompanionId" = '${companionId}' 
+        WHERE tl."toCompanionId" = ${companionId}
             AND tl."transactionType" = 'PAYMENT_TO_COMPANION'
             AND tl.status = 'COMPLETED'
             AND tl."createdAt" >= NOW() - INTERVAL '7 days'
         ),
 
         daily_hours_last_week AS (
-        SELECT 
+        SELECT
             json_agg(
             json_build_object(
                 'day', day_name,
@@ -70,7 +70,7 @@ export function getearningofCompanionQuery(companionId: number) {
             ) ORDER BY day_order
             ) as daily_hours
         FROM (
-            SELECT 
+            SELECT
             CASE EXTRACT(DOW FROM date_series)
                 WHEN 0 THEN 'Sunday'
                 WHEN 1 THEN 'Monday'
@@ -82,7 +82,7 @@ export function getearningofCompanionQuery(companionId: number) {
             END as day_name,
             EXTRACT(DOW FROM date_series) as day_order,
             SUM(
-                CASE 
+                CASE
                 WHEN cb."bookingdurationUnit" = 'HOUR' THEN cb."bookingduration"
                 WHEN cb."bookingdurationUnit" = 'MINUTE' THEN cb."bookingduration" / 60.0
                 ELSE 0
@@ -101,7 +101,7 @@ export function getearningofCompanionQuery(companionId: number) {
         ),
 
         last_month_earnings AS (
-        SELECT 
+        SELECT
             COALESCE(SUM(tl."netAmount"), 0) as last_month_earning
         FROM "TransactionLedger" tl
         WHERE tl."toCompanionId" = '${companionId}'
@@ -111,7 +111,7 @@ export function getearningofCompanionQuery(companionId: number) {
         ),
 
         last_100_earnings AS (
-        SELECT 
+        SELECT
             COALESCE(SUM(recent_transactions."netAmount"), 0) as last_100_earning
         FROM (
             SELECT tl."netAmount"
@@ -125,7 +125,7 @@ export function getearningofCompanionQuery(companionId: number) {
         ),
 
         recent_earnings AS (
-        SELECT 
+        SELECT
             COALESCE(
             json_agg(
                 json_build_object(
@@ -147,11 +147,11 @@ export function getearningofCompanionQuery(companionId: number) {
                 'booking_duration', recent_data.bookingduration,
                 'booking_duration_unit', recent_data."bookingdurationUnit"
                 ) ORDER BY recent_data."createdAt" DESC
-            ), 
+            ),
             '[]'::json
             ) as recent_earnings_data
         FROM (
-            SELECT DISTINCT ON (tl.id) 
+            SELECT DISTINCT ON (tl.id)
             tl."netAmount",
             tl."txnId",
             tl."taxAmount",
@@ -176,24 +176,24 @@ export function getearningofCompanionQuery(companionId: number) {
         ),
 
         pending_amount AS (
-        SELECT 
+        SELECT
             COALESCE(SUM(tl."netAmount"), 0) as pending_amount
         FROM "TransactionLedger" tl
-        WHERE tl."toCompanionId" = '${companionId}' 
+        WHERE tl."toCompanionId" = '${companionId}'
             AND tl."transactionType" = 'PAYMENT_TO_COMPANION'
             AND tl.status IN ('UNDERPROCESSED', 'COMPLETED')
             AND tl."isSettled" = false
         ),
 
         penalty_charges AS (
-        SELECT 
+        SELECT
             COALESCE(SUM(tl."penaltyAmount"), 0) as total_penalty
         FROM "TransactionLedger" tl
-        WHERE tl."toCompanionId" = '${companionId}' 
+        WHERE tl."toCompanionId" = ${companionId}
             AND tl."transactionType" IN ('CANCELLATION_PENALTY', 'REJECTED_PENALTY')
         )
 
-        SELECT 
+        SELECT
         tbh.total_hours as total_booking_hours,
         ROUND(ar.bayesian_avg_rating::numeric, 2) as average_rating,
         te.total_earning,
@@ -214,17 +214,17 @@ export function getearningofCompanionQuery(companionId: number) {
             recent_earnings re,
             pending_amount pa,
             penalty_charges pc;
-`
+`;
 }
 
 export function getCompanionDashboardQuery(companionId: number) {
-    return `
+  return `
        SELECT
     -- 1. This Month Earning
     COALESCE((
         SELECT SUM("netAmount")
         FROM "TransactionLedger"
-        WHERE "toCompanionId" = '${companionId}'
+        WHERE "toCompanionId" = ${companionId}
         AND "transactionType" = 'PAYMENT_TO_COMPANION'
         AND "status" = 'COMPLETED'
         AND "createdAt" >= DATE_TRUNC('month', NOW())
@@ -234,7 +234,7 @@ export function getCompanionDashboardQuery(companionId: number) {
     COALESCE((
         SELECT SUM("netAmount")
         FROM "TransactionLedger"
-        WHERE "toCompanionId" = '${companionId}'
+        WHERE "toCompanionId" = ${companionId}
         AND "isSettled" = false
         AND "status" IN ('COMPLETED', 'UNDERPROCESSED')
     ), 0) AS "totalPendingBalance",
@@ -242,19 +242,19 @@ export function getCompanionDashboardQuery(companionId: number) {
     -- 3. Bayesian Average Rating (m=5)
     COALESCE((
         WITH user_stats AS (
-        SELECT COUNT(*) as v, AVG("ratings") as R 
-        FROM "rating" 
-        WHERE "rateeId" = '${companionId}'
+        SELECT COUNT(*) as v, AVG("ratings") as R
+        FROM "rating"
+        WHERE "rateeId" = ${companionId}
         ),
         global_stats AS (
-        SELECT AVG("ratings") as C 
+        SELECT AVG("ratings") as C
         FROM "rating"
         )
-        SELECT 
-        CASE 
+        SELECT
+        CASE
             WHEN user_stats.v > 0 THEN
             ((user_stats.v * user_stats.R) + (5 * COALESCE(global_stats.C, 0))) / (user_stats.v + 5)
-            ELSE 0 
+            ELSE 0
         END
         FROM user_stats, global_stats
     ), 0) AS "rating",
@@ -264,7 +264,7 @@ export function getCompanionDashboardQuery(companionId: number) {
         SELECT COUNT(DISTINCT b.id)::int
         FROM "Booking" b
         JOIN "_BookingToUser" btu ON b.id = btu."A"
-        WHERE btu."B" = '${companionId}'
+        WHERE btu."B" = ${companionId}
         AND b."bookingstatus" = 'COMPLETED'
     ) AS "totalCompletedBookings",
 
@@ -273,13 +273,13 @@ export function getCompanionDashboardQuery(companionId: number) {
         SELECT COUNT(DISTINCT b.id)::int
         FROM "Booking" b
         JOIN "_BookingToUser" btu ON b.id = btu."A"
-        WHERE btu."B" = '${companionId}'
+        WHERE btu."B" = ${companionId}
         AND b."bookingstatus" IN ('ACCEPTED')
         AND b."bookingstart" > (EXTRACT(EPOCH FROM NOW()) * 1000)::bigint
     ) AS "totalUpcomingBookings",
 
     (
-    SELECT json_build_object( 
+    SELECT json_build_object(
         'id', c.id,
         'firstname', c.firstname,
         'lastname', c.lastname,
@@ -288,13 +288,13 @@ export function getCompanionDashboardQuery(companionId: number) {
         ) as "companionDetails" FROM "User" c
         INNER JOIN "Companion" u ON c.id = u."userid"
         INNER JOIN "CompanionAvailability" ca ON u.id = ca."companionId"
-        WHERE c.id = '${companionId}'
+        WHERE c.id = ${companionId}
         ) AS "companionDetails",
 
     COALESCE((
         SELECT json_agg(row_to_json(upcoming_data))
         FROM (
-        SELECT 
+        SELECT
             u."firstname" || ' ' || u."lastname" AS "name",
             u."Images" AS "images",
             u.age AS "age",
@@ -302,21 +302,21 @@ export function getCompanionDashboardQuery(companionId: number) {
             b."bookingstart" AS "startTime",
             b."bookingend" AS "endTime"
         FROM "Booking" b
-        JOIN "_BookingToUser" companion_link ON b.id = companion_link."A" AND companion_link."B" = '${companionId}'
-        JOIN "_BookingToUser" client_link ON b.id = client_link."A" AND client_link."B" != '${companionId}'
+        JOIN "_BookingToUser" companion_link ON b.id = companion_link."A" AND companion_link."B" = ${companionId}
+        JOIN "_BookingToUser" client_link ON b.id = client_link."A" AND client_link."B" != ${companionId}
         JOIN "User" u ON client_link."B" = u."id"
-        WHERE 
+        WHERE
             b."bookingstatus" IN ('ACCEPTED')
             AND b."bookingstart" > (EXTRACT(EPOCH FROM NOW()) * 1000)::bigint
         ORDER BY b."bookingstart" ASC
         LIMIT 5
         ) upcoming_data
     ), '[]'::json) AS "upcomingBookingsList",
-    
+
     COALESCE((
         SELECT json_agg(row_to_json(upcoming_data))
         FROM (
-        SELECT 
+        SELECT
             u."firstname" || ' ' || u."lastname" AS "name",
             u."Images" AS "images",
             u.age AS "age",
@@ -324,10 +324,10 @@ export function getCompanionDashboardQuery(companionId: number) {
             b."bookingstart" AS "startTime",
             b."bookingend" AS "endTime"
         FROM "Booking" b
-        JOIN "_BookingToUser" companion_link ON b.id = companion_link."A" AND companion_link."B" = '${companionId}'
-        JOIN "_BookingToUser" client_link ON b.id = client_link."A" AND client_link."B" != '${companionId}'
+        JOIN "_BookingToUser" companion_link ON b.id = companion_link."A" AND companion_link."B" = ${companionId}
+        JOIN "_BookingToUser" client_link ON b.id = client_link."A" AND client_link."B" != ${companionId}
         JOIN "User" u ON client_link."B" = u."id"
-        WHERE 
+        WHERE
             b."bookingstatus" IN ('UNDERREVIEW')
             AND b."bookingstart" > (EXTRACT(EPOCH FROM NOW()) * 1000)::bigint
         ORDER BY b."bookingstart" ASC
